@@ -12,11 +12,18 @@ public class TableInfoTests
     {
         using var dbContext = new TestContext(sqlType);
         var context = BulkContext.Create(dbContext);
-        var entities = new List<TrayType> { new TrayType() };
-        var info = TableInfo.CreateInstance(context, null, entities, OperationType.Insert, new BulkConfig
+        var entities = new List<TrayType>
         {
-            SetOutputIdentity = true
-        });
+            new TrayType()
+        };
+        var info = TableInfo.CreateInstance(context,
+            null,
+            entities,
+            OperationType.Insert,
+            new BulkConfig
+            {
+                SetOutputIdentity = true
+            });
 
         Assert.NotNull(info);
     }

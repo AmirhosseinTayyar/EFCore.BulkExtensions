@@ -1,9 +1,11 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -52,8 +54,11 @@ public class EFCoreBatchTestAsync
     public async Task BatchUpdateAsync_correctly_specifies_AnsiString_type_on_the_sql_parameter()
     {
         var dbCommandInterceptor = new TestDbCommandInterceptor();
-        var interceptors = new[] { dbCommandInterceptor };
-        
+        var interceptors = new[]
+        {
+            dbCommandInterceptor
+        };
+
         var options = new ContextUtil(SqlType.SqlServer).GetOptions<TestContext>(interceptors);
         using var testContext = new TestContext(options);
 
@@ -63,22 +68,27 @@ public class EFCoreBatchTestAsync
 #pragma warning disable
         _ = await testContext.Parents
             .Where(parent => parent.PhoneNumber == oldPhoneNumber)
-            .BatchUpdateAsync(parent => new Parent { PhoneNumber = newPhoneNumber });
-            //.ConfigureAwait(false);
+            .BatchUpdateAsync(parent => new Parent
+            {
+                PhoneNumber = newPhoneNumber
+            });
+        //.ConfigureAwait(false);
 
         var executedCommand = dbCommandInterceptor.ExecutedNonQueryCommands.Last();
         Assert.Equal(2, executedCommand.DbParameters.Count);
 
-        var oldPhoneNumberParameter = (Microsoft.Data.SqlClient.SqlParameter)executedCommand.DbParameters.Single(param => param.ParameterName == "@__oldPhoneNumber_0");
-        Assert.Equal(System.Data.DbType.AnsiString, oldPhoneNumberParameter.DbType);
-        Assert.Equal(System.Data.SqlDbType.VarChar, oldPhoneNumberParameter.SqlDbType);
+        var oldPhoneNumberParameter =
+            (SqlParameter) executedCommand.DbParameters.Single(param => param.ParameterName == "@__oldPhoneNumber_0");
+        Assert.Equal(DbType.AnsiString, oldPhoneNumberParameter.DbType);
+        Assert.Equal(SqlDbType.VarChar, oldPhoneNumberParameter.SqlDbType);
 
-        var newPhoneNumberParameter = (Microsoft.Data.SqlClient.SqlParameter)executedCommand.DbParameters.Single(param => param.ParameterName == "@param_1");
-        Assert.Equal(System.Data.DbType.AnsiString, newPhoneNumberParameter.DbType);
-        Assert.Equal(System.Data.SqlDbType.VarChar, newPhoneNumberParameter.SqlDbType);
+        var newPhoneNumberParameter =
+            (SqlParameter) executedCommand.DbParameters.Single(param => param.ParameterName == "@param_1");
+        Assert.Equal(DbType.AnsiString, newPhoneNumberParameter.DbType);
+        Assert.Equal(SqlDbType.VarChar, newPhoneNumberParameter.SqlDbType);
 
         var expectedSql =
-@"UPDATE p SET  [p].[PhoneNumber] = @param_1 
+            @"UPDATE p SET  [p].[PhoneNumber] = @param_1 
 FROM [Parent] AS [p]
 WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
 
@@ -88,7 +98,9 @@ WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
     internal async Task RunDeleteAllAsync(SqlType dbServer)
     {
         using var context = new TestContext(dbServer);
-        await context.Items.AddAsync(new Item { }); // used for initial add so that after RESEED it starts from 1, not 0
+        await context.Items.AddAsync(new Item
+        {
+        }); // used for initial add so that after RESEED it starts from 1, not 0
         await context.SaveChangesAsync();
 
         await context.Items.BatchDeleteAsync();
@@ -140,23 +152,41 @@ WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
             query = query.Where(a => a.ItemId <= 500 && a.Price >= price);
         }
 #pragma warning disable
-        await query.BatchUpdateAsync(new Item { Description = "Updated" }/*, updateColumns*/);
+        await query.BatchUpdateAsync(new Item
+        {
+            Description = "Updated"
+        } /*, updateColumns*/);
 #pragma warning disable
-        await query.BatchUpdateAsync(a => new Item { Name = a.Name + " Concatenated", Quantity = a.Quantity + 100, Price = null }); // example of BatchUpdate value Increment/Decrement
+        await query.BatchUpdateAsync(a => new Item
+        {
+            Name = a.Name + " Concatenated",
+            Quantity = a.Quantity + 100,
+            Price = null
+        }); // example of BatchUpdate value Increment/Decrement
 
         if (dbServer == SqlType.SqlServer) // Sqlite currently does Not support Take(): LIMIT
         {
             query = context.Items.Where(a => a.ItemId <= 500 && a.Price == null);
-            await query.Take(1).BatchUpdateAsync(a => new Item { Name = a.Name + " TOP(1)", Quantity = a.Quantity + 100 }); // example of BatchUpdate with TOP(1)
-
+            await query.Take(1)
+                .BatchUpdateAsync(a => new Item
+                {
+                    Name = a.Name + " TOP(1)",
+                    Quantity = a.Quantity + 100
+                }); // example of BatchUpdate with TOP(1)
         }
 
-        var list = new List<string>() { "Updated" };
+        var list = new List<string>()
+        {
+            "Updated"
+        };
         var updatedCount = await context.Set<Item>()
-                                        .TagWith("From: someCallSite in someClassName") // To test parsing Sql with Tag leading comment
-                                        .Where(a => list.Contains(a.Description ?? ""))
-                                        .BatchUpdateAsync(a => new Item() { TimeUpdated = DateTime.Now })
-                                        .ConfigureAwait(false);
+            .TagWith("From: someCallSite in someClassName") // To test parsing Sql with Tag leading comment
+            .Where(a => list.Contains(a.Description ?? ""))
+            .BatchUpdateAsync(a => new Item()
+            {
+                TimeUpdated = DateTime.Now
+            })
+            .ConfigureAwait(false);
 
         if (dbServer == SqlType.SqlServer) // Sqlite Not supported
         {
@@ -164,7 +194,9 @@ WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
             await context.Parents.Where(parent => parent.ParentId == 1)
                 .BatchUpdateAsync(parent => new Parent
                 {
-                    Description = parent.Children.Where(child => child.IsEnabled && child.Value == newValue).Sum(child => child.Value).ToString(),
+                    Description = parent.Children.Where(child => child.IsEnabled && child.Value == newValue)
+                        .Sum(child => child.Value)
+                        .ToString(),
                     Value = newValue
                 })
                 .ConfigureAwait(false);
@@ -189,11 +221,21 @@ WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
 
         await context.TruncateAsync<Setting>();
 
-        await context.Settings.AddAsync(new Setting() { Settings = SettingsEnum.Sett1, Value = "Val1" }).ConfigureAwait(false);
+        await context.Settings.AddAsync(new Setting()
+            {
+                Settings = SettingsEnum.Sett1,
+                Value = "Val1"
+            })
+            .ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
         // can work with explicit value: .Where(x => x.Settings == SettingsEnum.Sett1) or if named Parameter used then it has to be named (settings) same as Property (Settings) - Case not relevant, it is CaseInsensitive
-        await context.Settings.Where(x => x.Settings == settings).BatchUpdateAsync(x => new Setting { Value = value.ToString() }).ConfigureAwait(false);
+        await context.Settings.Where(x => x.Settings == settings)
+            .BatchUpdateAsync(x => new Setting
+            {
+                Value = value.ToString()
+            })
+            .ConfigureAwait(false);
 
         await context.TruncateAsync<Setting>();
     }
@@ -202,7 +244,19 @@ WHERE [p].[PhoneNumber] = @__oldPhoneNumber_0";
     {
         using var context = new TestContext(dbServer);
 
-        await context.Files.BatchUpdateAsync(new File { DataBytes = null }, updateColumns: new List<string> { nameof(File.DataBytes) }).ConfigureAwait(false);
-        await context.Files.BatchUpdateAsync(a => new File { DataBytes = null }).ConfigureAwait(false);
+        await context.Files.BatchUpdateAsync(new File
+                {
+                    DataBytes = null
+                },
+                updateColumns: new List<string>
+                {
+                    nameof(File.DataBytes)
+                })
+            .ConfigureAwait(false);
+        await context.Files.BatchUpdateAsync(a => new File
+            {
+                DataBytes = null
+            })
+            .ConfigureAwait(false);
     }
 }

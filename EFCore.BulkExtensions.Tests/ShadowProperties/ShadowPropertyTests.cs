@@ -1,8 +1,8 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests.ShadowProperties;
@@ -13,16 +13,19 @@ public class ShadowPropertyTests
     [InlineData(SqlType.SqlServer)]
     public void BulkInsertOrUpdate_EntityWithShadowProperties_SavesToDatabase(SqlType dbServer)
     {
-        var options = new ContextUtil(dbServer).GetOptions<SpDbContext>(databaseName: $"{nameof(EFCoreBulkTest)}_ShadowProperties");
+        var options =
+            new ContextUtil(dbServer).GetOptions<SpDbContext>(
+                databaseName: $"{nameof(EFCoreBulkTest)}_ShadowProperties");
         using var db = new SpDbContext(options);
 
-        db.BulkInsertOrUpdate(GetTestData(db, true, 10000).ToList(), new BulkConfig
-        {
-            EnableShadowProperties = true
-        });
+        db.BulkInsertOrUpdate(GetTestData(db, true, 10000).ToList(),
+            new BulkConfig
+            {
+                EnableShadowProperties = true
+            });
 
         var modelFromDb = db.SpModels.OrderByDescending(y => y.Id).First();
-        Assert.Equal((long)10, db.Entry(modelFromDb).Property(SpModel.SpLong).CurrentValue);
+        Assert.Equal((long) 10, db.Entry(modelFromDb).Property(SpModel.SpLong).CurrentValue);
         Assert.Null(db.Entry(modelFromDb).Property(SpModel.SpNullableLong).CurrentValue);
 
         Assert.Equal(new DateTime(2021, 02, 14), db.Entry(modelFromDb).Property(SpModel.SpDateTime).CurrentValue);
@@ -34,37 +37,36 @@ public class ShadowPropertyTests
     {
         var options = new ContextUtil(dbServer)
             .GetOptions<SpDbContext>(databaseName: $"{nameof(EFCoreBulkTest)}_ShadowProperties");
-        
+
         using var db = new SpDbContext(options);
 
         var data = GetTestData(db, false, 10000);
 
-        db.BulkInsertOrUpdate(data.ToList(), new BulkConfig
-        {
-            EnableShadowProperties = true,
-            ShadowPropertyValue = (entity, property) =>
+        db.BulkInsertOrUpdate(data.ToList(),
+            new BulkConfig
             {
-
-                if (property == SpModel.SpLong)
+                EnableShadowProperties = true,
+                ShadowPropertyValue = (entity, property) =>
                 {
-                    return 10;
-                }
-                else if (property == SpModel.SpNullableLong)
-                {
-                    return null;
-                }
-                else if (property == SpModel.SpDateTime)
-                {
-                    return new DateTime(2021, 02, 14);
-                }
+                    if (property == SpModel.SpLong)
+                    {
+                        return 10;
+                    }
+                    else if (property == SpModel.SpNullableLong)
+                    {
+                        return null;
+                    }
+                    else if (property == SpModel.SpDateTime)
+                    {
+                        return new DateTime(2021, 02, 14);
+                    }
 
-                return property;
-
-            }
-        });
+                    return property;
+                }
+            });
 
         var modelFromDb = db.SpModels.OrderByDescending(y => y.Id).First();
-        Assert.Equal((long)10, db.Entry(modelFromDb).Property(SpModel.SpLong).CurrentValue);
+        Assert.Equal((long) 10, db.Entry(modelFromDb).Property(SpModel.SpLong).CurrentValue);
         Assert.Null(db.Entry(modelFromDb).Property(SpModel.SpNullableLong).CurrentValue);
 
         Assert.Equal(new DateTime(2021, 02, 14), db.Entry(modelFromDb).Property(SpModel.SpDateTime).CurrentValue);
@@ -80,7 +82,7 @@ public class ShadowPropertyTests
 
             if (useEf)
             {
-                db.Entry(one).Property(SpModel.SpLong).CurrentValue = (long)10;
+                db.Entry(one).Property(SpModel.SpLong).CurrentValue = (long) 10;
                 db.Entry(one).Property(SpModel.SpNullableLong).CurrentValue = null;
                 db.Entry(one).Property(SpModel.SpDateTime).CurrentValue = new DateTime(2021, 02, 14);
             }
@@ -88,6 +90,6 @@ public class ShadowPropertyTests
             data.Add(one);
         }
 
-        return data; 
+        return data;
     }
 }

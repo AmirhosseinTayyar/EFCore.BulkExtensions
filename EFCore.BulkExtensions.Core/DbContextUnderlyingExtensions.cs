@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data.Common;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Data.Common;
 
 namespace EFCore.BulkExtensions;
 
@@ -14,6 +14,7 @@ public static class DbContextUnderlyingExtensions
         {
             connection = config.UnderlyingConnection(connection);
         }
+
         return connection;
     }
 
@@ -24,8 +25,8 @@ public static class DbContextUnderlyingExtensions
         {
             dbTransaction = config.UnderlyingTransaction(dbTransaction);
         }
+
         return dbTransaction;
     }
 }
 #pragma warning restore CS1591 // No XML comments required here
-

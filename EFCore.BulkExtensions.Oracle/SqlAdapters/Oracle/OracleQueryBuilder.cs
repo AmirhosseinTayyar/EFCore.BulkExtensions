@@ -1,8 +1,8 @@
-﻿using Oracle.ManagedDataAccess.Client;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Security.Cryptography;
 using System.Text;
+using Oracle.ManagedDataAccess.Client;
 
 namespace EFCore.BulkExtensions.SqlAdapters.Oracle;
 
@@ -19,21 +19,29 @@ public class OracleQueryBuilder : SqlQueryBuilder
     /// <param name="tableInfo"></param>
     /// <param name="useTempDb"></param>
     /// <param name="operationType"></param>
-    public static string CreateTableCopy(string existingTableName, string newTableName, TableInfo tableInfo, bool useTempDb, OperationType operationType)
+    public static string CreateTableCopy(string existingTableName,
+        string newTableName,
+        TableInfo tableInfo,
+        bool useTempDb,
+        OperationType operationType)
     {
         var selectColummns = "*";
-        if(operationType == OperationType.Delete)
+        if (operationType == OperationType.Delete)
         {
-            var firstPrimaryKey = tableInfo.EntityPKPropertyColumnNameDict?.FirstOrDefault().Value ?? tableInfo.IdentityColumnName;
+            var firstPrimaryKey = tableInfo.EntityPKPropertyColumnNameDict?.FirstOrDefault().Value ??
+                                  tableInfo.IdentityColumnName;
             selectColummns = firstPrimaryKey ?? "*";
         }
+
         string keywordTemp = useTempDb ? "GLOBAL TEMPORARY " : "";
-        var query = $@"CREATE {keywordTemp}TABLE {newTableName} AS SELECT {selectColummns} FROM {existingTableName} WHERE 1=0";
+        var query =
+            $@"CREATE {keywordTemp}TABLE {newTableName} AS SELECT {selectColummns} FROM {existingTableName} WHERE 1=0";
 
         query = query.Replace("[", "").Replace("]", "");
 
         return query;
     }
+
     /// <summary>
     /// Generates SQL query to drop table
     /// </summary>
@@ -58,6 +66,7 @@ END;";
 
         return query;
     }
+
     /// <summary>
     /// Returns a list of columns for the given table
     /// </summary>
@@ -66,9 +75,12 @@ END;";
     public static List<string> GetColumnList(TableInfo tableInfo, OperationType operationType)
     {
         var tempDict = tableInfo.PropertyColumnNamesDict;
-        if (operationType == OperationType.Insert && tableInfo.PropertyColumnNamesDict.Any()) // Only OnInsert omit colums with Default values
+        if (operationType == OperationType.Insert &&
+            tableInfo.PropertyColumnNamesDict.Any()) // Only OnInsert omit colums with Default values
         {
-            tableInfo.PropertyColumnNamesDict = tableInfo.PropertyColumnNamesDict.Where(a => !tableInfo.DefaultValueProperties.Contains(a.Key)).ToDictionary(a => a.Key, a => a.Value);
+            tableInfo.PropertyColumnNamesDict = tableInfo.PropertyColumnNamesDict
+                .Where(a => !tableInfo.DefaultValueProperties.Contains(a.Key))
+                .ToDictionary(a => a.Key, a => a.Value);
         }
 
         List<string> columnsList = tableInfo.PropertyColumnNamesDict.Values.ToList();
@@ -78,9 +90,13 @@ END;";
 
         bool keepIdentity = tableInfo.BulkConfig.SqlBulkCopyOptions.HasFlag(SqlBulkCopyOptions.KeepIdentity);
         var uniquColumnName = tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList().FirstOrDefault();
-        if (!keepIdentity && tableInfo.HasIdentity && (operationType == OperationType.Insert || tableInfo.IdentityColumnName != uniquColumnName))
+        if (!keepIdentity &&
+            tableInfo.HasIdentity &&
+            (operationType == OperationType.Insert || tableInfo.IdentityColumnName != uniquColumnName))
         {
-            var identityPropertyName = tableInfo.PropertyColumnNamesDict.SingleOrDefault(a => a.Value == tableInfo.IdentityColumnName).Key;
+            var identityPropertyName = tableInfo.PropertyColumnNamesDict
+                .SingleOrDefault(a => a.Value == tableInfo.IdentityColumnName)
+                .Key;
             columnsList = columnsList.Where(a => a != tableInfo.IdentityColumnName).ToList();
             propertiesList = propertiesList.Where(a => a != identityPropertyName).ToList();
         }
@@ -101,9 +117,10 @@ END;";
         {
             throw new NotImplementedException("OperationType.InsertOrUpdateOrDelete is not supported for Oracle");
         }
-        
+
         string q = "";
-        var firstPrimaryKey = tableInfo.EntityPKPropertyColumnNameDict?.FirstOrDefault().Value ?? tableInfo.IdentityColumnName;
+        var firstPrimaryKey = tableInfo.EntityPKPropertyColumnNameDict?.FirstOrDefault().Value ??
+                              tableInfo.IdentityColumnName;
 
 
         var columnsList = GetColumnList(tableInfo, operationType);
@@ -116,15 +133,17 @@ END;";
         }
         else if (operationType == OperationType.Insert)
         {
-            var commaSeparatedColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsList).Replace("[", "").Replace("]", "");
+            var commaSeparatedColumns = GetCommaSeparatedColumns(columnsList).Replace("[", "").Replace("]", "");
             q = $"INSERT INTO {tableInfo.FullTableName} ({commaSeparatedColumns}) " +
                 $"SELECT {commaSeparatedColumns} FROM {tableInfo.FullTempTableName}; ";
         }
         else if (operationType == OperationType.Update || operationType == OperationType.InsertOrUpdate)
         {
-            var commaSeparatedColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsList, "B").Replace("[", "").Replace("]", "");
-            var commaSeparatedColumnsEq = SqlQueryBuilder.GetCommaSeparatedColumns(columnsListWithouPrimaryKey, "A", "B").Replace("[", "").Replace("]", "");
-            
+            var commaSeparatedColumns = GetCommaSeparatedColumns(columnsList, "B").Replace("[", "").Replace("]", "");
+            var commaSeparatedColumnsEq = GetCommaSeparatedColumns(columnsListWithouPrimaryKey, "A", "B")
+                .Replace("[", "")
+                .Replace("]", "");
+
             q = $@"MERGE INTO {tableInfo.FullTableName} A
 USING {tableInfo.FullTempTableName} B
 ON (A.{firstPrimaryKey} = B.{firstPrimaryKey})
@@ -166,8 +185,11 @@ END;";
 
         q = q.Replace("[", "").Replace("]", "");
 
-        Dictionary<string, string>? sourceDestinationMappings = tableInfo.BulkConfig.CustomSourceDestinationMappingColumns;
-        if (tableInfo.BulkConfig.CustomSourceTableName != null && sourceDestinationMappings != null && sourceDestinationMappings.Count > 0)
+        Dictionary<string, string>? sourceDestinationMappings =
+            tableInfo.BulkConfig.CustomSourceDestinationMappingColumns;
+        if (tableInfo.BulkConfig.CustomSourceTableName != null &&
+            sourceDestinationMappings != null &&
+            sourceDestinationMappings.Count > 0)
         {
             var textSelect = "SELECT ";
             var textFrom = " FROM";
@@ -198,8 +220,10 @@ END;";
                 q = q.Replace(qSegment, qSegmentUpdated);
             }
         }
+
         return q;
     }
+
     /// <summary>
     /// Generates SQL query to select output from a table
     /// </summary>
@@ -208,7 +232,8 @@ END;";
     public override string SelectFromOutputTable(TableInfo tableInfo)
     {
         List<string> columnsNames = tableInfo.OutputPropertyColumnNamesDict.Values.ToList();
-        var query = $"SELECT {SqlQueryBuilder.GetCommaSeparatedColumns(columnsNames)} FROM {tableInfo.FullTempOutputTableName} WHERE {tableInfo.PrimaryKeysPropertyColumnNameDict.Select(x => x.Value).FirstOrDefault()} IS NOT NULL";
+        var query =
+            $"SELECT {GetCommaSeparatedColumns(columnsNames)} FROM {tableInfo.FullTempOutputTableName} WHERE {tableInfo.PrimaryKeysPropertyColumnNameDict.Select(x => x.Value).FirstOrDefault()} IS NOT NULL";
         query = query.Replace("[", "").Replace("]", "");
         return query;
     }
@@ -226,7 +251,9 @@ END;";
         var uniqueConstrainName = GetUniqueConstrainName(tableInfo);
 
         var uniqueColumnNames = tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList();
-        var uniqueColumnNamesComma = string.Join(",", uniqueColumnNames); // TODO When Column is string without defined max length, it should be UNIQUE (`Name`(255)); otherwise exception: BLOB/TEXT column 'Name' used in key specification without a key length'
+        var uniqueColumnNamesComma =
+            string.Join(",",
+                uniqueColumnNames); // TODO When Column is string without defined max length, it should be UNIQUE (`Name`(255)); otherwise exception: BLOB/TEXT column 'Name' used in key specification without a key length'
         uniqueColumnNamesComma += uniqueColumnNamesComma;
         //uniqueColumnNamesComma += uniqueColumnNamesComma.Replace(",", "`, `");
         var uniqueColumnNamesFormated = uniqueColumnNamesComma.TrimEnd(',');
@@ -254,7 +281,7 @@ END;";
         var uniqueConstrainName = GetUniqueConstrainName(tableInfo);
 
         var q = $@"DROP INDEX {uniqueConstrainName};";
-        
+
         q = q.Replace("[", "").Replace("]", "");
 
         return q;
@@ -296,6 +323,7 @@ END;";
         {
             uniqueConstrainNameText = Md5Hash(uniqueConstrainNameText);
         }
+
         string uniqueConstrainName = uniqueConstrainPrefix + uniqueConstrainNameText;
         return uniqueConstrainName;
     }
@@ -317,7 +345,8 @@ END;";
         }
         else
         {
-            string tableAS = sql.Substring(sql.IndexOf("FROM") + 4, sql.IndexOf($" {firstLetterOfTable}") - sql.IndexOf("FROM"));
+            string tableAS = sql.Substring(sql.IndexOf("FROM") + 4,
+                sql.IndexOf($" {firstLetterOfTable}") - sql.IndexOf("FROM"));
 
             sql = sql.Replace($"AS {firstLetterOfTable}", "");
             string fromClause = sql.Substring(sql.IndexOf("FROM"), sql.IndexOf("WHERE") - sql.IndexOf("FROM"));
@@ -325,6 +354,7 @@ END;";
 
             sql = sql.Replace($"UPDATE {firstLetterOfTable}", "UPDATE" + tableAS);
         }
+
         sql = sql.Replace("[", "").Replace("]", "");
 
         return sql;

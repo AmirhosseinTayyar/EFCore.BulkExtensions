@@ -1,9 +1,10 @@
-﻿using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace EFCore.BulkExtensions.SqlAdapters.PostgreSql;
 
@@ -12,7 +13,6 @@ namespace EFCore.BulkExtensions.SqlAdapters.PostgreSql;
 /// </summary>
 public class PostgreSqlQueryBuilder : SqlQueryBuilder
 {
-
     /// <summary>
     /// Generates SQL query to create Output table for Stats
     /// </summary>
@@ -26,11 +26,13 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
         {
             keywordPrefix = "TEMP "; // "TEMP " or "TEMPORARY "
         }
-        else if(unlogged) // can not be combined with TEMP since Temporary tables are not logged by default.
+        else if (unlogged) // can not be combined with TEMP since Temporary tables are not logged by default.
         {
             keywordPrefix = "UNLOGGED ";
         }
-        var q = @$"CREATE {keywordPrefix}TABLE IF NOT EXISTS {newTableName} (""xmaxNumber"" xid)"; // col name can't be just 'xmax' - conflicts with system column
+
+        var q =
+            @$"CREATE {keywordPrefix}TABLE IF NOT EXISTS {newTableName} (""xmaxNumber"" xid)"; // col name can't be just 'xmax' - conflicts with system column
         q = q.Replace("[", @"""").Replace("]", @"""");
         return q;
     }
@@ -53,6 +55,7 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
         {
             keywordPrefix = "UNLOGGED ";
         }
+
         var q = $"CREATE {keywordPrefix}TABLE {newTableName} " +
                 $"AS TABLE {existingTableName} " +
                 $"WITH NO DATA;";
@@ -73,7 +76,7 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
 
         var columnsList = GetColumnList(tableInfo, operationType);
 
-        var commaSeparatedColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsList).Replace("[", @"""").Replace("]", @"""");
+        var commaSeparatedColumns = GetCommaSeparatedColumns(columnsList).Replace("[", @"""").Replace("]", @"""");
 
         var q = $"COPY {tableName} " +
                 $"({commaSeparatedColumns}) " +
@@ -95,14 +98,17 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
 
         if (operationType == OperationType.InsertOrUpdateOrDelete)
         {
-            throw new NotImplementedException($"For Postgres method {OperationType.InsertOrUpdateOrDelete} is not yet supported. Use combination of InsertOrUpdate with Read and Delete");
+            throw new NotImplementedException(
+                $"For Postgres method {OperationType.InsertOrUpdateOrDelete} is not yet supported. Use combination of InsertOrUpdate with Read and Delete");
         }
 
         string q;
         bool appendReturning = false;
         if (operationType == OperationType.Read)
         {
-            var readByColumns = SqlQueryBuilder.GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList()); //, tableInfo.FullTableName, tableInfo.FullTempTableName
+            var readByColumns =
+                GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values
+                    .ToList()); //, tableInfo.FullTableName, tableInfo.FullTempTableName
 
             q = $"SELECT {tableInfo.FullTableName}.* FROM {tableInfo.FullTableName} " +
                 $"JOIN {tableInfo.FullTempTableName} " +
@@ -110,9 +116,12 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
         }
         else if (operationType == OperationType.Delete)
         {
-            var deleteByColumns = SqlQueryBuilder.GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList(), tableInfo.FullTableName, tableInfo.FullTempTableName);
+            var deleteByColumns = GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList(),
+                tableInfo.FullTableName,
+                tableInfo.FullTempTableName);
             deleteByColumns = deleteByColumns.Replace(",", " AND")
-                                             .Replace("[", @"""").Replace("]", @"""");
+                .Replace("[", @"""")
+                .Replace("]", @"""");
 
             q = $"DELETE FROM {tableInfo.FullTableName} " +
                 $"USING {tableInfo.FullTempTableName} " +
@@ -121,12 +130,18 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
         else if (operationType == OperationType.Update)
         {
             var columnsListEquals = GetColumnList(tableInfo, OperationType.Insert);
-            var columnsToUpdate = columnsListEquals.Where(tableInfo.PropertyColumnNamesUpdateDict.ContainsValue).ToList();
+            var columnsToUpdate =
+                columnsListEquals.Where(tableInfo.PropertyColumnNamesUpdateDict.ContainsValue).ToList();
 
-            var updateByColumns = SqlQueryBuilder.GetANDSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList(),
-                prefixTable: tableInfo.FullTableName, equalsTable: tableInfo.FullTempTableName).Replace("[", @"""").Replace("]", @"""");
-            var equalsColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsToUpdate,
-                equalsTable: tableInfo.FullTempTableName).Replace("[", @"""").Replace("]", @"""");
+            var updateByColumns = GetANDSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList(),
+                    prefixTable: tableInfo.FullTableName,
+                    equalsTable: tableInfo.FullTempTableName)
+                .Replace("[", @"""")
+                .Replace("]", @"""");
+            var equalsColumns = GetCommaSeparatedColumns(columnsToUpdate,
+                    equalsTable: tableInfo.FullTempTableName)
+                .Replace("[", @"""")
+                .Replace("]", @"""");
 
             q = $"UPDATE {tableInfo.FullTableName} SET {equalsColumns} " +
                 $"FROM {tableInfo.FullTempTableName} " +
@@ -138,41 +153,56 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
         {
             var columnsListInsert = columnsList;
             var textValueFirstPK = tableInfo.TextValueFirstPK;
-            if (textValueFirstPK != null && (textValueFirstPK == "0" || textValueFirstPK.ToString() == Guid.Empty.ToString() || textValueFirstPK.ToString() == ""))
+            if (textValueFirstPK != null &&
+                (textValueFirstPK == "0" ||
+                 textValueFirstPK.ToString() == Guid.Empty.ToString() ||
+                 textValueFirstPK.ToString() == ""))
             {
                 //  PKs can be all set or all empty in which case DB generates it, can not have it combined in one list when using InsetOrUpdate  
                 columnsListInsert = columnsList.Where(tableInfo.PropertyColumnNamesUpdateDict.ContainsValue).ToList();
             }
-            var commaSeparatedColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsListInsert).Replace("[", @"""").Replace("]", @"""");
 
-            var updateByColumns = SqlQueryBuilder.GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList()).Replace("[", @"""").Replace("]", @"""");
+            var commaSeparatedColumns =
+                GetCommaSeparatedColumns(columnsListInsert).Replace("[", @"""").Replace("]", @"""");
+
+            var updateByColumns = GetCommaSeparatedColumns(tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList())
+                .Replace("[", @"""")
+                .Replace("]", @"""");
 
             var columnsListEquals = GetColumnList(tableInfo, OperationType.Insert);
-            var columnsToUpdate = columnsListEquals.Where(c => tableInfo.PropertyColumnNamesUpdateDict.ContainsValue(c)).ToList();
-            var equalsColumns = SqlQueryBuilder.GetCommaSeparatedColumns(columnsToUpdate, equalsTable: "EXCLUDED").Replace("[", @"""").Replace("]", @"""");
+            var columnsToUpdate = columnsListEquals.Where(c => tableInfo.PropertyColumnNamesUpdateDict.ContainsValue(c))
+                .ToList();
+            var equalsColumns = GetCommaSeparatedColumns(columnsToUpdate, equalsTable: "EXCLUDED")
+                .Replace("[", @"""")
+                .Replace("]", @"""");
 
             int subqueryLimit = tableInfo.BulkConfig.ApplySubqueryLimit;
             var subqueryText = subqueryLimit > 0 ? $"LIMIT {subqueryLimit} " : "";
             bool onUpdateDoNothing = columnsToUpdate.Count == 0 || string.IsNullOrWhiteSpace(equalsColumns);
 
             q = $"INSERT INTO {tableInfo.FullTableName} ({commaSeparatedColumns}) " +
-                $"(SELECT {commaSeparatedColumns} FROM {tableInfo.FullTempTableName}) " + subqueryText +
+                $"(SELECT {commaSeparatedColumns} FROM {tableInfo.FullTempTableName}) " +
+                subqueryText +
                 $"ON CONFLICT ({updateByColumns}) " +
                 (onUpdateDoNothing
-                 ? $"DO NOTHING"
-                 : $"DO UPDATE SET {equalsColumns}");
+                    ? $"DO NOTHING"
+                    : $"DO UPDATE SET {equalsColumns}");
 
             if (tableInfo.BulkConfig.OnConflictUpdateWhereSql != null)
             {
-                q += $" WHERE {tableInfo.BulkConfig.OnConflictUpdateWhereSql(tableInfo.FullTableName.Replace("[", @"""").Replace("]", @""""), "EXCLUDED")}";
+                q +=
+                    $" WHERE {tableInfo.BulkConfig.OnConflictUpdateWhereSql(tableInfo.FullTableName.Replace("[", @"""").Replace("]", @""""), "EXCLUDED")}";
             }
+
             appendReturning = true;
         }
 
         if (appendReturning == true && tableInfo.CreateOutputTable)
         {
             var allColumnsList = tableInfo.OutputPropertyColumnNamesDict.Values.ToList();
-            string commaSeparatedColumnsNames = SqlQueryBuilder.GetCommaSeparatedColumns(allColumnsList, tableInfo.FullTableName).Replace("[", @"""").Replace("]", @"""");
+            string commaSeparatedColumnsNames = GetCommaSeparatedColumns(allColumnsList, tableInfo.FullTableName)
+                .Replace("[", @"""")
+                .Replace("]", @"""");
             q += $" RETURNING {commaSeparatedColumnsNames}";
 
             if (tableInfo.BulkConfig.CalculateStats)
@@ -183,8 +213,11 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
 
         q = q.Replace("[", @"""").Replace("]", @"""");
 
-        Dictionary<string, string>? sourceDestinationMappings = tableInfo.BulkConfig.CustomSourceDestinationMappingColumns;
-        if (tableInfo.BulkConfig.CustomSourceTableName != null && sourceDestinationMappings != null && sourceDestinationMappings.Count > 0)
+        Dictionary<string, string>? sourceDestinationMappings =
+            tableInfo.BulkConfig.CustomSourceDestinationMappingColumns;
+        if (tableInfo.BulkConfig.CustomSourceTableName != null &&
+            sourceDestinationMappings != null &&
+            sourceDestinationMappings.Count > 0)
         {
             var textSelect = "SELECT ";
             var textFrom = " FROM";
@@ -201,6 +234,7 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
                     qSegmentUpdated = qSegmentUpdated.Replace(propertyFormated, $@"""{sourceProperty}""");
                 }
             }
+
             if (qSegment != qSegmentUpdated)
             {
                 q = q.Replace(qSegment, qSegmentUpdated);
@@ -228,9 +262,12 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
     public static List<string> GetColumnList(TableInfo tableInfo, OperationType operationType)
     {
         var tempDict = tableInfo.PropertyColumnNamesDict;
-        if (operationType == OperationType.Insert && tableInfo.PropertyColumnNamesDict.Any()) // Only OnInsert omit colums with Default values
+        if (operationType == OperationType.Insert &&
+            tableInfo.PropertyColumnNamesDict.Any()) // Only OnInsert omit colums with Default values
         {
-            tableInfo.PropertyColumnNamesDict = tableInfo.PropertyColumnNamesDict.Where(a => !tableInfo.DefaultValueProperties.Contains(a.Key)).ToDictionary(a => a.Key, a => a.Value);
+            tableInfo.PropertyColumnNamesDict = tableInfo.PropertyColumnNamesDict
+                .Where(a => !tableInfo.DefaultValueProperties.Contains(a.Key))
+                .ToDictionary(a => a.Key, a => a.Value);
         }
 
         List<string> columnsList = tableInfo.PropertyColumnNamesDict.Values.ToList();
@@ -240,9 +277,13 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
 
         bool keepIdentity = tableInfo.BulkConfig.SqlBulkCopyOptions.HasFlag(SqlBulkCopyOptions.KeepIdentity);
         var uniquColumnName = tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList().FirstOrDefault();
-        if (!keepIdentity && tableInfo.HasIdentity && (operationType == OperationType.Insert || tableInfo.IdentityColumnName != uniquColumnName))
+        if (!keepIdentity &&
+            tableInfo.HasIdentity &&
+            (operationType == OperationType.Insert || tableInfo.IdentityColumnName != uniquColumnName))
         {
-            var identityPropertyName = tableInfo.PropertyColumnNamesDict.SingleOrDefault(a => a.Value == tableInfo.IdentityColumnName).Key;
+            var identityPropertyName = tableInfo.PropertyColumnNamesDict
+                .SingleOrDefault(a => a.Value == tableInfo.IdentityColumnName)
+                .Key;
             columnsList = columnsList.Where(a => a != tableInfo.IdentityColumnName).ToList();
             propertiesList = propertiesList.Where(a => a != identityPropertyName).ToList();
         }
@@ -306,8 +347,8 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
                       AND NOT a.attisdropped
                       AND (c.contype = ANY (ARRAY ['p'::""char"", 'u'::""char""]))
                       AND (r.relkind = ANY (ARRAY ['r'::""char"", 'p'::""char""]))" +
-                $" AND r.relname = '{tableInfo.TableName}'" + 
-                $" AND nr.nspname = '{tableInfo.Schema}'" + 
+                $" AND r.relname = '{tableInfo.TableName}'" +
+                $" AND nr.nspname = '{tableInfo.Schema}'" +
                 $" AND a.attname IN('{string.Join("','", primaryKeysColumns)}')";
         }
         else // Deprecated - Information_Schema no longer used (is available only in default database)
@@ -322,6 +363,7 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
             q += $"WHERE (tc.CONSTRAINT_TYPE = 'UNIQUE' OR tc.CONSTRAINT_TYPE = 'PRIMARY KEY') " +
                  $"AND tc.TABLE_NAME = '{tableInfo.TableName}' AND tc.TABLE_SCHEMA = '{tableInfo.Schema}'";
         }
+
         return q;
     }
 
@@ -342,11 +384,13 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
                 JOIN pg_catalog.pg_attribute at ON at.attrelid = idx.oid
               WHERE pgi.indisunique
                 AND not pgi.indisprimary" +
-             $" AND tnsp.nspname = '{tableInfo.Schema}'" +
-             $" AND tbl.relname = '{tableInfo.TableName}'" +
-             $" AND at.attname IN('{string.Join("','", primaryKeysColumns)}')" +
+            $" AND tnsp.nspname = '{tableInfo.Schema}'" +
+            $" AND tbl.relname = '{tableInfo.TableName}'" +
+            $" AND at.attname IN('{string.Join("','", primaryKeysColumns)}')" +
             " GROUP BY idx.relname" +
-            " HAVING COUNT(idx.relname) = " + primaryKeysColumns.Count + ";";
+            " HAVING COUNT(idx.relname) = " +
+            primaryKeysColumns.Count +
+            ";";
         return q;
     }
 
@@ -466,7 +510,8 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
             //WOULD ALSO WORK
             // UPDATE "Item" SET "Description" = 'Update N', "Price" = 1.5 WHERE "ItemId" <= 1
 
-            string tableAS = sql.Substring(sql.IndexOf("FROM") + 4, sql.IndexOf($"AS {firstLetterOfTable}") - sql.IndexOf("FROM"));
+            string tableAS = sql.Substring(sql.IndexOf("FROM") + 4,
+                sql.IndexOf($"AS {firstLetterOfTable}") - sql.IndexOf("FROM"));
 
             if (!sql.Contains("JOIN"))
             {
@@ -525,7 +570,7 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
     /// <exception cref="NotImplementedException"></exception>
     public override DbType Dbtype()
     {
-        return (DbType)NpgsqlTypes.NpgsqlDbType.Jsonb;
+        return (DbType) NpgsqlDbType.Jsonb;
     }
 
     /// <summary>
@@ -534,6 +579,6 @@ public class PostgreSqlQueryBuilder : SqlQueryBuilder
     /// <exception cref="NotImplementedException"></exception>
     public override void SetDbTypeParam(DbParameter parameter, DbType dbType)
     {
-        ((NpgsqlParameter)parameter).NpgsqlDbType = (NpgsqlTypes.NpgsqlDbType)dbType;
+        ((NpgsqlParameter) parameter).NpgsqlDbType = (NpgsqlDbType) dbType;
     }
 }

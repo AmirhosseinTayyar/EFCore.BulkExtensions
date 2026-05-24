@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 
 namespace EFCore.BulkExtensions.Tests;
 
@@ -23,19 +22,22 @@ public class ContextUtil
     public SqlType SqlType { get; }
 
     public DbContextOptions GetOptions(IInterceptor dbInterceptor) => GetOptions([dbInterceptor]);
-    public DbContextOptions GetOptions(IEnumerable<IInterceptor>? dbInterceptors = null) => GetOptions<TestContext>(dbInterceptors);
 
-    public DbContextOptions GetOptions<TDbContext>(IEnumerable<IInterceptor>? dbInterceptors = null, string databaseName = nameof(EFCoreBulkTest))
+    public DbContextOptions GetOptions(IEnumerable<IInterceptor>? dbInterceptors = null) =>
+        GetOptions<TestContext>(dbInterceptors);
+
+    public DbContextOptions GetOptions<TDbContext>(IEnumerable<IInterceptor>? dbInterceptors = null,
+        string databaseName = nameof(EFCoreBulkTest))
         where TDbContext : DbContext
         => GetOptions<TDbContext>(SqlType, dbInterceptors, databaseName);
 
-    public DbContextOptions GetOptions<TDbContext>(SqlType dbServerType, 
-        IEnumerable<IInterceptor>? dbInterceptors = null, 
+    public DbContextOptions GetOptions<TDbContext>(SqlType dbServerType,
+        IEnumerable<IInterceptor>? dbInterceptors = null,
         string databaseName = nameof(EFCoreBulkTest))
         where TDbContext : DbContext
     {
         var optionsBuilder = new DbContextOptionsBuilder<TDbContext>();
-        
+
         switch (dbServerType)
         {
             case SqlType.SqlServer:
@@ -47,12 +49,13 @@ public class ContextUtil
 
                 //optionsBuilder.UseSqlServer(connectionString); // Can NOT Test with UseInMemoryDb (Exception: Relational-specific methods can only be used when the context is using a relational)
                 //optionsBuilder.UseSqlServer(connectionString, opt => opt.UseNetTopologySuite()); // NetTopologySuite for Geometry / Geometry types
-                optionsBuilder.UseSqlServer(connectionString, opt =>
-                {
-                    opt.UseNetTopologySuite();
-                    opt.UseHierarchyId();
-                    opt.CommandTimeout(120);
-                });
+                optionsBuilder.UseSqlServer(connectionString,
+                    opt =>
+                    {
+                        opt.UseNetTopologySuite();
+                        opt.UseHierarchyId();
+                        opt.CommandTimeout(120);
+                    });
                 break;
             }
             case SqlType.PostgreSql:
@@ -65,7 +68,7 @@ public class ContextUtil
                     .EnableDynamicJson()
                     .UseNetTopologySuite()
                     .Build();
-                optionsBuilder.UseNpgsql(dataSource/*, opt => opt.UseNetTopologySuite()*/);
+                optionsBuilder.UseNpgsql(dataSource /*, opt => opt.UseNetTopologySuite()*/);
 #endif
                 break;
             }
@@ -113,6 +116,7 @@ public class ContextUtil
 
     private static string GetConnectionString(string name)
     {
-        return GetConfiguration().GetConnectionString(name) ?? throw new Exception($"Connection string '{name}' not found.");
+        return GetConfiguration().GetConnectionString(name) ??
+               throw new Exception($"Connection string '{name}' not found.");
     }
 }

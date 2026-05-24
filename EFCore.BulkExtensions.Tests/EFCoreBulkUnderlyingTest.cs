@@ -1,11 +1,11 @@
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -14,9 +14,14 @@ public class EFCoreBulkUnderlyingTest
 {
     protected static int EntitiesNumber => 1000;
 
-    private static readonly Func<TestContext, int> ItemsCountQuery = EF.CompileQuery<TestContext, int>(ctx => ctx.Items.Select(i => i.ItemId).Count());
-    private static readonly Func<TestContext, Item?> LastItemQuery = EF.CompileQuery<TestContext, Item?>(ctx => ctx.Items.OrderBy(i => i.ItemId).LastOrDefault());
-    private static readonly Func<TestContext, IEnumerable<Item>> AllItemsQuery = EF.CompileQuery<TestContext, IEnumerable<Item>>(ctx => ctx.Items.AsNoTracking());
+    private static readonly Func<TestContext, int> ItemsCountQuery =
+        EF.CompileQuery<TestContext, int>(ctx => ctx.Items.Select(i => i.ItemId).Count());
+
+    private static readonly Func<TestContext, Item?> LastItemQuery =
+        EF.CompileQuery<TestContext, Item?>(ctx => ctx.Items.OrderBy(i => i.ItemId).LastOrDefault());
+
+    private static readonly Func<TestContext, IEnumerable<Item>> AllItemsQuery =
+        EF.CompileQuery<TestContext, IEnumerable<Item>>(ctx => ctx.Items.AsNoTracking());
 
     [Theory]
     [InlineData(true)]
@@ -35,10 +40,7 @@ public class EFCoreBulkUnderlyingTest
         var connection = new SqlConnection(connectionString) as DbConnection;
         connection = new MyConnection(connection);
         builder.UseSqlServer(connection, opt => opt.UseNetTopologySuite());
-        builder.UseSqlServer(connection, conf =>
-        {
-            conf.UseHierarchyId();
-        });
+        builder.UseSqlServer(connection, conf => { conf.UseHierarchyId(); });
         return builder.Options;
     }
 
@@ -49,7 +51,7 @@ public class EFCoreBulkUnderlyingTest
         var subEntities = new List<ItemHistory>();
         for (int i = 1; i < EntitiesNumber; i++)
         {
-            var entity = new Item (
+            var entity = new Item(
                 isBulk ? i : 0,
                 "name " + i,
                 string.Concat("info ", Guid.NewGuid().ToString().AsSpan(0, 3)),
@@ -96,13 +98,16 @@ public class EFCoreBulkUnderlyingTest
                 {
                     subEntity.ItemId = entity.ItemId; // setting FK to match its linked PK that was generated in DB
                 }
+
                 subEntities.AddRange(entity.ItemHistories);
             }
-            context.BulkInsert(subEntities, new BulkConfig()
-            {
-                UnderlyingConnection = GetUnderlyingConnection,
-                UnderlyingTransaction = GetUnderlyingTransaction
-            });
+
+            context.BulkInsert(subEntities,
+                new BulkConfig()
+                {
+                    UnderlyingConnection = GetUnderlyingConnection,
+                    UnderlyingTransaction = GetUnderlyingTransaction
+                });
 
             transaction.Commit();
         }
@@ -128,11 +133,12 @@ public class EFCoreBulkUnderlyingTest
         // ItemHistories will also be deleted because of Relationship - ItemId (Delete Rule: Cascade)
         if (isBulk)
         {
-            context.BulkDelete(entities, new BulkConfig()
-            {
-                UnderlyingConnection = GetUnderlyingConnection,
-                UnderlyingTransaction = GetUnderlyingTransaction
-            });
+            context.BulkDelete(entities,
+                new BulkConfig()
+                {
+                    UnderlyingConnection = GetUnderlyingConnection,
+                    UnderlyingTransaction = GetUnderlyingTransaction
+                });
         }
         else
         {
@@ -152,6 +158,7 @@ public class EFCoreBulkUnderlyingTest
         if (connection is MyConnection mc) return mc.UnderlyingConection;
         return connection;
     }
+
     public static DbTransaction GetUnderlyingTransaction(DbTransaction transaction)
     {
         if (transaction is MyTransaction mt) return mt.UnderlyingTransaction;
@@ -245,18 +252,43 @@ class MyCommand : DbCommand
     }
 
     public override string CommandText
-    { 
+    {
         get => UnderlyingCommand.CommandText ?? string.Empty;
-        [param:AllowNull]
+        [param: AllowNull]
 #pragma warning disable CS8765 // Complains about a false nullability
         set => UnderlyingCommand.CommandText = value ?? string.Empty;
 #pragma warning restore CS8765 // Complains about a false nullability
     }
-    public override int CommandTimeout { get => UnderlyingCommand.CommandTimeout; set => UnderlyingCommand.CommandTimeout = value; }
-    public override CommandType CommandType { get => UnderlyingCommand.CommandType; set => UnderlyingCommand.CommandType = value; }
-    public override bool DesignTimeVisible { get => UnderlyingCommand.DesignTimeVisible; set => UnderlyingCommand.DesignTimeVisible = value; }
-    public override UpdateRowSource UpdatedRowSource { get => UnderlyingCommand.UpdatedRowSource; set => UnderlyingCommand.UpdatedRowSource = value; }
-    protected override DbConnection? DbConnection { get => MyConnection; set => MyConnection = (MyConnection?)value; }
+
+    public override int CommandTimeout
+    {
+        get => UnderlyingCommand.CommandTimeout;
+        set => UnderlyingCommand.CommandTimeout = value;
+    }
+
+    public override CommandType CommandType
+    {
+        get => UnderlyingCommand.CommandType;
+        set => UnderlyingCommand.CommandType = value;
+    }
+
+    public override bool DesignTimeVisible
+    {
+        get => UnderlyingCommand.DesignTimeVisible;
+        set => UnderlyingCommand.DesignTimeVisible = value;
+    }
+
+    public override UpdateRowSource UpdatedRowSource
+    {
+        get => UnderlyingCommand.UpdatedRowSource;
+        set => UnderlyingCommand.UpdatedRowSource = value;
+    }
+
+    protected override DbConnection? DbConnection
+    {
+        get => MyConnection;
+        set => MyConnection = (MyConnection?) value;
+    }
 
     protected override DbParameterCollection DbParameterCollection => this.UnderlyingCommand.Parameters;
 
@@ -267,7 +299,7 @@ class MyCommand : DbCommand
         get => MyTransaction;
         set
         {
-            MyTransaction = (MyTransaction?)value;
+            MyTransaction = (MyTransaction?) value;
             UnderlyingCommand.Transaction = MyTransaction?.UnderlyingTransaction;
         }
     }

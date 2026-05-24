@@ -11,7 +11,7 @@ namespace EFCore.BulkExtensions;
 public class FastProperty
 {
     private static readonly ConcurrentDictionary<PropertyInfo, FastProperty> FastPropertyCache = new();
-    
+
     /// <summary>
     /// Get or create a <see cref="FastProperty"/> instance for getting/setting the given property.
     /// </summary>
@@ -23,7 +23,7 @@ public class FastProperty
     {
         return FastPropertyCache.GetOrAdd(property, p => new FastProperty(p));
     }
-    
+
     private Func<object, object>? _getDelegate;
     private Action<object, object>? _setDelegate;
 
@@ -56,10 +56,17 @@ public class FastProperty
             ? Expression.TypeAs(value, Property.PropertyType)
             : Expression.Convert(value, Property.PropertyType);
 
-        var setter = Property.GetSetMethod(true) ?? Property.DeclaringType?.GetProperty(Property.Name)?.GetSetMethod(true); // when Prop from parent it requires DeclaringType
+        var setter = Property.GetSetMethod(true) ??
+                     Property.DeclaringType?.GetProperty(Property.Name)
+                         ?.GetSetMethod(true); // when Prop from parent it requires DeclaringType
 
         if (setter != null)
-            _setDelegate = Expression.Lambda<Action<object, object>>(Expression.Call(instanceCast, setter, valueCast), new ParameterExpression[] { instance, value }).Compile();
+            _setDelegate = Expression.Lambda<Action<object, object>>(Expression.Call(instanceCast, setter, valueCast),
+                    new ParameterExpression[]
+                    {
+                        instance, value
+                    })
+                .Compile();
     }
 
     private void InitializeGet()
@@ -75,10 +82,14 @@ public class FastProperty
             ? Expression.TypeAs(instance, Property.DeclaringType)
             : Expression.Convert(instance, Property.DeclaringType);
 
-        var getter = Property.GetGetMethod(true) ?? Property.DeclaringType.GetProperty(Property.Name)?.GetGetMethod(true);
+        var getter = Property.GetGetMethod(true) ??
+                     Property.DeclaringType.GetProperty(Property.Name)?.GetGetMethod(true);
 
         if (getter != null)
-            _getDelegate = Expression.Lambda<Func<object, object>>(Expression.TypeAs(Expression.Call(instanceCast, getter), typeof(object)), instance).Compile();
+            _getDelegate = Expression
+                .Lambda<Func<object, object>>(Expression.TypeAs(Expression.Call(instanceCast, getter), typeof(object)),
+                    instance)
+                .Compile();
     }
 
 #pragma warning disable CS1591 // No XML comment required here
@@ -90,7 +101,8 @@ public class FastProperty
     /// </summary>
     /// <param name="instance"></param>
     /// <returns></returns>
-    public object? Get(object instance) => instance == default || _getDelegate is null ? default : _getDelegate(instance);
+    public object? Get(object instance) =>
+        instance == default || _getDelegate is null ? default : _getDelegate(instance);
 
     /// <summary>
     /// Sets the delegate

@@ -1,9 +1,8 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests.ValueConverters;
@@ -27,7 +26,7 @@ public class ValueConverterTests
 
         using var cmd = connection.CreateCommand();
         cmd.CommandText = GetSelectQuery(sqlType);
-        cmd.CommandType = System.Data.CommandType.Text;
+        cmd.CommandType = CommandType.Text;
 
         using var reader = cmd.ExecuteReader();
         reader.Read();
@@ -48,10 +47,11 @@ public class ValueConverterTests
 
         var date = new LocalDate(2020, 3, 21);
 #pragma warning disable
-        db.VcModels.Where(x => x.LocalDate > date).BatchUpdate(x => new VcModel
-        {
-            Enum = VcEnum.Why
-        });
+        db.VcModels.Where(x => x.LocalDate > date)
+            .BatchUpdate(x => new VcModel
+            {
+                Enum = VcEnum.Why
+            });
 
         var connection = db.Database.GetDbConnection();
         if (connection.State != ConnectionState.Open)
@@ -61,7 +61,7 @@ public class ValueConverterTests
 
         using var cmd = connection.CreateCommand();
         cmd.CommandText = GetSelectQuery(sqlType);
-        cmd.CommandType = System.Data.CommandType.Text;
+        cmd.CommandType = CommandType.Text;
 
         using var reader = cmd.ExecuteReader();
         reader.Read();
@@ -97,11 +97,11 @@ public class ValueConverterTests
 
         yield return one;
     }
-    
+
     private static string GetSelectQuery(SqlType sqlType) =>
         sqlType == SqlType.PostgreSql
             ? "SELECT * FROM \"VcModels\" ORDER BY \"Id\" DESC"
             : "SELECT * FROM VcModels ORDER BY Id DESC";
-    
+
     private static string DatabaseName => $"{nameof(EFCoreBulkTest)}_ValueConverters";
 }

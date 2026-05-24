@@ -10,7 +10,10 @@ public static class ProgressHelper
     /// <summary>
     /// For setting Progress data
     /// </summary>
-    public static void SetProgress(ref int rowsCopied, int entitiesCount, BulkConfig bulkConfig, Action<decimal>? progress)
+    public static void SetProgress(ref int rowsCopied,
+        int entitiesCount,
+        BulkConfig bulkConfig,
+        Action<decimal>? progress)
     {
         if (progress != null && bulkConfig.NotifyAfter != null && bulkConfig.NotifyAfter != 0)
         {
@@ -28,6 +31,6 @@ public static class ProgressHelper
     /// </summary>
     public static decimal GetProgress(int entitiesCount, long rowsCopied)
     {
-        return (decimal)(Math.Floor(rowsCopied * 10000D / entitiesCount) / 10000);
+        return (decimal) (Math.Floor(rowsCopied * 10000D / entitiesCount) / 10000);
     }
 }

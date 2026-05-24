@@ -1,10 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCore.BulkExtensions.SqlAdapters;
-
 
 /// <summary>
 /// Contains the table alias and SQL query
@@ -49,5 +48,7 @@ public interface IQueryBuilderSpecialization
     /// <param name="fullQuery"></param>
     /// <param name="tableAlias"></param>
     /// <param name="tableAliasSuffixAs"></param>
-    ExtractedTableAlias GetBatchSqlExtractTableAliasFromQuery(string fullQuery, string tableAlias, string tableAliasSuffixAs);
+    ExtractedTableAlias GetBatchSqlExtractTableAliasFromQuery(string fullQuery,
+        string tableAlias,
+        string tableAliasSuffixAs);
 }

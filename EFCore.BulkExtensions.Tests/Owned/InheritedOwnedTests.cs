@@ -67,7 +67,7 @@ public class InheritedOwnedTests
         var savingsAccount = await context.SavingsAccounts.SingleAsync();
         Assert.Equal("AZ1234", savingsAccount.EntityInfo.Key);
         Assert.Equal(6.9m, savingsAccount.InterestRate.Rate);
-        
+
         var client = await context.Clients.SingleAsync();
         Assert.Equal("MM123", client.EntityInfo.Key);
         Assert.Equal("Mike Mao", client.Name);

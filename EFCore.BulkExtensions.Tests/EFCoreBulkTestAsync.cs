@@ -1,13 +1,14 @@
-using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
+
 //using static HotChocolate.ErrorCodes;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -38,7 +39,8 @@ public class EFCoreBulkTestAsync
 
         if (sqlType == SqlType.SqlServer)
         {
-            await RunInsertOrUpdateOrDeleteAsync(isBulk, sqlType); // Not supported for Sqlite (has only UPSERT), instead use BulkRead, then split list into sublists and call separately Bulk methods for Insert, Update, Delete.
+            await RunInsertOrUpdateOrDeleteAsync(isBulk,
+                sqlType); // Not supported for Sqlite (has only UPSERT), instead use BulkRead, then split list into sublists and call separately Bulk methods for Insert, Update, Delete.
         }
         //await RunDeleteAsync(isBulk, sqlType);
     }
@@ -48,8 +50,18 @@ public class EFCoreBulkTestAsync
     //[InlineData(DbServer.Sqlite)] // has to be run separately as single test, otherwise throws (SQLite Error 1: 'table "#MyTempTable1" already exists'.)
     public async Task SideEffectsTestAsync(SqlType sqlType)
     {
-        await BulkOperationShouldNotCloseOpenConnectionAsync(sqlType, context => context.BulkInsertAsync(new[] { new Item() }), "1");
-        await BulkOperationShouldNotCloseOpenConnectionAsync(sqlType, context => context.BulkUpdateAsync(new[] { new Item() }), "2");
+        await BulkOperationShouldNotCloseOpenConnectionAsync(sqlType,
+            context => context.BulkInsertAsync(new[]
+            {
+                new Item()
+            }),
+            "1");
+        await BulkOperationShouldNotCloseOpenConnectionAsync(sqlType,
+            context => context.BulkUpdateAsync(new[]
+            {
+                new Item()
+            }),
+            "2");
     }
 
     private static async Task DeletePreviousDatabaseAsync(SqlType dbServer)
@@ -60,11 +72,13 @@ public class EFCoreBulkTestAsync
 
     private static void WriteProgress(decimal percentage, bool writeOnConsole = false)
     {
-        if(writeOnConsole)
+        if (writeOnConsole)
             Debug.WriteLine(percentage);
     }
 
-    private static async Task BulkOperationShouldNotCloseOpenConnectionAsync(SqlType sqlType, Func<TestContext, Task> bulkOperation, string tableSufix)
+    private static async Task BulkOperationShouldNotCloseOpenConnectionAsync(SqlType sqlType,
+        Func<TestContext, Task> bulkOperation,
+        string tableSufix)
     {
         using var context = new TestContext(sqlType);
 
@@ -154,6 +168,7 @@ public class EFCoreBulkTestAsync
                     {
                         subEntity.ItemId = entity.ItemId; // setting FK to match its linked PK that was generated in DB
                     }
+
                     subEntities.AddRange(entity.ItemHistories);
                 }
 
@@ -177,8 +192,10 @@ public class EFCoreBulkTestAsync
                     {
                         subEntity.ItemId = entity.ItemId; // setting FK to match its linked PK that was generated in DB
                     }
+
                     subEntities.AddRange(entity.ItemHistories);
                 }
+
                 await context.BulkInsertAsync(subEntities, bulkConfig);
 
                 await transaction.CommitAsync();
@@ -217,6 +234,7 @@ public class EFCoreBulkTestAsync
                 TimeUpdated = dateTimeNow,
             });
         }
+
         if (isBulk)
         {
             var bulkConfig = new BulkConfig()
@@ -271,10 +289,15 @@ public class EFCoreBulkTestAsync
         int? keepEntityItemId = null;
         if (isBulk)
         {
-            var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
+            var bulkConfig = new BulkConfig()
+            {
+                SetOutputIdentity = true,
+                CalculateStats = true
+            };
             keepEntityItemId = 3;
             bulkConfig.SetSynchronizeFilter<Item>(e => e.ItemId != keepEntityItemId.Value);
-            bulkConfig.OnConflictUpdateWhereSql = (existing, inserted) => $"{inserted}.{nameof(Item.TimeUpdated)} > {existing}.{nameof(Item.TimeUpdated)}"; // can use nameof bacause in this case property name is same as column name 
+            bulkConfig.OnConflictUpdateWhereSql = (existing, inserted) =>
+                $"{inserted}.{nameof(Item.TimeUpdated)} > {existing}.{nameof(Item.TimeUpdated)}"; // can use nameof bacause in this case property name is same as column name 
             await context.BulkInsertOrUpdateOrDeleteAsync(entities, bulkConfig);
             Assert.Equal(0, bulkConfig.StatsInfo?.StatsNumberInserted);
             Assert.Equal(EntitiesNumber / 2, bulkConfig.StatsInfo?.StatsNumberUpdated);
@@ -302,21 +325,41 @@ public class EFCoreBulkTestAsync
         Assert.Equal("name InsertOrUpdateOrDelete " + EntitiesNumber, lastEntity?.Name);
 
         var bulkConfigSoftDel = new BulkConfig();
-        bulkConfigSoftDel.SetSynchronizeSoftDelete<Item>(a => new Item { Quantity = 0 }); // Instead of Deleting from DB it updates Quantity to 0 (usual usecase would be: IsDeleted to True)
-        await context.BulkInsertOrUpdateOrDeleteAsync(new List<Item> { entities[1] }, bulkConfigSoftDel);
+        bulkConfigSoftDel.SetSynchronizeSoftDelete<Item>(a => new Item
+        {
+            Quantity = 0
+        }); // Instead of Deleting from DB it updates Quantity to 0 (usual usecase would be: IsDeleted to True)
+        await context.BulkInsertOrUpdateOrDeleteAsync(new List<Item>
+            {
+                entities[1]
+            },
+            bulkConfigSoftDel);
 
         var list = await context.Items.Take(2).ToListAsync();
         Assert.True(list[0].Quantity != 0);
         Assert.True(list[1].Quantity == 0);
 
         // TEST Alias
-        await context.Entries.AddAsync(new Entry { Name = "Entry_InsertOrUpdateOrDelete" });
+        await context.Entries.AddAsync(new Entry
+        {
+            Name = "Entry_InsertOrUpdateOrDelete"
+        });
         await context.SaveChangesAsync();
 
         int entriesCount = await contextRead.Entries.CountAsync();
-        
-        bulkConfigSoftDel.SetSynchronizeSoftDelete<Entry>(a => new Entry { Name = "Entry_InsertOrUpdateOrDelete_Deleted" });
-        await context.BulkInsertOrUpdateOrDeleteAsync(new List<Entry> { new Entry { Name = "Entry_InsertOrUpdateOrDelete_2" } }, bulkConfigSoftDel);
+
+        bulkConfigSoftDel.SetSynchronizeSoftDelete<Entry>(a => new Entry
+        {
+            Name = "Entry_InsertOrUpdateOrDelete_Deleted"
+        });
+        await context.BulkInsertOrUpdateOrDeleteAsync(new List<Entry>
+            {
+                new Entry
+                {
+                    Name = "Entry_InsertOrUpdateOrDelete_2"
+                }
+            },
+            bulkConfigSoftDel);
 
         Assert.Equal(entriesCount + 1, await contextRead.Entries.CountAsync());
         Assert.True(await context.Entries.AnyAsync(e => e.Name == "Entry_InsertOrUpdateOrDelete_Deleted"));
@@ -333,9 +376,14 @@ public class EFCoreBulkTestAsync
             entity.Description = "Desc Update " + counter++;
             entity.TimeUpdated = DateTime.Now;
         }
+
         if (isBulk)
         {
-            var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
+            var bulkConfig = new BulkConfig()
+            {
+                SetOutputIdentity = true,
+                CalculateStats = true
+            };
             await context.BulkUpdateAsync(entities, bulkConfig);
             if (sqlType == SqlType.SqlServer)
             {
@@ -366,10 +414,19 @@ public class EFCoreBulkTestAsync
         var entities = new List<Item>();
         for (int i = 1; i < EntitiesNumber; i++)
         {
-            entities.Add(new Item { Name = "name " + i });
+            entities.Add(new Item
+            {
+                Name = "name " + i
+            });
         }
 
-        var bulkConfig = new BulkConfig { UpdateByProperties = new List<string> { nameof(Item.Name) } };
+        var bulkConfig = new BulkConfig
+        {
+            UpdateByProperties = new List<string>
+            {
+                nameof(Item.Name)
+            }
+        };
         await context.BulkReadAsync(entities, bulkConfig).ConfigureAwait(false);
 
         Assert.Equal(1, entities[0].ItemId);
@@ -386,7 +443,10 @@ public class EFCoreBulkTestAsync
         // ItemHistories will also be deleted because of Relationship - ItemId (Delete Rule: Cascade)
         if (isBulk)
         {
-            var bulkConfig = new BulkConfig() { CalculateStats = true };
+            var bulkConfig = new BulkConfig()
+            {
+                CalculateStats = true
+            };
             await context.BulkDeleteAsync(entities, bulkConfig);
             if (sqlType == SqlType.SqlServer)
             {

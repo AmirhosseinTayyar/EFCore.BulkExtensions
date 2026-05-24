@@ -40,6 +40,7 @@ public class BulkConfig
     /// Automatically exclude properties marked as Timestamp / RowVersion during Bulk operations.
     /// </summary>
     public bool AutoExcludeTimestamp { get; set; } = true;
+
     /// <summary>
     ///    Used only when SetOutputIdentity is set to true, and when changed to True then columns that were no included in Upsert are not loaded.
     /// </summary>
@@ -223,7 +224,7 @@ public class BulkConfig
     ///     If Identity column exists and is not added in UpdateByProp it will be excluded automatically.
     /// </remarks>
     public List<string>? UpdateByProperties { get; set; }
-    
+
     /// <summary>
     ///     Used for specifying a function that returns custom SQL to use for conditional updates on merges.
     /// </summary>
@@ -242,14 +243,18 @@ public class BulkConfig
     /// <summary>
     ///     Returns value for shadow properties, EnableShadowProperties = true
     /// </summary>
-    public Func<object, string, object?>? ShadowPropertyValue { get; set; } 
+    public Func<object, string, object?>? ShadowPropertyValue { get; set; }
 
 
     /// <summary>
     ///    Shadow columns used for Temporal table. Has defaults elements: 'PeriodStart' and 'PeriodEnd'. Can be changed if temporal columns have custom names.
     /// </summary>
-    public List<string> TemporalColumns { get; set; } = new List<string> { "PeriodEnd", "PeriodStart" };
-    
+    public List<string> TemporalColumns { get; set; } = new List<string>
+    {
+        "PeriodEnd",
+        "PeriodStart"
+    };
+
     /// <summary>
     ///     When set all entites that have relations with main ones from the list are also merged into theirs tables.
     /// </summary>
@@ -327,7 +332,12 @@ public class BulkConfig
     /// <value>
     ///     <c>Default, KeepIdentity, CheckConstraints, TableLock, KeepNulls, FireTriggers, UseInternalTransaction</c>
     /// </value>
-    public SqlBulkCopyOptions SqlBulkCopyOptions { get; set; } // is superset of System.Data.SqlClient.SqlBulkCopyOptions, gets converted to the desired type
+    public SqlBulkCopyOptions
+        SqlBulkCopyOptions
+    {
+        get;
+        set;
+    } // is superset of System.Data.SqlClient.SqlBulkCopyOptions, gets converted to the desired type
 
     /// <summary>
     ///     List of column order hints for improving performance.
@@ -346,6 +356,7 @@ public class BulkConfig
     {
         SynchronizeFilter = filter;
     }
+
     /// <summary>
     ///     Clears SynchronizeFilter
     /// </summary>
@@ -361,6 +372,7 @@ public class BulkConfig
     {
         SynchronizeSoftDelete = softDelete;
     }
+
     /// <summary>
     ///     Clear SoftDelete
     /// </summary>
@@ -433,33 +445,40 @@ public enum SqlBulkCopyOptions
     /// Use the default values for all options.
     /// </summary>
     Default = 0,
+
     /// <summary>
     /// Preserve source identity values. When not specified, identity values are assigned by the destination.
     /// </summary>
     KeepIdentity = 1 << 0,
+
     /// <summary>
     /// Check constraints while data is being inserted. By default, constraints are not checked.
     /// </summary>
     CheckConstraints = 1 << 1,
+
     /// <summary>
     /// Obtain a bulk update lock for the duration of the bulk copy operation. When not specified, row locks are used.
     /// </summary>
     TableLock = 1 << 2,
+
     /// <summary>
     /// Preserve null values in the destination table regardless of the settings for default values.
     /// When not specified, null values are replaced by default values where applicable.
     /// </summary>
     KeepNulls = 1 << 3,
+
     /// <summary>
     /// When specified, cause the server to fire the insert triggers for the rows being inserted into the database.
     /// </summary>
     FireTriggers = 1 << 4,
+
     /// <summary>
     /// When specified, each batch of the bulk-copy operation will occur within a transaction.
     /// If you indicate this option and also provide a <see cref="T:Microsoft.Data.SqlClient.SqlTransaction" />object to the constructor,
     /// an <see cref="T:System.ArgumentException" /> occurs.
     /// </summary>
     UseInternalTransaction = 1 << 5,
+
     /// <summary>
     /// When specified, **AllowEncryptedValueModifications** enables bulk copying of encrypted data between tables or databases, without decrypting the data.
     /// </summary>
@@ -492,10 +511,12 @@ public enum SortOrder
     /// The default. No sort order is specified.
     /// </summary>
     Unspecified = -1,
+
     /// <summary>
     /// Rows are sorted in ascending order.
     /// </summary>
     Ascending = 0,
+
     /// <summary>
     /// Rows are sorted in descending order.
     /// </summary>
@@ -522,4 +543,3 @@ public enum ConflictOption
     /// </summary>
     Ignore
 }
-

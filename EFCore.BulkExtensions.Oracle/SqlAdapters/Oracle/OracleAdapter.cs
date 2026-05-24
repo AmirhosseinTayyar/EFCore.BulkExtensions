@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Oracle.ManagedDataAccess.Client;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Oracle.ManagedDataAccess.Client;
 
 namespace EFCore.BulkExtensions.SqlAdapters.Oracle;
 
@@ -13,19 +15,37 @@ public class OracleAdapter : ISqlOperationsAdapter
     private OracleQueryBuilder ProviderSqlQueryBuilder => new();
 
     /// <inheritdoc/>
+
     #region Methods
+
     // Insert
-    public void Insert<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress)
-        => InsertAsync(context, type, entities, tableInfo, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+    public void Insert<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress)
+        => InsertAsync(context, type, entities, tableInfo, progress, isAsync: false, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
 
     /// <inheritdoc/>
-    public async Task InsertAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress,
+    public async Task InsertAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
         CancellationToken cancellationToken)
-        => await InsertAsync(context, type, entities, tableInfo, progress, isAsync: true, CancellationToken.None).ConfigureAwait(false);
+        => await InsertAsync(context, type, entities, tableInfo, progress, isAsync: true, CancellationToken.None)
+            .ConfigureAwait(false);
 
     /// <inheritdoc/>
-    protected static async Task InsertAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress,
-        bool isAsync, CancellationToken cancellationToken)
+    protected static async Task InsertAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         var dbContext = context.DbContext;
         tableInfo.CheckToSetIdentityForPreserveOrder(tableInfo, entities);
@@ -37,11 +57,12 @@ public class OracleAdapter : ISqlOperationsAdapter
         {
             dbContext.Database.OpenConnection();
         }
+
         var connection = dbContext.GetUnderlyingConnection(tableInfo.BulkConfig);
         try
         {
             var transaction = dbContext.Database.CurrentTransaction;
-            var OracleBulkCopy = GetOracleBulkCopy((OracleConnection)connection, transaction, tableInfo.BulkConfig);
+            var OracleBulkCopy = GetOracleBulkCopy((OracleConnection) connection, transaction, tableInfo.BulkConfig);
 
             SetOracleBulkCopyConfig(OracleBulkCopy, tableInfo);
 
@@ -50,11 +71,12 @@ public class OracleAdapter : ISqlOperationsAdapter
 
             if (isAsync)
             {
-                if (dataReader == null) 
-                    await Task.Run(() => OracleBulkCopy.WriteToServer(dataTable), cancellationToken).ConfigureAwait(false);
+                if (dataReader == null)
+                    await Task.Run(() => OracleBulkCopy.WriteToServer(dataTable), cancellationToken)
+                        .ConfigureAwait(false);
                 else
-                    await Task.Run(() => OracleBulkCopy.WriteToServer(dataReader), cancellationToken).ConfigureAwait(false);
-
+                    await Task.Run(() => OracleBulkCopy.WriteToServer(dataReader), cancellationToken)
+                        .ConfigureAwait(false);
             }
             else
             {
@@ -75,24 +97,59 @@ public class OracleAdapter : ISqlOperationsAdapter
                 dbContext.Database.CloseConnection();
             }
         }
+
         if (!tableInfo.CreateOutputTable)
         {
             tableInfo.CheckToSetIdentityForPreserveOrder(tableInfo, entities, reset: true);
         }
     }
+
     /// <inheritdoc/>
-    public void Merge<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress)
+    public void Merge<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress)
         where T : class
-        => MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        => MergeAsync(context,
+                type,
+                entities,
+                tableInfo,
+                operationType,
+                progress,
+                isAsync: false,
+                CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
 
     /// <inheritdoc/>
-    public async Task MergeAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress,
+    public async Task MergeAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress,
         CancellationToken cancellationToken) where T : class
-        => await MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: true, CancellationToken.None).ConfigureAwait(false);
+        => await MergeAsync(context,
+                type,
+                entities,
+                tableInfo,
+                operationType,
+                progress,
+                isAsync: true,
+                CancellationToken.None)
+            .ConfigureAwait(false);
 
     /// <inheritdoc/>
-    protected async Task MergeAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress,
-        bool isAsync, CancellationToken cancellationToken) where T : class
+    protected async Task MergeAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken) where T : class
     {
         bool tempTableCreated = false;
         bool outputTableCreated = false;
@@ -104,15 +161,21 @@ public class OracleAdapter : ISqlOperationsAdapter
         {
             //Because of using temp table in case of update, we need to access created temp table in Insert method.
             hasExistingTransaction = dbContext.Database.CurrentTransaction != null;
-            transaction ??= isAsync ? await dbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false)
-                                    : dbContext.Database.BeginTransaction();
+            transaction ??= isAsync
+                ? await dbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false)
+                : dbContext.Database.BeginTransaction();
 
             if (tableInfo.BulkConfig.CustomSourceTableName == null)
             {
                 tableInfo.InsertToTempTable = true;
 
-                var sqlCreateTableCopy = OracleQueryBuilder.CreateTableCopy(tableInfo.FullTableName, tableInfo.FullTempTableName, tableInfo, tableInfo.BulkConfig.UseTempDB, operationType);
-                await ExecuteSqlRawAsync(dbContext, isAsync, sqlCreateTableCopy, cancellationToken).ConfigureAwait(false);
+                var sqlCreateTableCopy = OracleQueryBuilder.CreateTableCopy(tableInfo.FullTableName,
+                    tableInfo.FullTempTableName,
+                    tableInfo,
+                    tableInfo.BulkConfig.UseTempDB,
+                    operationType);
+                await ExecuteSqlRawAsync(dbContext, isAsync, sqlCreateTableCopy, cancellationToken)
+                    .ConfigureAwait(false);
                 tempTableCreated = true;
             }
 
@@ -126,13 +189,15 @@ public class OracleAdapter : ISqlOperationsAdapter
             else
             {
                 (hasUniqueConstrain, bool connectionOpenedInternally) =
-                    await CheckHasExplicitUniqueConstrainAsync(dbContext, tableInfo, isAsync, cancellationToken).ConfigureAwait(false);
+                    await CheckHasExplicitUniqueConstrainAsync(dbContext, tableInfo, isAsync, cancellationToken)
+                        .ConfigureAwait(false);
             }
 
             if (!hasUniqueConstrain)
             {
                 string createUniqueConstrain = OracleQueryBuilder.CreateUniqueConstrain(tableInfo);
-                await ExecuteSqlRawAsync(dbContext, isAsync, createUniqueConstrain, cancellationToken).ConfigureAwait(false);
+                await ExecuteSqlRawAsync(dbContext, isAsync, createUniqueConstrain, cancellationToken)
+                    .ConfigureAwait(false);
                 uniqueConstrainCreated = true;
             }
 
@@ -140,8 +205,12 @@ public class OracleAdapter : ISqlOperationsAdapter
             {
                 tableInfo.InsertToTempTable = true;
                 var sqlCreateOutputTableCopy = OracleQueryBuilder.CreateTableCopy(tableInfo.FullTableName,
-                    tableInfo.FullTempOutputTableName, tableInfo, tableInfo.InsertToTempTable, operationType);
-                await ExecuteSqlRawAsync(dbContext, isAsync, sqlCreateOutputTableCopy, cancellationToken).ConfigureAwait(false);
+                    tableInfo.FullTempOutputTableName,
+                    tableInfo,
+                    tableInfo.InsertToTempTable,
+                    operationType);
+                await ExecuteSqlRawAsync(dbContext, isAsync, sqlCreateOutputTableCopy, cancellationToken)
+                    .ConfigureAwait(false);
                 outputTableCreated = true;
             }
 
@@ -149,7 +218,8 @@ public class OracleAdapter : ISqlOperationsAdapter
             {
                 if (isAsync)
                 {
-                    await InsertAsync(context, type, entities, tableInfo, progress, cancellationToken).ConfigureAwait(false);
+                    await InsertAsync(context, type, entities, tableInfo, progress, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
@@ -163,17 +233,25 @@ public class OracleAdapter : ISqlOperationsAdapter
             {
                 if (isAsync)
                 {
-                    await tableInfo.LoadOutputDataAsync(context, type, entities, tableInfo, isAsync: true, cancellationToken).ConfigureAwait(false);
+                    await tableInfo
+                        .LoadOutputDataAsync(context, type, entities, tableInfo, isAsync: true, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
-                    tableInfo.LoadOutputDataAsync(context, type, entities, tableInfo, isAsync: false, cancellationToken).GetAwaiter().GetResult();
+                    tableInfo.LoadOutputDataAsync(context, type, entities, tableInfo, isAsync: false, cancellationToken)
+                        .GetAwaiter()
+                        .GetResult();
                 }
             }
 
             if (tableInfo.BulkConfig.CustomSqlPostProcess != null)
             {
-                await ExecuteSqlRawAsync(dbContext, isAsync, tableInfo.BulkConfig.CustomSqlPostProcess, cancellationToken).ConfigureAwait(false);
+                await ExecuteSqlRawAsync(dbContext,
+                        isAsync,
+                        tableInfo.BulkConfig.CustomSqlPostProcess,
+                        cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             if (hasExistingTransaction == false && !tableInfo.BulkConfig.IncludeGraph)
@@ -193,21 +271,27 @@ public class OracleAdapter : ISqlOperationsAdapter
             if (uniqueConstrainCreated)
             {
                 string dropUniqueConstrain = OracleQueryBuilder.DropUniqueConstrain(tableInfo);
-                await ExecuteSqlRawAsync(dbContext, isAsync, dropUniqueConstrain, cancellationToken).ConfigureAwait(false);
+                await ExecuteSqlRawAsync(dbContext, isAsync, dropUniqueConstrain, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             if (!tableInfo.BulkConfig.UseTempDB) // Temp tables are automatically dropped by the database
             {
                 if (outputTableCreated)
                 {
-                    var sqlDropOutputTable = ProviderSqlQueryBuilder.DropTable(tableInfo.FullTempOutputTableName, tableInfo.BulkConfig.UseTempDB);
-                    await ExecuteSqlRawAsync(dbContext, isAsync, sqlDropOutputTable, cancellationToken).ConfigureAwait(false);
+                    var sqlDropOutputTable = ProviderSqlQueryBuilder.DropTable(tableInfo.FullTempOutputTableName,
+                        tableInfo.BulkConfig.UseTempDB);
+                    await ExecuteSqlRawAsync(dbContext, isAsync, sqlDropOutputTable, cancellationToken)
+                        .ConfigureAwait(false);
                 }
+
                 if (tempTableCreated)
                 {
-                    var sqlDropTable = ProviderSqlQueryBuilder.DropTable(tableInfo.FullTempTableName, tableInfo.BulkConfig.UseTempDB);
+                    var sqlDropTable =
+                        ProviderSqlQueryBuilder.DropTable(tableInfo.FullTempTableName, tableInfo.BulkConfig.UseTempDB);
                     await ExecuteSqlRawAsync(dbContext, isAsync, sqlDropTable, cancellationToken).ConfigureAwait(false);
                 }
+
                 if (hasExistingTransaction == false && !tableInfo.BulkConfig.IncludeGraph && transaction != null)
                 {
                     if (isAsync)
@@ -222,14 +306,23 @@ public class OracleAdapter : ISqlOperationsAdapter
             }
         }
     }
+
     /// <inheritdoc/>
-    public void Read<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress) where T : class
+    public void Read<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress) where T : class
     {
         throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
-    public Task ReadAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress,
+    public Task ReadAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
         CancellationToken cancellationToken) where T : class
     {
         throw new NotImplementedException();
@@ -246,10 +339,14 @@ public class OracleAdapter : ISqlOperationsAdapter
     public async Task TruncateAsync(BulkContext context, TableInfo tableInfo, CancellationToken cancellationToken)
     {
         var sqlTruncateTable = ProviderSqlQueryBuilder.TruncateTable(tableInfo.FullTableName);
-        _ = await context.DbContext.Database.ExecuteSqlRawAsync(sqlTruncateTable, cancellationToken).ConfigureAwait(false);
+        _ = await context.DbContext.Database.ExecuteSqlRawAsync(sqlTruncateTable, cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    private async Task ExecuteSqlRawAsync(DbContext context, bool isAsync, string commandText, CancellationToken cancellationToken)
+    private async Task ExecuteSqlRawAsync(DbContext context,
+        bool isAsync,
+        string commandText,
+        CancellationToken cancellationToken)
     {
         commandText = commandText.Replace("[", "").Replace("]", "");
         if (isAsync)
@@ -261,11 +358,14 @@ public class OracleAdapter : ISqlOperationsAdapter
             context.Database.ExecuteSqlRaw(commandText);
         }
     }
+
     #endregion
+
     #region Connection
 
     internal static async Task<(DbConnection, bool)> OpenAndGetOracleConnectionAsync(DbContext context,
-        bool isAsync, CancellationToken cancellationToken)
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         bool oonnectionOpenedInternally = false;
         var connection = context.Database.GetDbConnection();
@@ -279,17 +379,22 @@ public class OracleAdapter : ISqlOperationsAdapter
             {
                 connection.Open();
             }
+
             oonnectionOpenedInternally = true;
         }
+
         return (connection, oonnectionOpenedInternally);
     }
 
-    internal static async Task<(bool, bool)> CheckHasExplicitUniqueConstrainAsync(DbContext context, TableInfo tableInfo,
-        bool isAsync, CancellationToken cancellationToken)
+    internal static async Task<(bool, bool)> CheckHasExplicitUniqueConstrainAsync(DbContext context,
+        TableInfo tableInfo,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         string countUniqueConstrain = OracleQueryBuilder.HasUniqueConstrain(tableInfo);
 
-        (DbConnection connection, bool connectionOpenedInternally) = await OpenAndGetOracleConnectionAsync(context, isAsync, cancellationToken).ConfigureAwait(false);
+        (DbConnection connection, bool connectionOpenedInternally) =
+            await OpenAndGetOracleConnectionAsync(context, isAsync, cancellationToken).ConfigureAwait(false);
 
         bool hasUniqueConstrain = false;
         using (var command = connection.CreateCommand())
@@ -322,23 +427,28 @@ public class OracleAdapter : ISqlOperationsAdapter
                 }
             }
         }
+
         return (hasUniqueConstrain, connectionOpenedInternally);
     }
 
-    private static OracleBulkCopy GetOracleBulkCopy(OracleConnection OracleConnection, IDbContextTransaction? transaction, BulkConfig config)
+    private static OracleBulkCopy GetOracleBulkCopy(OracleConnection OracleConnection,
+        IDbContextTransaction? transaction,
+        BulkConfig config)
     {
         var OracleBulkCopy = new OracleBulkCopy(OracleConnection);
 
         return OracleBulkCopy;
     }
+
     /// <param name="OracleBulkCopy"></param>
     /// <param name="tableInfo"></param>
     private static void SetOracleBulkCopyConfig(OracleBulkCopy OracleBulkCopy, TableInfo tableInfo)
     {
-        string destinationTable = tableInfo.InsertToTempTable ? tableInfo.FullTempTableName
-                                                              : tableInfo.FullTableName;
+        string destinationTable = tableInfo.InsertToTempTable
+            ? tableInfo.FullTempTableName
+            : tableInfo.FullTableName;
         destinationTable = destinationTable.Replace("[", "")
-                                           .Replace("]", "");
+            .Replace("]", "");
         OracleBulkCopy.DestinationTableName = destinationTable;
 
         OracleBulkCopy.NotifyAfter = tableInfo.BulkConfig.NotifyAfter ?? tableInfo.BulkConfig.BatchSize;
@@ -346,7 +456,9 @@ public class OracleAdapter : ISqlOperationsAdapter
     }
 
     #endregion
+
     #region DataTable
+
     /// <summary>
     /// Supports <see cref="OracleBulkCopy"/>
     /// </summary>
@@ -357,16 +469,21 @@ public class OracleAdapter : ISqlOperationsAdapter
     /// <param name="OracleBulkCopy"></param>
     /// <param name="tableInfo"></param>
     /// <returns></returns>
-    public static DataTable GetDataTable<T>(DbContext context, Type type, IEnumerable<T> entities, OracleBulkCopy OracleBulkCopy, TableInfo tableInfo)
+    public static DataTable GetDataTable<T>(DbContext context,
+        Type type,
+        IEnumerable<T> entities,
+        OracleBulkCopy OracleBulkCopy,
+        TableInfo tableInfo)
     {
         DataTable dataTable = InnerGetDataTable(context, ref type, entities, tableInfo);
 
         int sourceOrdinal = 0;
-        foreach (DataColumn item in dataTable.Columns)  //Add mapping
+        foreach (DataColumn item in dataTable.Columns) //Add mapping
         {
             OracleBulkCopy.ColumnMappings.Add(new OracleBulkCopyColumnMapping(sourceOrdinal, item.ColumnName));
             sourceOrdinal++;
         }
+
         return dataTable;
     }
 
@@ -379,7 +496,10 @@ public class OracleAdapter : ISqlOperationsAdapter
     /// <param name="entities"></param>
     /// <param name="tableInfo"></param>
     /// <returns></returns>
-    private static DataTable InnerGetDataTable<T>(DbContext context, ref Type type, IEnumerable<T> entities, TableInfo tableInfo)
+    private static DataTable InnerGetDataTable<T>(DbContext context,
+        ref Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo)
     {
         var dataTable = new DataTable();
         var columnsDict = new Dictionary<string, object?>();
@@ -387,41 +507,50 @@ public class OracleAdapter : ISqlOperationsAdapter
 
         var objectIdentifier = tableInfo.ObjectIdentifier;
         type = tableInfo.HasAbstractList ? entities.ElementAt(0)!.GetType() : type;
-        var entityType = context.Model.FindEntityType(type) ?? throw new ArgumentException($"Unable to determine entity type from given type - {type.Name}");
+        var entityType = context.Model.FindEntityType(type) ??
+                         throw new ArgumentException($"Unable to determine entity type from given type - {type.Name}");
         var entityTypeProperties = entityType.GetProperties();
 
-        var entityPropertiesDict = entityTypeProperties.Where(a => tableInfo.PropertyColumnNamesDict.ContainsKey(a.Name) ||
-                                                                   (tableInfo.BulkConfig.OperationType != OperationType.Read && a.Name == tableInfo.TimeStampPropertyName))
-                                                       .ToDictionary(a => a.Name, a => a);
+        var entityPropertiesDict = entityTypeProperties.Where(a =>
+                tableInfo.PropertyColumnNamesDict.ContainsKey(a.Name) ||
+                (tableInfo.BulkConfig.OperationType != OperationType.Read && a.Name == tableInfo.TimeStampPropertyName))
+            .ToDictionary(a => a.Name, a => a);
 
-        var entityNavigationOwnedDict = entityType.GetNavigations().Where(a => a.TargetEntityType.IsOwned())
-                                                                   .ToDictionary(a => a.Name, a => a);
+        var entityNavigationOwnedDict = entityType.GetNavigations()
+            .Where(a => a.TargetEntityType.IsOwned())
+            .ToDictionary(a => a.Name, a => a);
 
         var entityShadowFkPropertiesDict = entityTypeProperties.Where(a => a.IsShadowProperty() &&
                                                                            a.IsForeignKey() &&
-                                                                           a.GetContainingForeignKeys().FirstOrDefault()?.DependentToPrincipal?.Name != null)
-                                                               .ToDictionary(x => x.GetContainingForeignKeys()?.First()?.DependentToPrincipal?.Name ?? string.Empty, a => a);
+                                                                           a.GetContainingForeignKeys()
+                                                                               .FirstOrDefault()
+                                                                               ?.DependentToPrincipal?.Name !=
+                                                                           null)
+            .ToDictionary(x => x.GetContainingForeignKeys()?.First()?.DependentToPrincipal?.Name ?? string.Empty,
+                a => a);
 
-        var entityShadowFkPropertyColumnNamesDict = entityShadowFkPropertiesDict.ToDictionary(a => a.Key, a => a.Value.GetColumnName(objectIdentifier));
+        var entityShadowFkPropertyColumnNamesDict =
+            entityShadowFkPropertiesDict.ToDictionary(a => a.Key, a => a.Value.GetColumnName(objectIdentifier));
         var shadowPropertyColumnNamesDict = entityPropertiesDict.Where(a => a.Value.IsShadowProperty())
-                                                                .ToDictionary(a => a.Key, a => a.Value.GetColumnName(objectIdentifier));
+            .ToDictionary(a => a.Key, a => a.Value.GetColumnName(objectIdentifier));
 
         var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var discriminatorColumn = GetDiscriminatorColumn(tableInfo);
 
         foreach (var property in properties)
         {
-            var hasDefaultVauleOnInsert = tableInfo.BulkConfig.OperationType == OperationType.Insert
-                && !tableInfo.BulkConfig.SetOutputIdentity
-                && tableInfo.DefaultValueProperties.Contains(property.Name);
+            var hasDefaultVauleOnInsert = tableInfo.BulkConfig.OperationType == OperationType.Insert &&
+                                          !tableInfo.BulkConfig.SetOutputIdentity &&
+                                          tableInfo.DefaultValueProperties.Contains(property.Name);
 
-            if (entityPropertiesDict.TryGetValue(property.Name, out Microsoft.EntityFrameworkCore.Metadata.IProperty? propertyEntityType))
+            if (entityPropertiesDict.TryGetValue(property.Name, out IProperty? propertyEntityType))
             {
                 string columnName = propertyEntityType.GetColumnName(objectIdentifier) ?? string.Empty;
 
                 var isConvertible = tableInfo.ConvertibleColumnConverterDict.ContainsKey(columnName);
-                var propertyType = isConvertible ? tableInfo.ConvertibleColumnConverterDict[columnName].ProviderClrType
-                                                 : property.PropertyType;
+                var propertyType = isConvertible
+                    ? tableInfo.ConvertibleColumnConverterDict[columnName].ProviderClrType
+                    : property.PropertyType;
 
                 var underlyingType = Nullable.GetUnderlyingType(propertyType);
                 if (underlyingType != null)
@@ -435,17 +564,19 @@ public class OracleAdapter : ISqlOperationsAdapter
                     columnsDict.Add(property.Name, null);
                 }
             }
-            else if (entityShadowFkPropertiesDict.TryGetValue(property.Name, out Microsoft.EntityFrameworkCore.Metadata.IProperty? fk))
+            else if (entityShadowFkPropertiesDict.TryGetValue(property.Name, out IProperty? fk))
             {
-                entityPropertiesDict.TryGetValue(fk.GetColumnName(objectIdentifier) ?? string.Empty, out var entityProperty);
+                entityPropertiesDict.TryGetValue(fk.GetColumnName(objectIdentifier) ?? string.Empty,
+                    out var entityProperty);
                 if (entityProperty == null) // BulkRead
                     continue;
 
                 var columnName = entityProperty.GetColumnName(objectIdentifier);
 
                 var isConvertible = tableInfo.ConvertibleColumnConverterDict.ContainsKey(columnName ?? string.Empty);
-                var propertyType = isConvertible ? tableInfo.ConvertibleColumnConverterDict[columnName ?? string.Empty].ProviderClrType
-                                                 : entityProperty.ClrType;
+                var propertyType = isConvertible
+                    ? tableInfo.ConvertibleColumnConverterDict[columnName ?? string.Empty].ProviderClrType
+                    : entityProperty.ClrType;
 
                 var underlyingType = Nullable.GetUnderlyingType(propertyType);
                 if (underlyingType != null)
@@ -466,7 +597,10 @@ public class OracleAdapter : ISqlOperationsAdapter
                 var ownedEntityType = context.Model.FindEntityType(property.PropertyType);
                 if (ownedEntityType == null)
                 {
-                    ownedEntityType = context.Model.GetEntityTypes().SingleOrDefault(x => x.ClrType == property.PropertyType && x.Name.StartsWith(entityType.Name + "." + property.Name + "#"));
+                    ownedEntityType = context.Model.GetEntityTypes()
+                        .SingleOrDefault(x =>
+                            x.ClrType == property.PropertyType &&
+                            x.Name.StartsWith(entityType.Name + "." + property.Name + "#"));
                 }
 
                 var ownedEntityProperties = ownedEntityType?.GetProperties().ToList() ?? new();
@@ -495,14 +629,17 @@ public class OracleAdapter : ISqlOperationsAdapter
                             var columnName = ownedEntityPropertyNameColumnNameDict[innerProperty.Name];
                             var propertyName = $"{property.Name}_{innerProperty.Name}";
 
-                            if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(propertyName, out Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? convertor))
+                            if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(propertyName,
+                                    out ValueConverter? convertor))
                             {
-                                var underlyingType = Nullable.GetUnderlyingType(convertor.ProviderClrType) ?? convertor.ProviderClrType;
+                                var underlyingType = Nullable.GetUnderlyingType(convertor.ProviderClrType) ??
+                                                     convertor.ProviderClrType;
                                 _ = dataTable.Columns.Add(columnName, underlyingType);
                             }
                             else
                             {
-                                var ownedPropertyType = Nullable.GetUnderlyingType(innerProperty.PropertyType) ?? innerProperty.PropertyType;
+                                var ownedPropertyType = Nullable.GetUnderlyingType(innerProperty.PropertyType) ??
+                                                        innerProperty.PropertyType;
                                 _ = dataTable.Columns.Add(columnName, ownedPropertyType);
                             }
 
@@ -523,7 +660,8 @@ public class OracleAdapter : ISqlOperationsAdapter
                 if (columnName is not null && dataTable.Columns.Contains(columnName))
                     continue;
 
-                var isConvertible = columnName is not null && tableInfo.ConvertibleColumnConverterDict.ContainsKey(columnName);
+                var isConvertible = columnName is not null &&
+                                    tableInfo.ConvertibleColumnConverterDict.ContainsKey(columnName);
 
                 var propertyType = isConvertible
                     ? tableInfo.ConvertibleColumnConverterDict[columnName!].ProviderClrType
@@ -547,55 +685,71 @@ public class OracleAdapter : ISqlOperationsAdapter
             dataTable.Columns.Add(discriminatorColumn, discriminatorProperty.ClrType);
             columnsDict.Add(discriminatorColumn, entityType.GetDiscriminatorValue());
         }
+
         bool hasConverterProperties = tableInfo.ConvertiblePropertyColumnDict.Count > 0;
 
         foreach (T entity in entities)
         {
             var propertiesToLoad = properties
-                .Where(a => !tableInfo.AllNavigationsDictionary.ContainsKey(a.Name)
-                            || entityShadowFkPropertiesDict.ContainsKey(a.Name)
-                            || tableInfo.OwnedTypesDict.ContainsKey(a.Name)); // omit virtual Navigation (except Owned and ShadowNavig.) since it's Getter can cause unwanted Select-s from Db
+                .Where(a => !tableInfo.AllNavigationsDictionary.ContainsKey(a.Name) ||
+                            entityShadowFkPropertiesDict.ContainsKey(a.Name) ||
+                            tableInfo.OwnedTypesDict
+                                .ContainsKey(a
+                                    .Name)); // omit virtual Navigation (except Owned and ShadowNavig.) since it's Getter can cause unwanted Select-s from Db
 
             foreach (var property in propertiesToLoad)
             {
-                object? propertyValue = tableInfo.FastPropertyDict.TryGetValue(property.Name, out FastProperty? value) ? value.Get(entity!) : null;
+                object? propertyValue = tableInfo.FastPropertyDict.TryGetValue(property.Name, out FastProperty? value)
+                    ? value.Get(entity!)
+                    : null;
 
-                var hasDefaultVauleOnInsert = tableInfo.BulkConfig.OperationType == OperationType.Insert
-                                           && !tableInfo.BulkConfig.SetOutputIdentity
-                                           && tableInfo.DefaultValueProperties.Contains(property.Name);
+                var hasDefaultVauleOnInsert = tableInfo.BulkConfig.OperationType == OperationType.Insert &&
+                                              !tableInfo.BulkConfig.SetOutputIdentity &&
+                                              tableInfo.DefaultValueProperties.Contains(property.Name);
 
                 if (hasConverterProperties && tableInfo.ConvertiblePropertyColumnDict.ContainsKey(property.Name))
                 {
                     string columnName = tableInfo.ConvertiblePropertyColumnDict[property.Name];
-                    propertyValue = tableInfo.ConvertibleColumnConverterDict[columnName].ConvertToProvider.Invoke(propertyValue);
+                    propertyValue = tableInfo.ConvertibleColumnConverterDict[columnName]
+                        .ConvertToProvider.Invoke(propertyValue);
                 }
 
                 if (entityPropertiesDict.ContainsKey(property.Name) && !hasDefaultVauleOnInsert)
                 {
                     columnsDict[property.Name] = propertyValue;
                 }
-                else if (entityShadowFkPropertiesDict.TryGetValue(property.Name, out Microsoft.EntityFrameworkCore.Metadata.IProperty? foreignKeyShadowProperty))
+                else if (entityShadowFkPropertiesDict.TryGetValue(property.Name,
+                             out IProperty? foreignKeyShadowProperty))
                 {
                     var columnName = entityShadowFkPropertyColumnNamesDict[property.Name] ?? string.Empty;
                     if (!entityPropertiesDict.TryGetValue(columnName, out var entityProperty) || entityProperty is null)
                     {
                         continue; // BulkRead
-                    };
-                    columnsDict[columnName] = propertyValue != null ? 
-                        foreignKeyShadowProperty.FindFirstPrincipal()?.PropertyInfo?.GetValue(propertyValue) // TODO Try to optimize
+                    }
+
+                    ;
+                    columnsDict[columnName] = propertyValue != null
+                        ? foreignKeyShadowProperty.FindFirstPrincipal()
+                            ?.PropertyInfo?.GetValue(propertyValue) // TODO Try to optimize
                         : propertyValue;
                 }
                 else if (entityNavigationOwnedDict.ContainsKey(property.Name) && !tableInfo.LoadOnlyPKColumn)
                 {
-                    var ownedProperties = property.PropertyType.GetProperties().Where(a => ownedEntitiesMappedProperties.Contains(property.Name + "_" + a.Name));
+                    var ownedProperties = property.PropertyType.GetProperties()
+                        .Where(a => ownedEntitiesMappedProperties.Contains(property.Name + "_" + a.Name));
                     foreach (var ownedProperty in ownedProperties)
                     {
                         var columnName = $"{property.Name}_{ownedProperty.Name}";
-                        var ownedPropertyValue = propertyValue == null ? null : tableInfo.FastPropertyDict[columnName].Get(propertyValue);
+                        var ownedPropertyValue = propertyValue == null
+                            ? null
+                            : tableInfo.FastPropertyDict[columnName].Get(propertyValue);
 
-                        if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(columnName, out Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? converter))
+                        if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(columnName,
+                                out ValueConverter? converter))
                         {
-                            columnsDict[columnName] = ownedPropertyValue == null ? null : converter.ConvertToProvider.Invoke(ownedPropertyValue);
+                            columnsDict[columnName] = ownedPropertyValue == null
+                                ? null
+                                : converter.ConvertToProvider.Invoke(ownedPropertyValue);
                         }
                         else
                         {
@@ -623,7 +777,7 @@ public class OracleAdapter : ISqlOperationsAdapter
                         propertyValue = tableInfo.BulkConfig.ShadowPropertyValue(entity!, shadowPropertyName);
                     }
 
-                    if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(columnName, out Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter? value))
+                    if (tableInfo.ConvertibleColumnConverterDict.TryGetValue(columnName, out ValueConverter? value))
                     {
                         propertyValue = value.ConvertToProvider.Invoke(propertyValue);
                     }
@@ -644,11 +798,15 @@ public class OracleAdapter : ISqlOperationsAdapter
         string? discriminatorColumn = null;
         if (!tableInfo.BulkConfig.EnableShadowProperties && tableInfo.ShadowProperties.Count > 0)
         {
-            var stringColumns = tableInfo.ColumnNamesTypesDict.Where(a => a.Value.Contains("char")).Select(a => a.Key).ToList();
+            var stringColumns = tableInfo.ColumnNamesTypesDict.Where(a => a.Value.Contains("char"))
+                .Select(a => a.Key)
+                .ToList();
             if (tableInfo.ShadowProperties.FirstOrDefault(a => stringColumns.Contains(a)) is { } c)
                 discriminatorColumn = c;
         }
+
         return discriminatorColumn;
     }
+
     #endregion
 }

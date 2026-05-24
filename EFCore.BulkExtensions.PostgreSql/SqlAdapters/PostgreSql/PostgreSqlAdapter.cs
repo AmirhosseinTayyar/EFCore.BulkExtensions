@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace EFCore.BulkExtensions.SqlAdapters.PostgreSql;
 
@@ -16,27 +16,46 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
     private PostgreSqlQueryBuilder ProviderSqlQueryBuilder => new PostgreSqlQueryBuilder();
 
     /// <inheritdoc/>
+
     #region Methods
+
     // Insert
-    public void Insert<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress)
+    public void Insert<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress)
     {
-        InsertAsync(context, entities, tableInfo, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        InsertAsync(context, entities, tableInfo, progress, isAsync: false, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
     }
 
     /// <inheritdoc/>
-    public async Task InsertAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress,
+    public async Task InsertAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
         CancellationToken cancellationToken)
     {
-        await InsertAsync(context, entities, tableInfo, progress, isAsync: true, cancellationToken).ConfigureAwait(false);
+        await InsertAsync(context, entities, tableInfo, progress, isAsync: true, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    protected static async Task InsertAsync<T>(BulkContext context, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress, bool isAsync, CancellationToken cancellationToken)
+    protected static async Task InsertAsync<T>(BulkContext context,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         if (entities == null || !entities.Any()) return;
 
         var dbContext = context.DbContext;
-        var (connection, closeConnectionInternally) = await GetOrCreateConnection(context, isAsync, cancellationToken).ConfigureAwait(false);
+        var (connection, closeConnectionInternally) =
+            await GetOrCreateConnection(context, isAsync, cancellationToken).ConfigureAwait(false);
 
         try
         {
@@ -44,14 +63,16 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             var sqlCopy = PostgreSqlQueryBuilder.InsertIntoTable(tableInfo, operationType);
 
             // when code is: await using var = ... it needs entire code to be encapsulated in ConfigureAwait but then writer.StartRowAsync does not build
-            using var writer = isAsync ? await connection.BeginBinaryImportAsync(sqlCopy, cancellationToken).ConfigureAwait(false)
-                                             : connection.BeginBinaryImport(sqlCopy);
+            using var writer = isAsync
+                ? await connection.BeginBinaryImportAsync(sqlCopy, cancellationToken).ConfigureAwait(false)
+                : connection.BeginBinaryImport(sqlCopy);
 
             var uniqueColumnName = tableInfo.PrimaryKeysPropertyColumnNameDict.Values.ToList().FirstOrDefault();
 
             var doKeepIdentity = tableInfo.BulkConfig.SqlBulkCopyOptions == SqlBulkCopyOptions.KeepIdentity;
 
-            var propertiesColumnDict = ((tableInfo.InsertToTempTable || doKeepIdentity) && tableInfo.IdentityColumnName == uniqueColumnName)
+            var propertiesColumnDict = ((tableInfo.InsertToTempTable || doKeepIdentity) &&
+                                        tableInfo.IdentityColumnName == uniqueColumnName)
                 ? tableInfo.PropertyColumnNamesDict
                 : tableInfo.PropertyColumnNamesDict.Where(a => a.Value != tableInfo.IdentityColumnName);
 
@@ -70,29 +91,30 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
 
                 foreach (var propertyName in propertiesNames)
                 {
-                    if (operationType == OperationType.Insert
-                        && tableInfo.DefaultValueProperties.Contains(propertyName)
-                        && !tableInfo.PrimaryKeysPropertyColumnNameDict.ContainsKey(propertyName))
+                    if (operationType == OperationType.Insert &&
+                        tableInfo.DefaultValueProperties.Contains(propertyName) &&
+                        !tableInfo.PrimaryKeysPropertyColumnNameDict.ContainsKey(propertyName))
                     {
                         continue;
                     }
 
                     var propertyValue = GetPropertyValue(dbContext, tableInfo, propertyName, entity);
-                    var propertyColumnName = tableInfo.PropertyColumnNamesDict.GetValueOrDefault(propertyName, "");   
-                    
+                    var propertyColumnName = tableInfo.PropertyColumnNamesDict.GetValueOrDefault(propertyName, "");
+
                     // NB: for JSONb columns, we write the parameter value as the raw POCO type.
                     // User should configure JSON options on NpgsqlDataSourceBuilder
                     // See: https://www.npgsql.org/doc/types/json.html?tabs=datasource#poco-mapping
-                    
+
                     // TODO: Try get JSON options from connection (fallback to default), then serialize to JSON manually
                     // However it doesn't seem to be possible to get the JsonSerializerSettings from the connection currently.
-                    var columnType = tableInfo.OwnedJsonTypesDict.ContainsKey(propertyColumnName) 
-                        ? "jsonb" 
+                    var columnType = tableInfo.OwnedJsonTypesDict.ContainsKey(propertyColumnName)
+                        ? "jsonb"
                         : tableInfo.ColumnNamesTypesDict[propertyColumnName];
-                    
+
                     // string is 'text' which works fine
-                    if (columnType.StartsWith("character"))   // when MaxLength is defined: 'character(1)' or 'character varying'
-                        columnType = "character";             // 'character' is like 'string'
+                    if (columnType.StartsWith(
+                            "character")) // when MaxLength is defined: 'character(1)' or 'character varying'
+                        columnType = "character"; // 'character' is like 'string'
                     else if (columnType.StartsWith("varchar"))
                         columnType = "varchar";
                     else if (columnType.StartsWith("numeric") && columnType != "numeric[]")
@@ -115,13 +137,13 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                             {
                                 var clrType = converter.ProviderClrType;
                                 if (clrType == typeof(byte)) // columnType == "smallint"
-                                    propertyValue = (byte)propertyValue;
+                                    propertyValue = (byte) propertyValue;
                                 if (clrType == typeof(short))
-                                    propertyValue = (short)propertyValue;
+                                    propertyValue = (short) propertyValue;
                                 if (clrType == typeof(int))
-                                    propertyValue = (int)propertyValue;
+                                    propertyValue = (int) propertyValue;
                                 if (clrType == typeof(long))
-                                    propertyValue = (long)propertyValue;
+                                    propertyValue = (long) propertyValue;
                                 if (clrType == typeof(string))
                                     propertyValue = propertyValue.ToString();
                             }
@@ -151,12 +173,14 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                         writer.Write(propertyValue, columnType);
                     }
                 }
+
                 entitiesCopiedCount++;
                 if (progress != null && entitiesCopiedCount % tableInfo.BulkConfig.NotifyAfter == 0)
                 {
                     progress?.Invoke(ProgressHelper.GetProgress(entities.Count(), entitiesCopiedCount));
                 }
             }
+
             if (isAsync)
             {
                 await writer.CompleteAsync(cancellationToken).ConfigureAwait(false);
@@ -189,7 +213,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             var propertyValueInner = default(object);
             var objectIdentifier = tableInfo.ObjectIdentifier;
             var shadowPropertyColumnNamesDict = tableInfo.ColumnToPropertyDictionary
-                .Where(a => a.Value.IsShadowProperty()).ToDictionary(a => a.Value.Name, a => a.Value.GetColumnName(objectIdentifier));
+                .Where(a => a.Value.IsShadowProperty())
+                .ToDictionary(a => a.Value.Name, a => a.Value.GetColumnName(objectIdentifier));
             if (shadowPropertyColumnNamesDict.ContainsKey(propertyName))
             {
                 if (tableInfo.BulkConfig.ShadowPropertyValue == null)
@@ -203,10 +228,13 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
 
                 if (tableInfo.ConvertibleColumnConverterDict.ContainsKey(propertyName))
                 {
-                    propertyValueInner = tableInfo.ConvertibleColumnConverterDict[propertyName].ConvertToProvider.Invoke(propertyValueInner);
+                    propertyValueInner = tableInfo.ConvertibleColumnConverterDict[propertyName]
+                        .ConvertToProvider.Invoke(propertyValueInner);
                 }
+
                 return propertyValueInner;
             }
+
             return null;
         }
 
@@ -230,26 +258,46 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
 
             propertyValue = tableInfo.FastPropertyDict[fullPropertyName].Get(propertyValue);
         }
+
         return propertyValue;
     }
 
     /// <inheritdoc/>
-    public void Merge<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress)
+    public void Merge<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress)
         where T : class
     {
-        MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: false, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
     }
 
     /// <inheritdoc/>
-    public async Task MergeAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress,
+    public async Task MergeAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress,
         CancellationToken cancellationToken) where T : class
     {
-        await MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: true, cancellationToken).ConfigureAwait(false);
+        await MergeAsync(context, type, entities, tableInfo, operationType, progress, isAsync: true, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
-    protected async Task MergeAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, OperationType operationType, Action<decimal>? progress,
-        bool isAsync, CancellationToken cancellationToken) where T : class
+    protected async Task MergeAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        OperationType operationType,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken) where T : class
     {
         bool tempTableCreated = false;
         bool outputTableCreated = false;
@@ -262,29 +310,39 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             {
                 tableInfo.InsertToTempTable = true;
 
-                var sqlCreateTableCopy = PostgreSqlQueryBuilder.CreateTableCopy(tableInfo.FullTableName, tableInfo.FullTempTableName, tableInfo.BulkConfig.UseTempDB, tableInfo.BulkConfig.UseUnlogged);
+                var sqlCreateTableCopy = PostgreSqlQueryBuilder.CreateTableCopy(tableInfo.FullTableName,
+                    tableInfo.FullTempTableName,
+                    tableInfo.BulkConfig.UseTempDB,
+                    tableInfo.BulkConfig.UseUnlogged);
                 if (isAsync)
                 {
-                    await dbContext.Database.ExecuteSqlRawAsync(sqlCreateTableCopy, cancellationToken).ConfigureAwait(false);
+                    await dbContext.Database.ExecuteSqlRawAsync(sqlCreateTableCopy, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
                     dbContext.Database.ExecuteSqlRaw(sqlCreateTableCopy);
                 }
+
                 tempTableCreated = true;
             }
 
             if (tableInfo.BulkConfig.CalculateStats)
             {
-                var sqlCreateOutputTableCopy = PostgreSqlQueryBuilder.CreateOutputStatsTable(tableInfo.FullTempOutputTableName, tableInfo.BulkConfig.UseTempDB, tableInfo.BulkConfig.UseUnlogged);
+                var sqlCreateOutputTableCopy = PostgreSqlQueryBuilder.CreateOutputStatsTable(
+                    tableInfo.FullTempOutputTableName,
+                    tableInfo.BulkConfig.UseTempDB,
+                    tableInfo.BulkConfig.UseUnlogged);
                 if (isAsync)
                 {
-                    await dbContext.Database.ExecuteSqlRawAsync(sqlCreateOutputTableCopy, cancellationToken).ConfigureAwait(false);
+                    await dbContext.Database.ExecuteSqlRawAsync(sqlCreateOutputTableCopy, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
                     dbContext.Database.ExecuteSqlRaw(sqlCreateOutputTableCopy);
                 }
+
                 outputTableCreated = true;
             }
 
@@ -297,7 +355,9 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             }
             else
             {
-                (hasUniqueIndex, connectionOpenedInternally) = await CheckHasExplicitUniqueConstrainAsync(dbContext, tableInfo, isAsync, cancellationToken).ConfigureAwait(false);
+                (hasUniqueIndex, connectionOpenedInternally) =
+                    await CheckHasExplicitUniqueConstrainAsync(dbContext, tableInfo, isAsync, cancellationToken)
+                        .ConfigureAwait(false);
             }
 
             if (!hasUniqueIndex)
@@ -306,7 +366,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                 string createUniqueConstrain = PostgreSqlQueryBuilder.CreateUniqueConstrain(tableInfo);
                 if (isAsync)
                 {
-                    await dbContext.Database.ExecuteSqlRawAsync(createUniqueIndex, cancellationToken).ConfigureAwait(false);
+                    await dbContext.Database.ExecuteSqlRawAsync(createUniqueIndex, cancellationToken)
+                        .ConfigureAwait(false);
                     //await context.Database.ExecuteSqlRawAsync(createUniqueConstrain, cancellationToken).ConfigureAwait(false); // UniqueConstrain Not needed
                 }
                 else
@@ -314,6 +375,7 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                     dbContext.Database.ExecuteSqlRaw(createUniqueIndex);
                     //context.Database.ExecuteSqlRaw(createUniqueConstrain); // UniqueConstrain Not needed
                 }
+
                 uniqueIndexCreated = true;
             }
 
@@ -321,7 +383,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             {
                 if (isAsync)
                 {
-                    await InsertAsync(context, type, entities, tableInfo, progress, cancellationToken).ConfigureAwait(false);
+                    await InsertAsync(context, type, entities, tableInfo, progress, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
@@ -330,7 +393,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             }
 
             var sqlMergeTable = PostgreSqlQueryBuilder.MergeTable<T>(tableInfo, operationType);
-            if (operationType != OperationType.Read && (!tableInfo.BulkConfig.SetOutputIdentity || operationType == OperationType.Delete))
+            if (operationType != OperationType.Read &&
+                (!tableInfo.BulkConfig.SetOutputIdentity || operationType == OperationType.Delete))
             {
                 if (isAsync)
                 {
@@ -343,8 +407,12 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             }
             else
             {
-                var sqlMergeTableOutput = sqlMergeTable.TrimEnd(';');                                         // When ends with ';' test OwnedTypes throws ex at LoadOutputEntities:
-                List<T> outputEntities = tableInfo.LoadOutputEntities<T>(dbContext, type, sqlMergeTableOutput); // postgresql '42601: syntax error at or near ";"
+                var sqlMergeTableOutput =
+                    sqlMergeTable.TrimEnd(';'); // When ends with ';' test OwnedTypes throws ex at LoadOutputEntities:
+                List<T> outputEntities =
+                    tableInfo.LoadOutputEntities<T>(dbContext,
+                        type,
+                        sqlMergeTableOutput); // postgresql '42601: syntax error at or near ";"
                 tableInfo.UpdateReadEntities(entities, outputEntities, dbContext);
             }
 
@@ -352,7 +420,9 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             {
                 if (isAsync)
                 {
-                    await dbContext.Database.ExecuteSqlRawAsync(tableInfo.BulkConfig.CustomSqlPostProcess, cancellationToken).ConfigureAwait(false);
+                    await dbContext.Database
+                        .ExecuteSqlRawAsync(tableInfo.BulkConfig.CustomSqlPostProcess, cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
@@ -365,12 +435,17 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                 int numberInserted;
                 if (isAsync)
                 {
-                    numberInserted = await GetStatsNumbersPGAsync(dbContext, tableInfo, isAsync: true, cancellationToken).ConfigureAwait(false);
+                    numberInserted =
+                        await GetStatsNumbersPGAsync(dbContext, tableInfo, isAsync: true, cancellationToken)
+                            .ConfigureAwait(false);
                 }
                 else
                 {
-                    numberInserted = GetStatsNumbersPGAsync(dbContext, tableInfo, isAsync: false, cancellationToken).GetAwaiter().GetResult();
+                    numberInserted = GetStatsNumbersPGAsync(dbContext, tableInfo, isAsync: false, cancellationToken)
+                        .GetAwaiter()
+                        .GetResult();
                 }
+
                 tableInfo.BulkConfig.StatsInfo = new StatsInfo
                 {
                     StatsNumberInserted = numberInserted,
@@ -387,7 +462,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                     string dropUniqueIndex = PostgreSqlQueryBuilder.DropUniqueIndex(tableInfo);
                     if (isAsync)
                     {
-                        await dbContext.Database.ExecuteSqlRawAsync(dropUniqueIndex, cancellationToken).ConfigureAwait(false);
+                        await dbContext.Database.ExecuteSqlRawAsync(dropUniqueIndex, cancellationToken)
+                            .ConfigureAwait(false);
                     }
                     else
                     {
@@ -402,7 +478,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                         var sqlDropOutputTable = PostgreSqlQueryBuilder.DropTable(tableInfo.FullTempOutputTableName);
                         if (isAsync)
                         {
-                            await dbContext.Database.ExecuteSqlRawAsync(sqlDropOutputTable, cancellationToken).ConfigureAwait(false);
+                            await dbContext.Database.ExecuteSqlRawAsync(sqlDropOutputTable, cancellationToken)
+                                .ConfigureAwait(false);
                         }
                         else
                         {
@@ -415,7 +492,8 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                         var sqlDropTable = PostgreSqlQueryBuilder.DropTable(tableInfo.FullTempTableName);
                         if (isAsync)
                         {
-                            await dbContext.Database.ExecuteSqlRawAsync(sqlDropTable, cancellationToken).ConfigureAwait(false);
+                            await dbContext.Database.ExecuteSqlRawAsync(sqlDropTable, cancellationToken)
+                                .ConfigureAwait(false);
                         }
                         else
                         {
@@ -431,7 +509,7 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
 
             if (connectionOpenedInternally)
             {
-                var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
+                var connection = (NpgsqlConnection) dbContext.Database.GetDbConnection();
                 if (isAsync)
                 {
                     await connection.CloseAsync().ConfigureAwait(false);
@@ -445,16 +523,42 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
     }
 
     /// <inheritdoc/>
-    public void Read<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress) where T : class
-        => ReadAsync(context, type, entities, tableInfo, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+    public void Read<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress) where T : class
+        => ReadAsync(context, type, entities, tableInfo, progress, isAsync: false, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
 
     /// <inheritdoc/>
-    public async Task ReadAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress, CancellationToken cancellationToken) where T : class
-        => await ReadAsync(context, type, entities, tableInfo, progress, isAsync: true, cancellationToken).ConfigureAwait(false);
+    public async Task ReadAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
+        CancellationToken cancellationToken) where T : class
+        => await ReadAsync(context, type, entities, tableInfo, progress, isAsync: true, cancellationToken)
+            .ConfigureAwait(false);
 
     /// <inheritdoc/>
-    protected async Task ReadAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, TableInfo tableInfo, Action<decimal>? progress, bool isAsync, CancellationToken cancellationToken) where T : class
-        => await MergeAsync(context, type, entities, tableInfo, OperationType.Read, progress, isAsync, cancellationToken).ConfigureAwait(false);
+    protected async Task ReadAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        TableInfo tableInfo,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken) where T : class
+        => await MergeAsync(context,
+                type,
+                entities,
+                tableInfo,
+                OperationType.Read,
+                progress,
+                isAsync,
+                cancellationToken)
+            .ConfigureAwait(false);
 
     /// <inheritdoc/>
     public void Truncate(BulkContext context, TableInfo tableInfo)
@@ -469,11 +573,14 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
         var sqlTruncateTable = ProviderSqlQueryBuilder.TruncateTable(tableInfo.FullTableName);
         await context.DbContext.Database.ExecuteSqlRawAsync(sqlTruncateTable, cancellationToken).ConfigureAwait(false);
     }
+
     #endregion
 
     #region Connection
+
     internal static async Task<(DbConnection, bool)> OpenAndGetNpgsqlConnectionAsync(DbContext context,
-        bool isAsync, CancellationToken cancellationToken)
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         bool oonnectionOpenedInternally = false;
         var connection = context.Database.GetDbConnection();
@@ -487,17 +594,22 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
             {
                 connection.Open();
             }
+
             oonnectionOpenedInternally = true;
         }
+
         return (connection, oonnectionOpenedInternally);
     }
 
-    internal static async Task<(bool, bool)> CheckHasExplicitUniqueConstrainAsync(DbContext context, TableInfo tableInfo,
-        bool isAsync, CancellationToken cancellationToken)
+    internal static async Task<(bool, bool)> CheckHasExplicitUniqueConstrainAsync(DbContext context,
+        TableInfo tableInfo,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         string countUniqueConstrain = PostgreSqlQueryBuilder.CountUniqueConstrain(tableInfo);
 
-        (DbConnection connection, bool connectionOpenedInternally) = await OpenAndGetNpgsqlConnectionAsync(context, isAsync, cancellationToken).ConfigureAwait(false);
+        (DbConnection connection, bool connectionOpenedInternally) =
+            await OpenAndGetNpgsqlConnectionAsync(context, isAsync, cancellationToken).ConfigureAwait(false);
         bool hasUniqueConstrain = false;
         using (var command = connection.CreateCommand())
         {
@@ -510,7 +622,7 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                 {
                     while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                     {
-                        hasUniqueConstrain = (long)reader[0] == 1;
+                        hasUniqueConstrain = (long) reader[0] == 1;
                     }
                 }
             }
@@ -521,16 +633,19 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                 {
                     while (reader.Read())
                     {
-                        hasUniqueConstrain = (long)reader[0] == 1;
+                        hasUniqueConstrain = (long) reader[0] == 1;
                     }
                 }
             }
         }
+
         return (hasUniqueConstrain, connectionOpenedInternally);
     }
+
     #endregion
 
     #region SqlCommands
+
     /// <summary>
     /// Gets the Stats numbers of entities
     /// </summary>
@@ -539,12 +654,15 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
     /// <param name="cancellationToken"></param>
     /// <param name="isAsync"></param>
     /// <returns></returns>
-    public static async Task<int> GetStatsNumbersPGAsync(DbContext context, TableInfo tableInfo, bool isAsync, CancellationToken cancellationToken)
+    public static async Task<int> GetStatsNumbersPGAsync(DbContext context,
+        TableInfo tableInfo,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         var sqlQuery = @$"SELECT COUNT(*) FROM {tableInfo.FullTempOutputTableName} WHERE ""xmaxNumber"" = 0;";
         sqlQuery = sqlQuery.Replace("[", @"""").Replace("]", @"""");
 
-        var connection = (NpgsqlConnection)context.Database.GetDbConnection();
+        var connection = (NpgsqlConnection) context.Database.GetDbConnection();
         bool isExtenalTransaction = false;
         long counter = 0;
 
@@ -557,15 +675,17 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
                 isExtenalTransaction = true;
             }
 
-            var dbTransaction = isExtenalTransaction ? context.Database.CurrentTransaction?.GetUnderlyingTransaction(tableInfo.BulkConfig) 
-                                                     : connection.BeginTransaction();
-            var transaction = (NpgsqlTransaction?)dbTransaction;
+            var dbTransaction = isExtenalTransaction
+                ? context.Database.CurrentTransaction?.GetUnderlyingTransaction(tableInfo.BulkConfig)
+                : connection.BeginTransaction();
+            var transaction = (NpgsqlTransaction?) dbTransaction;
 
             command.CommandText = sqlQuery;
 
-            object? scalar = isAsync ? await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false)
-                                           : command.ExecuteScalar();
-            counter = (long?)scalar ?? 0;
+            object? scalar = isAsync
+                ? await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false)
+                : command.ExecuteScalar();
+            counter = (long?) scalar ?? 0;
 
             if (!isExtenalTransaction)
             {
@@ -575,8 +695,10 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
         finally
         {
         }
-        return (int)counter;
+
+        return (int) counter;
     }
+
     #endregion
 
     /// <summary>
@@ -593,21 +715,29 @@ public class PostgreSqlAdapter : ISqlOperationsAdapter
         {
             defaultSchema = csb.SearchPath.Split(',')[0];
         }
+
         return defaultSchema;
     }
 
-    private static async Task<(NpgsqlConnection connection, bool closeConnectionInternally)> GetOrCreateConnection(BulkContext context, bool isAsync, CancellationToken cancellationToken)
+    private static async Task<(NpgsqlConnection connection, bool closeConnectionInternally)> GetOrCreateConnection(
+        BulkContext context,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
         var closeConnectionInternally = false;
-        var connection = (NpgsqlConnection?)context.DbConnection;
+        var connection = (NpgsqlConnection?) context.DbConnection;
 
         if (connection != null) return (connection, closeConnectionInternally);
         return await ReopenConnection(context, isAsync, cancellationToken).ConfigureAwait(false);
     }
 
-    private static async Task<(NpgsqlConnection connection, bool closeConnectionInternally)> ReopenConnection(BulkContext context, bool isAsync, CancellationToken cancellationToken)
+    private static async Task<(NpgsqlConnection connection, bool closeConnectionInternally)> ReopenConnection(
+        BulkContext context,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
-        var (dbConnection, closeConnectionInternally) = await OpenAndGetNpgsqlConnectionAsync(context.DbContext, isAsync, cancellationToken).ConfigureAwait(false);
-        return ((NpgsqlConnection)dbConnection, closeConnectionInternally);
+        var (dbConnection, closeConnectionInternally) =
+            await OpenAndGetNpgsqlConnectionAsync(context.DbContext, isAsync, cancellationToken).ConfigureAwait(false);
+        return ((NpgsqlConnection) dbConnection, closeConnectionInternally);
     }
 }

@@ -8,7 +8,12 @@ namespace EFCore.BulkExtensions;
 
 internal static class DbContextBulkTransaction
 {
-    public static void Execute<T>(BulkContext context, Type type, IEnumerable<T> entities, OperationType operationType, BulkConfig? bulkConfig, Action<decimal>? progress) where T : class
+    public static void Execute<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        OperationType operationType,
+        BulkConfig? bulkConfig,
+        Action<decimal>? progress) where T : class
     {
         using (ActivitySources.StartExecuteActivity(operationType, entities.Count()))
         {
@@ -22,7 +27,11 @@ internal static class DbContextBulkTransaction
 
             if (bulkConfig?.IncludeGraph == true)
             {
-                DbContextBulkTransactionGraphUtil.ExecuteWithGraph(context, entities, operationType, bulkConfig, progress);
+                DbContextBulkTransactionGraphUtil.ExecuteWithGraph(context,
+                    entities,
+                    operationType,
+                    bulkConfig,
+                    progress);
                 return;
             }
 
@@ -30,7 +39,8 @@ internal static class DbContextBulkTransaction
 
             switch (operationType)
             {
-                case OperationType.Insert when tableInfo.BulkConfig is { SetOutputIdentity: false, CustomSourceTableName: null }:
+                case OperationType.Insert when tableInfo.BulkConfig is
+                    {SetOutputIdentity: false, CustomSourceTableName: null}:
                     SqlBulkOperation.Insert(context, type, entities, tableInfo, progress);
                     break;
 
@@ -49,7 +59,13 @@ internal static class DbContextBulkTransaction
         }
     }
 
-    public static async Task ExecuteAsync<T>(BulkContext context, Type type, IEnumerable<T> entities, OperationType operationType, BulkConfig? bulkConfig, Action<decimal>? progress, CancellationToken cancellationToken = default) where T : class
+    public static async Task ExecuteAsync<T>(BulkContext context,
+        Type type,
+        IEnumerable<T> entities,
+        OperationType operationType,
+        BulkConfig? bulkConfig,
+        Action<decimal>? progress,
+        CancellationToken cancellationToken = default) where T : class
     {
         using (ActivitySources.StartExecuteActivity(operationType, entities.Count()))
         {
@@ -57,13 +73,17 @@ internal static class DbContextBulkTransaction
 
             if (operationType == OperationType.SaveChanges)
             {
-                await DbContextBulkTransactionSaveChanges.SaveChangesAsync(context.DbContext, bulkConfig, progress, cancellationToken).ConfigureAwait(false);
+                await DbContextBulkTransactionSaveChanges
+                    .SaveChangesAsync(context.DbContext, bulkConfig, progress, cancellationToken)
+                    .ConfigureAwait(false);
                 return;
             }
 
             if (bulkConfig?.IncludeGraph == true)
             {
-                await DbContextBulkTransactionGraphUtil.ExecuteWithGraphAsync(context, entities, operationType, bulkConfig, progress, cancellationToken).ConfigureAwait(false);
+                await DbContextBulkTransactionGraphUtil
+                    .ExecuteWithGraphAsync(context, entities, operationType, bulkConfig, progress, cancellationToken)
+                    .ConfigureAwait(false);
                 return;
             }
 
@@ -72,11 +92,13 @@ internal static class DbContextBulkTransaction
             switch (operationType)
             {
                 case OperationType.Insert when !tableInfo.BulkConfig.SetOutputIdentity:
-                    await SqlBulkOperation.InsertAsync(context, type, entities, tableInfo, progress, cancellationToken).ConfigureAwait(false);
+                    await SqlBulkOperation.InsertAsync(context, type, entities, tableInfo, progress, cancellationToken)
+                        .ConfigureAwait(false);
                     break;
 
                 case OperationType.Read:
-                    await SqlBulkOperation.ReadAsync(context, type, entities, tableInfo, progress, cancellationToken).ConfigureAwait(false);
+                    await SqlBulkOperation.ReadAsync(context, type, entities, tableInfo, progress, cancellationToken)
+                        .ConfigureAwait(false);
                     break;
 
                 case OperationType.Truncate:
@@ -84,21 +106,27 @@ internal static class DbContextBulkTransaction
                     break;
 
                 default:
-                    await SqlBulkOperation.MergeAsync(context, type, entities, tableInfo, operationType, progress, cancellationToken).ConfigureAwait(false);
+                    await SqlBulkOperation
+                        .MergeAsync(context, type, entities, tableInfo, operationType, progress, cancellationToken)
+                        .ConfigureAwait(false);
                     break;
             }
         }
     }
 
     #region Transaction Validators
-    private static bool IsValidTransaction<T>(IEnumerable<T> entities, OperationType operationType, BulkConfig? bulkConfig)
+
+    private static bool IsValidTransaction<T>(IEnumerable<T> entities,
+        OperationType operationType,
+        BulkConfig? bulkConfig)
     {
         return entities.Any() ||
                operationType == OperationType.Truncate ||
                operationType == OperationType.SaveChanges ||
                operationType == OperationType.InsertOrUpdateOrDelete ||
-               bulkConfig is { CustomSourceTableName: not null } ||
-               bulkConfig is { DataReader: not null };
+               bulkConfig is {CustomSourceTableName: not null} ||
+               bulkConfig is {DataReader: not null};
     }
+
     #endregion
 }

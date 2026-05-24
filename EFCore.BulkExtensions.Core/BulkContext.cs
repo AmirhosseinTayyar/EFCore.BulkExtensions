@@ -1,6 +1,6 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
+﻿using System.Data.Common;
+using EFCore.BulkExtensions.SqlAdapters;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 
 namespace EFCore.BulkExtensions;
 

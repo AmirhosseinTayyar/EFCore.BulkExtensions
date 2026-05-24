@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCore.BulkExtensions;
 
@@ -25,7 +24,8 @@ internal class GraphUtil
         }
 
         // Sort these entities so the first entity is the least dependendant
-        var topologicalSorted = TopologicalSort(dependencies.Keys, y => dependencies[y].DependsOn.Select(y => y.entity));
+        var topologicalSorted =
+            TopologicalSort(dependencies.Keys, y => dependencies[y].DependsOn.Select(y => y.entity));
         var result = new List<GraphNode>();
 
         foreach (var s in topologicalSorted)
@@ -40,7 +40,9 @@ internal class GraphUtil
         return result;
     }
 
-    private static GraphDependency? GetFlatGraph(DbContext dbContext, object graphEntity, IDictionary<object, GraphDependency> result)
+    private static GraphDependency? GetFlatGraph(DbContext dbContext,
+        object graphEntity,
+        IDictionary<object, GraphDependency> result)
     {
         var entityType = dbContext.Model.FindEntityType(graphEntity.GetType());
 
@@ -91,7 +93,12 @@ internal class GraphUtil
         return graphDependency;
     }
 
-    private static void SetDependencies(DbContext dbContext, GraphDependency graphDependency, object graphEntity, INavigation navigation, object navigationValue, IDictionary<object, GraphDependency> result)
+    private static void SetDependencies(DbContext dbContext,
+        GraphDependency graphDependency,
+        object graphEntity,
+        INavigation navigation,
+        object navigationValue,
+        IDictionary<object, GraphDependency> result)
     {
         // Get the nested dependency for the navigationValue so we can add the inverse navigation dependency
         // incase the navigationValue entity does not have an explicitly defined navigation property back to its principal / dependent
@@ -105,7 +112,8 @@ internal class GraphUtil
 
             // A navigation for an OwnedType will be dependent on its owner the in efcore dependency hierarchy,
             // but technically the Owner depends on the OwnedType if the OwnedType is part of its Owner's schema.
-            || OwnedTypeUtil.IsOwnedInSameTableAsOwner(navigation))
+            ||
+            OwnedTypeUtil.IsOwnedInSameTableAsOwner(navigation))
         {
             graphDependency.DependsOn.Add((navigationValue, navigation));
             nestedDependency.Dependents.Add((graphEntity, navigation.Inverse ?? navigation));
@@ -119,7 +127,9 @@ internal class GraphUtil
         }
     }
 
-    private static IEnumerable<T> TopologicalSort<T>(IEnumerable<T> source, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle = false)
+    private static IEnumerable<T> TopologicalSort<T>(IEnumerable<T> source,
+        Func<T, IEnumerable<T>> dependencies,
+        bool throwOnCycle = false)
     {
         var sorted = new List<T>();
         var visited = new HashSet<T>();
@@ -130,7 +140,11 @@ internal class GraphUtil
         return sorted;
     }
 
-    private static void Visit<T>(T item, HashSet<T> visited, List<T> sorted, Func<T, IEnumerable<T>> dependencies, bool throwOnCycle)
+    private static void Visit<T>(T item,
+        HashSet<T> visited,
+        List<T> sorted,
+        Func<T, IEnumerable<T>> dependencies,
+        bool throwOnCycle)
     {
         if (!visited.Contains(item))
         {
@@ -156,7 +170,10 @@ internal class GraphUtil
 
     public class GraphDependency
     {
-        public HashSet<(object entity, INavigation navigation)> DependsOn { get; } = new HashSet<(object, INavigation)>();
-        public HashSet<(object entity, INavigation navigation)> Dependents { get; } = new HashSet<(object, INavigation)>();
+        public HashSet<(object entity, INavigation navigation)> DependsOn { get; } =
+            new HashSet<(object, INavigation)>();
+
+        public HashSet<(object entity, INavigation navigation)> Dependents { get; } =
+            new HashSet<(object, INavigation)>();
     }
 }

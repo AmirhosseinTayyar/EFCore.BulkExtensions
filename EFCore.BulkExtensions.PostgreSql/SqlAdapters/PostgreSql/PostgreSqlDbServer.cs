@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.Internal;
 
 namespace EFCore.BulkExtensions.SqlAdapters.PostgreSql;
@@ -8,13 +9,14 @@ public class PostgreSqlDbServer : IDbServer
 {
     SqlType IDbServer.Type => SqlType.PostgreSql;
 
-    PostgreSqlAdapter _adapter = new ();
+    PostgreSqlAdapter _adapter = new();
     ISqlOperationsAdapter IDbServer.Adapter => _adapter;
 
     PostgreSqlDialect _dialect = new();
     IQueryBuilderSpecialization IDbServer.Dialect => _dialect;
 
-    SqlAdapters.SqlQueryBuilder _queryBuilder = new PostgreSqlQueryBuilder();
+    SqlQueryBuilder _queryBuilder = new PostgreSqlQueryBuilder();
+
     /// <inheritdoc/>
     public SqlQueryBuilder QueryBuilder => _queryBuilder;
 
@@ -22,5 +24,6 @@ public class PostgreSqlDbServer : IDbServer
     string IDbServer.ValueGenerationStrategy => NpgsqlAnnotationNames.ValueGenerationStrategy;
 #pragma warning restore EF1001
 
-    bool IDbServer.PropertyHasIdentity(IAnnotation annotation) => (Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy?)annotation.Value == Npgsql.EntityFrameworkCore.PostgreSQL.Metadata.NpgsqlValueGenerationStrategy.IdentityByDefaultColumn;
+    bool IDbServer.PropertyHasIdentity(IAnnotation annotation) => (NpgsqlValueGenerationStrategy?) annotation.Value ==
+                                                                  NpgsqlValueGenerationStrategy.IdentityByDefaultColumn;
 }

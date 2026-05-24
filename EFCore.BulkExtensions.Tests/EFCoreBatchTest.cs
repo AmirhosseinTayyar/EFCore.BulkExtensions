@@ -1,11 +1,10 @@
-using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -22,11 +21,18 @@ public class EFCoreBatchTest
         context.Truncate<Info>();
 
         var currentDate = DateTime.Today;
-        var entity = new Info { Message = "name A", DateTimeOff = currentDate };
+        var entity = new Info
+        {
+            Message = "name A",
+            DateTimeOff = currentDate
+        };
         context.Infos.Add(entity);
         context.SaveChanges();
 
-        var updateTo = new Info { Message = "name B Updated" };
+        var updateTo = new Info
+        {
+            Message = "name B Updated"
+        };
 #pragma warning disable 0618
         context.Infos.BatchUpdate(updateTo);
 #pragma warning restore 0618
@@ -93,7 +99,9 @@ public class EFCoreBatchTest
     {
         using var context = new TestContext(dbServer);
 
-        context.Items.Add(new Item { }); // used for initial add so that after RESEED it starts from 1, not 0
+        context.Items.Add(new Item
+        {
+        }); // used for initial add so that after RESEED it starts from 1, not 0
         context.SaveChanges();
 
 #pragma warning disable
@@ -121,38 +129,68 @@ public class EFCoreBatchTest
         var query = context.Items.AsQueryable();
         if (dbServer == SqlType.SqlServer)
         {
-            query = query.Where(a => a.ItemId <= 500 && a.Price >= price);//.OrderBy(n => n.ItemId).Take(500);
+            query = query.Where(a => a.ItemId <= 500 && a.Price >= price); //.OrderBy(n => n.ItemId).Take(500);
         }
 
-        query.BatchUpdate(new Item { Description = "Updated", Price = 1.5m }/*, updateColumns*/);
+        query.BatchUpdate(new Item
+        {
+            Description = "Updated",
+            Price = 1.5m
+        } /*, updateColumns*/);
 
         var incrementStep = 100;
         var suffix = " Concatenated";
-        query.BatchUpdate(a => new Item { Name = a.Name + suffix, Quantity = a.Quantity + incrementStep }); // example of BatchUpdate Increment/Decrement value in variable
+        query.BatchUpdate(a => new Item
+        {
+            Name = a.Name + suffix,
+            Quantity = a.Quantity + incrementStep
+        }); // example of BatchUpdate Increment/Decrement value in variable
 
         if (dbServer == SqlType.SqlServer) // Sqlite currently does Not support Take(): LIMIT
         {
-            query.Take(1).BatchUpdate(a => new Item { Name = a.Name + " TOP(1)", Quantity = a.Quantity + incrementStep }); // example of BatchUpdate with TOP(1)
+            query.Take(1)
+                .BatchUpdate(a => new Item
+                {
+                    Name = a.Name + " TOP(1)",
+                    Quantity = a.Quantity + incrementStep
+                }); // example of BatchUpdate with TOP(1)
         }
     }
-    
+
     private static void RunBatchUpdateEnum(SqlType dbServer)
     {
         using var context = new TestContext(dbServer);
 
         context.Truncate<Source>();
 
-        context.Sources.AddRange(new Source[] {
-            new Source { StatusId = Status.Init, TypeId = Type.Type2 },
-            new Source { StatusId = Status.Changed, TypeId = Type.Type2 }
+        context.Sources.AddRange(new Source[]
+        {
+            new Source
+            {
+                StatusId = Status.Init,
+                TypeId = Type.Type2
+            },
+            new Source
+            {
+                StatusId = Status.Changed,
+                TypeId = Type.Type2
+            }
         });
         context.SaveChanges();
 
-        var updateValues = new Source() { StatusId = Status.Changed };
-        var updateColumns = new List<string>() { nameof(updateValues.StatusId) };
+        var updateValues = new Source()
+        {
+            StatusId = Status.Changed
+        };
+        var updateColumns = new List<string>()
+        {
+            nameof(updateValues.StatusId)
+        };
         context.Sources.Where(e => e.StatusId == Status.Init).BatchUpdate(updateValues, updateColumns);
 
-        Assert.Equal(Type.Type2, context.Sources.FirstOrDefault()?.TypeId); // Should remain 'Type.Type2' and not be changed to default 'Type.Undefined'
+        Assert.Equal(Type.Type2,
+            context.Sources.FirstOrDefault()
+                ?.TypeId); // Should remain 'Type.Type2' and not be changed to default 'Type.Undefined'
     }
 
     private static void RunBatchUint(SqlType dbServer)
@@ -161,7 +199,6 @@ public class EFCoreBatchTest
 
         uint id = 0;
         context.Counters.Where(e => e.CounterId == id).BatchDelete();
-
     }
 
     private static void RunBatchUpdate_UsingNavigationPropertiesThatTranslateToAnInnerQuery(SqlType dbServer)
@@ -171,12 +208,15 @@ public class EFCoreBatchTest
         using var context = new TestContext(options);
 
         context.Parents.Where(parent => parent.ParentId < 5 && !string.IsNullOrEmpty(parent.Details.Notes))
-            .BatchUpdate(parent => new Parent { Description = parent.Details.Notes ?? "Fallback" });
+            .BatchUpdate(parent => new Parent
+            {
+                Description = parent.Details.Notes ?? "Fallback"
+            });
 
         var actualSqlExecuted = testDbCommandInterceptor.ExecutedNonQueryCommands?.LastOrDefault()?.Sql;
         actualSqlExecuted = actualSqlExecuted?.Replace("\r\n", "\n");
         var expectedSql =
-@"UPDATE p SET  [p].[Description] = (
+            @"UPDATE p SET  [p].[Description] = (
     SELECT COALESCE([p1].[Notes], N'Fallback')
     FROM [ParentDetail] AS [p1]
     WHERE [p1].[ParentId] = [p].[ParentId]) 
@@ -187,12 +227,15 @@ WHERE [p].[ParentId] < 5 AND [p0].[Notes] IS NOT NULL AND [p0].[Notes] NOT LIKE 
         Assert.Equal(expectedSql, actualSqlExecuted);
 
         context.Parents.Where(parent => parent.ParentId == 1)
-            .BatchUpdate(parent => new Parent { Value = parent.Children.Where(child => child.IsEnabled).Sum(child => child.Value) });
+            .BatchUpdate(parent => new Parent
+            {
+                Value = parent.Children.Where(child => child.IsEnabled).Sum(child => child.Value)
+            });
 
         actualSqlExecuted = testDbCommandInterceptor.ExecutedNonQueryCommands?.LastOrDefault()?.Sql;
         actualSqlExecuted = actualSqlExecuted?.Replace("\r\n", "\n");
         expectedSql =
-@"UPDATE p SET  [p].[Value] = (
+            @"UPDATE p SET  [p].[Value] = (
     SELECT COALESCE(SUM([c].[Value]), 0.0)
     FROM [Child] AS [c]
     WHERE [p].[ParentId] = [c].[ParentId] AND [c].[IsEnabled] = CAST(1 AS bit)) 
@@ -206,14 +249,16 @@ WHERE [p].[ParentId] = 1";
         context.Parents.Where(parent => parent.ParentId == 1)
             .BatchUpdate(parent => new Parent
             {
-                Description = parent.Children.Where(child => child.IsEnabled && child.Value == newValue).Sum(child => child.Value).ToString(),
+                Description = parent.Children.Where(child => child.IsEnabled && child.Value == newValue)
+                    .Sum(child => child.Value)
+                    .ToString(),
                 Value = newValue
             });
 
         actualSqlExecuted = testDbCommandInterceptor.ExecutedNonQueryCommands?.LastOrDefault()?.Sql;
         actualSqlExecuted = actualSqlExecuted?.Replace("\r\n", "\n");
         expectedSql =
-@"UPDATE p SET  [p].[Description] = (COALESCE(CONVERT(varchar(100), (
+            @"UPDATE p SET  [p].[Description] = (COALESCE(CONVERT(varchar(100), (
     SELECT COALESCE(SUM([c].[Value]), 0.0)
     FROM [Child] AS [c]
     WHERE [p].[ParentId] = [c].[ParentId] AND [c].[IsEnabled] = CAST(1 AS bit) AND [c].[Value] = @__p_0)), '')) , [p].[Value] = @param_1 
@@ -267,17 +312,24 @@ WHERE [p].[ParentId] = 1";
 
     private static void RunContainsBatchDelete(SqlType dbServer)
     {
-        var descriptionsToDelete = new List<string> { "info" };
+        var descriptionsToDelete = new List<string>
+        {
+            "info"
+        };
         using var context = new TestContext(dbServer);
         context.Items.Where(a => descriptionsToDelete.Contains(a.Description ?? "")).BatchDelete();
     }
 
     private static void RunContainsBatchDelete2(SqlType dbServer)
     {
-        var descriptionsToDelete = new List<string> { "info" };
+        var descriptionsToDelete = new List<string>
+        {
+            "info"
+        };
         var nameToDelete = "N4";
         using var context = new TestContext(dbServer);
-        context.Items.Where(a => descriptionsToDelete.Contains(a.Description ?? "") || a.Name == nameToDelete).BatchDelete();
+        context.Items.Where(a => descriptionsToDelete.Contains(a.Description ?? "") || a.Name == nameToDelete)
+            .BatchDelete();
     }
 
     private static void RunContainsBatchDelete3(SqlType dbServer)
@@ -289,7 +341,10 @@ WHERE [p].[ParentId] = 1";
 
     private static void RunAnyBatchDelete(SqlType dbServer)
     {
-        var descriptionsToDelete = new List<string> { "info" };
+        var descriptionsToDelete = new List<string>
+        {
+            "info"
+        };
         using var context = new TestContext(dbServer);
         context.Items.Where(a => descriptionsToDelete.Any(toDelete => toDelete == a.Description)).BatchDelete();
     }
@@ -305,27 +360,48 @@ WHERE [p].[ParentId] = 1";
     private static void RunIncludeDelete(SqlType dbServer)
     {
         using var context = new TestContext(dbServer);
-        context.Items.Include(x => x.ItemHistories).Where(x => !x.ItemHistories.Any()).OrderBy(x => x.ItemId).Skip(2).Take(4).BatchDelete();
-        context.Items.Include(x => x.ItemHistories).Where(x => !x.ItemHistories.Any()).OrderBy(x => x.ItemId).Take(4).BatchDelete();
+        context.Items.Include(x => x.ItemHistories)
+            .Where(x => !x.ItemHistories.Any())
+            .OrderBy(x => x.ItemId)
+            .Skip(2)
+            .Take(4)
+            .BatchDelete();
+        context.Items.Include(x => x.ItemHistories)
+            .Where(x => !x.ItemHistories.Any())
+            .OrderBy(x => x.ItemId)
+            .Take(4)
+            .BatchDelete();
         context.Items.Include(x => x.ItemHistories).Where(x => !x.ItemHistories.Any()).BatchDelete();
     }
 
     private static void RunUdttBatch(SqlType dbServer)
     {
         var userRoles = (
-            from userId in Enumerable.Range(1, 5)
-            from roleId in Enumerable.Range(1, 5)
-            select new UserRole { UserId = userId, RoleId = roleId, }
+                from userId in Enumerable.Range(1, 5)
+                from roleId in Enumerable.Range(1, 5)
+                select new UserRole
+                {
+                    UserId = userId,
+                    RoleId = roleId,
+                }
             )
             .ToList();
         var random = new Random();
         var keysToUpdate = userRoles
             .Where(x => random.Next() % 2 == 1)
-            .Select(x => new UdttIntInt { C1 = x.UserId, C2 = x.RoleId, })
+            .Select(x => new UdttIntInt
+            {
+                C1 = x.UserId,
+                C2 = x.RoleId,
+            })
             .ToList();
         var keysToDelete = userRoles
             .Where(x => !keysToUpdate.Where(y => y.C1 == x.UserId && y.C2 == x.RoleId).Any())
-            .Select(x => new UdttIntInt { C1 = x.UserId, C2 = x.RoleId, })
+            .Select(x => new UdttIntInt
+            {
+                C1 = x.UserId,
+                C2 = x.RoleId,
+            })
             .ToList();
 
         using (var context = new TestContext(dbServer))
@@ -360,11 +436,16 @@ WHERE [p].[ParentId] = 1";
         {
             var keysToUpdateQueryable = GetQueryableUdtt(context, keysToUpdate);
             var keysToDeleteQueryable = GetQueryableUdtt(context, keysToDelete);
-            var userRolesToUpdate = context.UserRoles.Where(x => keysToUpdateQueryable.Where(y => y.C1 == x.UserId && y.C2 == x.RoleId).Any());
-            var userRolesToDelete = context.UserRoles.Where(x => keysToDeleteQueryable.Where(y => y.C1 == x.UserId && y.C2 == x.RoleId).Any());
+            var userRolesToUpdate = context.UserRoles.Where(x =>
+                keysToUpdateQueryable.Where(y => y.C1 == x.UserId && y.C2 == x.RoleId).Any());
+            var userRolesToDelete = context.UserRoles.Where(x =>
+                keysToDeleteQueryable.Where(y => y.C1 == x.UserId && y.C2 == x.RoleId).Any());
 
             // System.ArgumentException : No mapping exists from object type System.Object[] to a known managed provider native type.
-            userRolesToUpdate.BatchUpdate(x => new UserRole { Description = "updated", });
+            userRolesToUpdate.BatchUpdate(x => new UserRole
+            {
+                Description = "updated",
+            });
             userRolesToDelete.BatchDelete();
         }
 
@@ -385,7 +466,12 @@ WHERE [p].[ParentId] = 1";
         {
             dt.Rows.Add(item.C1, item.C2);
         }
-        var parameter = new SqlParameter(parameterName, dt) { SqlDbType = SqlDbType.Structured, TypeName = "dbo.UdttIntInt", };
+
+        var parameter = new SqlParameter(parameterName, dt)
+        {
+            SqlDbType = SqlDbType.Structured,
+            TypeName = "dbo.UdttIntInt",
+        };
         var sql = $"select * from {parameterName}";
         return context.Set<UdttIntInt>().FromSqlRaw(sql, parameter);
     }
@@ -395,11 +481,19 @@ WHERE [p].[ParentId] = 1";
         using var context = new TestContext(dbServer);
         context.Truncate<Setting>();
 
-        context.Settings.Add(new Setting() { Settings = SettingsEnum.Sett1, Value = "Val1" });
+        context.Settings.Add(new Setting()
+        {
+            Settings = SettingsEnum.Sett1,
+            Value = "Val1"
+        });
         context.SaveChanges();
 
         // can work with explicit value: .Where(x => x.Settings == SettingsEnum.Sett1) or if named Parameter used then it has to be named (settings) same as Property (Settings) - Case not relevant, it is CaseInsensitive
-        context.Settings.Where(x => x.Settings == settings).BatchUpdate(x => new Setting { Value = value.ToString() });
+        context.Settings.Where(x => x.Settings == settings)
+            .BatchUpdate(x => new Setting
+            {
+                Value = value.ToString()
+            });
 
         context.Truncate<Setting>();
     }
@@ -408,7 +502,17 @@ WHERE [p].[ParentId] = 1";
     {
         using var context = new TestContext(dbServer);
 
-        context.Files.BatchUpdate(new File { DataBytes = null }, updateColumns: new List<string> { nameof(File.DataBytes) });
-        context.Files.BatchUpdate(a => new File { DataBytes = null });
+        context.Files.BatchUpdate(new File
+            {
+                DataBytes = null
+            },
+            updateColumns: new List<string>
+            {
+                nameof(File.DataBytes)
+            });
+        context.Files.BatchUpdate(a => new File
+        {
+            DataBytes = null
+        });
     }
 }
