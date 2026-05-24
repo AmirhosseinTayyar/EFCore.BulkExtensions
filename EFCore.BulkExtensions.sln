@@ -4,8 +4,6 @@ VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.BulkExtensions.Tests", "EFCore.BulkExtensions.Tests\EFCore.BulkExtensions.Tests.csproj", "{2328B243-982C-47B7-885B-999231149C72}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.BulkExtensions", "EFCore.BulkExtensions\EFCore.BulkExtensions.csproj", "{6796CE3B-B8AA-4F6E-ADAE-DDA86CF79882}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.BulkExtensions.Core", "EFCore.BulkExtensions.Core\EFCore.BulkExtensions.Core.csproj", "{098F9FE6-0054-4907-9F46-D55D63077BCB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.BulkExtensions.PostgreSql", "EFCore.BulkExtensions.PostgreSql\EFCore.BulkExtensions.PostgreSql.csproj", "{1FB8C964-B38B-4A2F-848B-A5FCDD45354A}"
@@ -26,10 +24,6 @@ Global
 		{2328B243-982C-47B7-885B-999231149C72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2328B243-982C-47B7-885B-999231149C72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2328B243-982C-47B7-885B-999231149C72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6796CE3B-B8AA-4F6E-ADAE-DDA86CF79882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6796CE3B-B8AA-4F6E-ADAE-DDA86CF79882}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6796CE3B-B8AA-4F6E-ADAE-DDA86CF79882}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6796CE3B-B8AA-4F6E-ADAE-DDA86CF79882}.Release|Any CPU.Build.0 = Release|Any CPU
 		{098F9FE6-0054-4907-9F46-D55D63077BCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{098F9FE6-0054-4907-9F46-D55D63077BCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{098F9FE6-0054-4907-9F46-D55D63077BCB}.Release|Any CPU.ActiveCfg = Release|Any CPU

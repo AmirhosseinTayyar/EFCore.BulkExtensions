@@ -20,7 +20,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.BulkExtensions\EFCore.BulkExtensions.Net8.csproj" />
+    <ProjectReference Include="..\EFCore.BulkExtensions.SqlServer\EFCore.BulkExtensions.SqlServer.Net8.csproj" />
+    <ProjectReference Include="..\EFCore.BulkExtensions.PostgreSql\EFCore.BulkExtensions.PostgreSql.Net8.csproj" />
+    <ProjectReference Include="..\EFCore.BulkExtensions.Oracle\EFCore.BulkExtensions.Oracle.Net8.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="testsettings.local.json">
