@@ -219,27 +219,6 @@ public static class BatchUtil
             }
             sqlParameters = npgsqlParameters;
         }
-        else if (databaseType == SqlType.MySql)
-        {
-            resultQuery = context.QueryBuilder.RestructureForBatch(resultQuery);
-
-            var mysqlParameters = new List<DbParameter>();
-            foreach (var param in sqlParameters)
-            {
-                dynamic mysqlParam = context.QueryBuilder.CreateParameter(param.ParameterName, param.Value);
-
-                string paramName = mysqlParam.ParameterName.Replace("@", "");
-                var propertyType = type.GetProperties().SingleOrDefault(a => a.Name == paramName)?.PropertyType;
-                if (propertyType == typeof(System.Text.Json.JsonElement) || propertyType == typeof(System.Text.Json.JsonElement?)) // for JsonDocument works without fix
-                {
-                    var dbtypeJsonb = context.QueryBuilder.Dbtype();
-                    context.QueryBuilder.SetDbTypeParam(mysqlParam, dbtypeJsonb);
-                }
-
-                mysqlParameters.Add(mysqlParam);
-            }
-            sqlParameters = mysqlParameters;
-        }
         else if (databaseType == SqlType.Oracle)
         {
             resultQuery = context.QueryBuilder.RestructureForBatch(resultQuery);
@@ -371,11 +350,6 @@ public static class BatchUtil
                 {
                     var databaseType = context.Server.Type;
                     sql += $"[{columnName}] = @{columnName}, ";
-                    if (databaseType == SqlType.GBase)
-                    {
-                        sql = sql.Replace("[", "").Replace("]", "");
-                        sql = sql.Replace($"@{columnName}", "?");
-                    }
                     var parameterName = $"@{columnName}";
                     DbParameter? param = TryCreateRelationalMappingParameter(
                         context,
@@ -437,14 +411,7 @@ public static class BatchUtil
                     else
                         currentColumnName = assignment.Member.Name;
 
-                    if (createBodyData.DatabaseType == SqlType.GBase)
-                    {
-                        sqlColumns.Append($" {currentColumnName}");
-                    }
-                    else
-                    {
-                        sqlColumns.Append($" [{tableAlias}].[{currentColumnName}]");
-                    }
+                    sqlColumns.Append($" [{tableAlias}].[{currentColumnName}]");
                     sqlColumns.Append(" =");
 
                     if (!TryCreateUpdateBodyNestedQuery(context.DbContext, createBodyData, assignment.Expression, assignment))
@@ -466,14 +433,7 @@ public static class BatchUtil
         {
             if (columnNameValueDict?.TryGetValue(memberExpression.Member.Name, out string? value) ?? false)
             {
-                if (createBodyData.DatabaseType == SqlType.GBase)
-                {
-                    sqlColumns.Append($" {value}");
-                }
-                else
-                {
-                    sqlColumns.Append($" [{tableAlias}].[{value}]");
-                }
+                sqlColumns.Append($" [{tableAlias}].[{value}]");
             }
             else
             {
@@ -687,14 +647,7 @@ public static class BatchUtil
         }
 
         sqlParameters.Add(sqlParameter);
-        if (context.Server.Type == SqlType.GBase)
-        {
-            sqlColumns.Append($" ?");
-        }
-        else
-        {
-            sqlColumns.Append($" {paramName}");
-        }
+        sqlColumns.Append($" {paramName}");
     }
 
     private static readonly MethodInfo? DbContextSetMethodInfo =

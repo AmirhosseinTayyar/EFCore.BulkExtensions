@@ -15,29 +15,14 @@ public enum SqlType
     SqlServer,
 
     /// <summary>
-    /// Indicates database is SQLite
-    /// </summary>
-    Sqlite,
-
-    /// <summary>
     /// Indicates database is PostgreSQL
     /// </summary>
     PostgreSql,
 
     /// <summary>
-    ///  Indicates database is MySQL
-    /// </summary>
-    MySql,
-
-    /// <summary>
     ///  Indicates database is Oracle
     /// </summary>
     Oracle,
-
-    /// <summary>
-    ///  Indicates database is GBase
-    /// </summary>
-    GBase,
 }
 
 #pragma warning disable CS1591 // No XML comment required here
@@ -71,21 +56,9 @@ public static class SqlAdaptersMapping
         {
             databaseType = SqlType.PostgreSql;
         }
-        else if (providerName?.EndsWith(SqlType.MySql.ToString(), ignoreCase) ?? false) // ProviderName: Pomelo.EntityFrameworkCore.MySql
-        {
-            databaseType = SqlType.MySql;
-        }
-        else if (providerName?.EndsWith(SqlType.Sqlite.ToString(), ignoreCase) ?? false) // ProviderName: Microsoft.EntityFrameworkCore.Sqlite
-        {
-            databaseType = SqlType.Sqlite;
-        }
-        else if (providerName?.Contains(SqlType.Oracle.ToString(), ignoreCase) ?? false) // ProviderName: Microsoft.EntityFrameworkCore.Sqlite
+        else if (providerName?.Contains(SqlType.Oracle.ToString(), ignoreCase) ?? false) // ProviderName: Oracle.EntityFrameworkCore
         {
             databaseType = SqlType.Oracle;
-        }
-        else if (providerName?.EndsWith(SqlType.GBase.ToString(), ignoreCase) ?? false) // ProviderName: Microsoft.EntityFrameworkCore.GBase
-        {
-            databaseType = SqlType.GBase;
         }
         if (_dbServer == null || _dbServer.Type != databaseType)
         {

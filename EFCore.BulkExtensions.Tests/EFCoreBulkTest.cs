@@ -387,8 +387,6 @@ public class EFCoreBulkTest
 
     [Theory]
     [InlineData(SqlType.SqlServer, true)]
-    [InlineData(SqlType.Sqlite, true)]
-    //[InlineData(SqlType.GBase, true)]
     //[InlineData(DbServer.SqlServer, false)] // for speed comparison with Regular EF CUD operations
     public void OperationsTest(SqlType sqlType, bool isBulk)
     {
@@ -412,7 +410,6 @@ public class EFCoreBulkTest
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     //[InlineData(SqlType.GBase)]
     public void SideEffectsTest(SqlType sqlType)
     {
@@ -436,10 +433,8 @@ public class EFCoreBulkTest
 
             createTableSql = sqlType switch
             {
-                SqlType.Sqlite => $"CREATE TEMPORARY {createTableSql}",
                 SqlType.SqlServer => $"CREATE {createTableSql}",
                 SqlType.Oracle => $"CREATE GLOBAL TEMPORARY {createTableSql}",
-                SqlType.GBase => $"CREATE {createTableSql}",
                 _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
             };
 
@@ -548,7 +543,7 @@ public class EFCoreBulkTest
 
                 transaction.Commit();
             }
-            else if (sqlType == SqlType.Sqlite || sqlType == SqlType.GBase)
+            else
             {
                 using var transaction = context.Database.BeginTransaction();
                 var bulkConfig = new BulkConfig() { SetOutputIdentity = true };
@@ -810,15 +805,8 @@ public class EFCoreBulkTest
         string deleteTableSql = sqlType switch
         {
             SqlType.SqlServer => $"DBCC CHECKIDENT('[dbo].[{nameof(Item)}]', RESEED, 0);",
-            SqlType.Sqlite => $"DELETE FROM sqlite_sequence WHERE name = '{nameof(Item)}';",
-            SqlType.GBase => $@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} INT)",
             _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
         };
         context.Database.ExecuteSqlRaw(deleteTableSql);
-        if (sqlType == SqlType.GBase)
-        {
-            // Modify autoincrement column type back to serial(1)
-            context.Database.ExecuteSqlRaw($@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} SERIAL(1))");
-        }
     }
 }

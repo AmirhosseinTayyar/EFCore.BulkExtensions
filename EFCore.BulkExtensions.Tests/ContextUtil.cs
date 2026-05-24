@@ -69,36 +69,10 @@ public class ContextUtil
 #endif
                 break;
             }
-            /*case SqlType.MySql:
-            {
-                string connectionString = GetMySqlConnectionString(databaseName);
-                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), opt => opt.UseNetTopologySuite());
-                break;
-            }*/
             case SqlType.Oracle:
             {
                 string connectionString = GetOracleConnectionString(databaseName);
                 optionsBuilder.UseOracle(connectionString);
-                break;
-            }
-            /*case SqlType.GBase:
-            {
-                string connectionString = GetGBaseConnectionString(databaseName);
-                optionsBuilder.UseGBase(connectionString);
-                break;
-            }*/
-            case SqlType.Sqlite:
-            {
-                string connectionString = GetSqliteConnectionString(databaseName);
-                optionsBuilder.UseSqlite(connectionString, opt =>
-                {
-                    opt.UseNetTopologySuite();
-                });
-                SQLitePCL.Batteries.Init();
-
-                // ALTERNATIVELY:
-                //string connectionString = (new SqliteConnectionStringBuilder { DataSource = $"{databaseName}Lite.db" }).ToString();
-                //optionsBuilder.UseSqlite(new SqliteConnection(connectionString));
                 break;
             }
             default:
@@ -127,28 +101,14 @@ public class ContextUtil
         return GetConnectionString("SqlServer").Replace("{databaseName}", databaseName);
     }
 
-    public static string GetSqliteConnectionString(string databaseName)
-    {
-        return GetConnectionString("Sqlite").Replace("{databaseName}", databaseName);
-    }
-
     public static string GetPostgreSqlConnectionString(string databaseName)
     {
         return GetConnectionString("PostgreSql").Replace("{databaseName}", databaseName);
     }
 
-    public static string GetMySqlConnectionString(string databaseName)
-    {
-        return GetConnectionString("MySql").Replace("{databaseName}", databaseName);
-    }
-
     public static string GetOracleConnectionString(string databaseName)
     {
         return GetConnectionString("Oracle").Replace("{databaseName}", databaseName);
-    }
-    public static string GetGBaseConnectionString(string databaseName)
-    {
-        return GetConnectionString("GBase").Replace("{databaseName}", databaseName);
     }
 
     private static string GetConnectionString(string name)

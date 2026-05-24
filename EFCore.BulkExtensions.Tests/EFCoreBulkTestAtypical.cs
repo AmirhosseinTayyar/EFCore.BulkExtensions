@@ -19,7 +19,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.GBase)]
     //[InlineData(SqlType.PostgreSql)]
     //[InlineData(SqlType.Sqlite)]
     private void CustomSqlPostProcessTest(SqlType sqlType)
@@ -28,10 +27,6 @@ public class EFCoreBulkTestAtypical
 
         var entries = new List<Entry> { new() { /*EntryId = 1,*/ Name = "Custom Info" } };
         BulkConfig bulkConfig = new() { CustomSqlPostProcess = "UPDATE Entry SET Name = Name + ' 2'" };
-        if (sqlType == SqlType.GBase)
-        {
-            bulkConfig.CustomSqlPostProcess = "UPDATE Entry SET Name = Name || ' 2'";
-        }
         context.BulkInsertOrUpdate(entries, bulkConfig);
 
         Assert.Equal("Custom Info 2", context.Entries.OrderBy(a => a.EntryId).LastOrDefault()?.Name);
@@ -59,7 +54,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.GBase)]
     //[InlineData(SqlType.PostgreSql)]
     //[InlineData(SqlType.Sqlite)]
     private void CalcStatsTest(SqlType sqlType)
@@ -74,8 +68,7 @@ public class EFCoreBulkTestAtypical
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.Sqlite)]
-    [InlineData(SqlType.GBase)]
+    //[InlineData(SqlType.Sqlite)]
     private void DefaultValuesTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -206,14 +199,11 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)] // Does NOT have Computed Columns
-    [InlineData(SqlType.GBase)]
+    // Does NOT have Computed Columns: SqlType.Sqlite, SqlType.GBase
     private void ComputedAndDefaultValuesTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
         context.Truncate<Document>();
-        bool isSqlite = sqlType == SqlType.Sqlite;
-        bool isGBase = sqlType == SqlType.GBase;
 
         var entities = new List<Document>();
         for (int i = 1; i <= EntitiesNumber; i++)
@@ -222,11 +212,6 @@ public class EFCoreBulkTestAtypical
             {
                 Content = "Info " + i
             };
-            if (isSqlite || isGBase)
-            {
-                entity.DocumentId = Guid.NewGuid();
-                entity.ContentLength = entity.Content.Length;
-            }
             entities.Add(entity);
         }
         context.BulkInsert(entities, bulkAction => bulkAction.SetOutputIdentity = true); // example of setting BulkConfig with Action argument
@@ -244,11 +229,6 @@ public class EFCoreBulkTestAtypical
             new Document { Content = "Info " + (count + 1) }, // to test adding new with InsertOrUpdate (entity having Guid DbGenerated)
             new Document { Content = "Info " + (count + 2) }
         };
-        if (isSqlite || isGBase)
-        {
-            upsertList[0].DocumentId = Guid.NewGuid(); //[1]
-            upsertList[1].DocumentId = Guid.NewGuid(); //[2]
-        }
         count += 2;
 
         context.BulkInsertOrUpdate(upsertList);
@@ -265,8 +245,8 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)] // Does NOT have Computed Columns
-    [InlineData(SqlType.GBase)] // Does NOT have Computed Columns
+    [InlineData(SqlType.PostgreSql)]
+    // Does NOT have Computed Columns: SqlType.Sqlite, SqlType.GBase
     private void ParameterlessConstructorTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -408,9 +388,7 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.GBase)]
     private void CompositeKeyTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -452,7 +430,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
     private void DiscriminatorShadowTest(SqlType sqlType)
     {
@@ -497,8 +474,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
-    [InlineData(SqlType.GBase)]
     private void ValueConversionTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -520,7 +495,7 @@ public class EFCoreBulkTestAtypical
         }
         context.BulkInsert(entitiesToInsert);
 
-        if (sqlType == SqlType.SqlServer || sqlType == SqlType.GBase)
+        if (sqlType == SqlType.SqlServer)
         {
             var entities = context.Infos.ToList();
             var entity = entities.First();
@@ -547,9 +522,7 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.GBase)]
     private void OwnedTypesTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -559,7 +532,7 @@ public class EFCoreBulkTestAtypical
             context.Truncate<ChangeLog>();
             context.Database.ExecuteSqlRaw("TRUNCATE TABLE [" + nameof(ChangeLog) + "]");
         }
-        else if (sqlType == SqlType.PostgreSql || sqlType == SqlType.GBase)
+        else if (sqlType == SqlType.PostgreSql)
         {
             context.Truncate<ChangeLog>();
         }
@@ -613,7 +586,7 @@ public class EFCoreBulkTestAtypical
         entities[0].Description += " UPD";
         entities[0].Audit.InfoType = InfoType.InfoTypeB;
         context.BulkUpdate(entities);
-        if (sqlType == SqlType.SqlServer || sqlType == SqlType.PostgreSql || sqlType == SqlType.GBase)
+        if (sqlType == SqlType.SqlServer || sqlType == SqlType.PostgreSql)
         {
             context.BulkRead(entities);
         }
@@ -684,8 +657,6 @@ public class EFCoreBulkTestAtypical
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.Sqlite)] //Not supported
-    [InlineData(SqlType.GBase)]
     private void ShadowFKPropertiesTest(SqlType sqlType) // with Foreign Key as Shadow Property
     {
         using var context = new TestContext(sqlType);
@@ -792,9 +763,7 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.GBase)]
     private void NoPrimaryKeyTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -855,8 +824,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
-    [InlineData(SqlType.GBase)]
     private void NonEntityChildTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -878,7 +845,6 @@ public class EFCoreBulkTestAtypical
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.Sqlite)]
     private void GeometryColumnTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -1029,7 +995,6 @@ public class EFCoreBulkTestAtypical
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.MySql)]
     private void DestinationAndSourceTableNameTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -1249,7 +1214,7 @@ public class EFCoreBulkTestAtypical
     [Fact]
     private void ByteArrayPKBulkReadTest()
     {
-        const SqlType sqlType = SqlType.Sqlite;
+        const SqlType sqlType = SqlType.SqlServer;
         using var context = new TestContext(sqlType);
 
         var list = context.Archives.ToList();
@@ -1282,18 +1247,12 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
     private void UpsertWithOnUpdateNonPK(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
 
         context.Truncate<Customer>();
-        if (sqlType == SqlType.Sqlite)
-        {
-            context.Database.ExecuteSqlRaw($"UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='{nameof(Customer)}';");
-            context.SaveChanges();
-        }
 
         var cust = new Customer() { Name = "Kayle" };
 
@@ -1318,25 +1277,11 @@ public class EFCoreBulkTestAtypical
             //SqlBulkCopyOptions = Microsoft.Data.SqlClient.SqlBulkCopyOptions.KeepIdentity, // use it when Id is set in Property
         };
         context2.BulkInsertOrUpdate(customers, bulkConfig);
-
-        if (sqlType == SqlType.Sqlite)
-        {
-            context2.BulkRead(customers, b =>
-            {
-                b.UpdateByProperties = new List<string> { nameof(Customer.Name) };
-            });
-
-            Assert.Equal(1, customers[2].Id);
-            Assert.Equal(2, customers[0].Id);
-            Assert.Equal(3, customers[1].Id);
-        }
     }
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.GBase)]
     private void PrivateKeyTest(SqlType sqlType)
     {
         using (var context = new TestContext(sqlType))
@@ -1366,8 +1311,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
-    [InlineData(SqlType.GBase)]
     private void ReplaceReadEntitiesTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -1536,7 +1479,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.GBase)]
     private void DataReaderTest(SqlType sqlType)
     {
         using var context = new TestContext(sqlType);
@@ -1555,7 +1497,6 @@ public class EFCoreBulkTestAtypical
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.GBase)]
     private void ParallelsTestAsync(SqlType sqlType)
     {
         var entitiesLists = new List<List<Customer>>();

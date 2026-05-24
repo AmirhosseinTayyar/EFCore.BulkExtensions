@@ -11,7 +11,6 @@ public class ShadowPropertyTests
 {
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     public void BulkInsertOrUpdate_EntityWithShadowProperties_SavesToDatabase(SqlType dbServer)
     {
         var options = new ContextUtil(dbServer).GetOptions<SpDbContext>(databaseName: $"{nameof(EFCoreBulkTest)}_ShadowProperties");
@@ -31,7 +30,6 @@ public class ShadowPropertyTests
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     public void BulkInsertOrUpdate_EntityWithShadowProperties_GlobalFunc_SavesToDatabase(SqlType dbServer)
     {
         var options = new ContextUtil(dbServer)

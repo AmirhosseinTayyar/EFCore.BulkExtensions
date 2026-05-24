@@ -266,14 +266,14 @@ public class TestContext : TestContextBase
             modelBuilder.Entity<Tracker>().OwnsOne(t => t.Location).Ignore(p => p.Location); // Point only on SqlServer
         }
 
-        if (Database.IsSqlite() || Database.IsNpgsql() /*|| Database.IsMySql() || Database.IsGBase()*/)
+        if (Database.IsNpgsql() /*|| Database.IsMySql() || Database.IsGBase()*/)
         {
             modelBuilder.Entity<Category>().Ignore(p => p.HierarchyDescription);
 
             modelBuilder.Entity<Event>().Ignore(p => p.TimeCreated);
         }
 
-        if (Database.IsSqlite())
+        /*if (Database.IsSqlite())
         {
             modelBuilder.Entity<File>().Property(p => p.VersionChange).ValueGeneratedOnAddOrUpdate().IsConcurrencyToken().HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -286,7 +286,7 @@ public class TestContext : TestContextBase
             modelBuilder.Entity<Address>()
                 .Property(p => p.GeoPoint)
                 .HasSrid(4326);
-        }
+        }*/
 
         /*if (Database.IsMySql() || Database.IsGBase())
         {
@@ -306,7 +306,7 @@ public class TestContext : TestContextBase
         {
             modelBuilder.Entity<GraphQLModel>().Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            modelBuilder.Entity<Address>().Property(p => p.LocationGeometry).HasColumnType("geometry (point, 2180)").HasSrid(2180);
+            modelBuilder.Entity<Address>().Property(p => p.LocationGeometry).HasColumnType("geometry (point, 2180)");
 
             modelBuilder.Entity<FilePG>().Property(p => p.Formats).HasColumnType("text[]");
 

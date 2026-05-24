@@ -56,15 +56,9 @@ public class SqlDefaultDialect : IQueryBuilderSpecialization
     public (string, string) GetBatchSqlReformatTableAliasAndTopStatement(string sqlQuery, SqlType databaseType)
     {
         var isPostgreSql = databaseType == SqlType.PostgreSql;
-        var isGBaseSql = databaseType == SqlType.GBase;
-        var escapeSymbolEnd = (isPostgreSql || isGBaseSql) ? "." : "]";
-        var escapeSymbolStart = (isPostgreSql || isGBaseSql) ? " " : "["; // SqlServer : PostrgeSql;
+        var escapeSymbolEnd = isPostgreSql ? "." : "]";
+        var escapeSymbolStart = isPostgreSql ? " " : "["; // SqlServer : PostgreSql
 
-        if (databaseType == SqlType.MySql)
-        {
-            escapeSymbolEnd = "`.";
-            escapeSymbolStart = "`";
-        }
         var tableAliasEnd = sqlQuery[SelectStatementLength..sqlQuery.IndexOf(escapeSymbolEnd, StringComparison.Ordinal)]; // " TOP(10) [table_alias" / " [table_alias" : " table_alias"
         var tableAliasStartIndex = tableAliasEnd.IndexOf(escapeSymbolStart, StringComparison.Ordinal);
         var tableAlias = tableAliasEnd[(tableAliasStartIndex + escapeSymbolStart.Length)..]; // "table_alias"

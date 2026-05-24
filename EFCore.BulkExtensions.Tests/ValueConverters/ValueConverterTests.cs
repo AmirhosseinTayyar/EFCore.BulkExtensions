@@ -12,7 +12,6 @@ public class ValueConverterTests
 {
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
     public void BulkInsertOrUpdate_EntityUsingBuiltInEnumToStringConverter_SavesToDatabase(SqlType sqlType)
     {
@@ -40,7 +39,6 @@ public class ValueConverterTests
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
     public void BatchUpdate_EntityUsingBuiltInEnumToStringConverter_UpdatesDatabaseWithEnumStringValue(SqlType sqlType)
     {
@@ -75,7 +73,6 @@ public class ValueConverterTests
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     [InlineData(SqlType.PostgreSql)]
     public void BatchDelete_UsingWhereExpressionWithValueConverter_Deletes(SqlType sqlType)
     {

@@ -31,8 +31,7 @@ internal static class DbContextBulkTransactionGraphUtil
             throw new InvalidBulkConfigException($"{nameof(BulkConfig)}.{nameof(BulkConfig.IncludeGraph)} only supports Insert or Update operations.");
 
         // Sqlite bulk merge adapter does not support multiple objects of the same type with a zero value primary key
-        if (context.Server.Type == SqlType.Sqlite)
-            throw new NotSupportedException("Sqlite is not currently supported due to its BulkInsert implementation.");
+        // (Sqlite is no longer supported)
 
         bulkConfig.PreserveInsertOrder = true; // Required for SetOutputIdentity ('true' is default but here explicitly assigned again in case it was changed to 'false' in BulkConfing)
         bulkConfig.SetOutputIdentity = true; // If this is set to false, won't be able to propogate new primary keys to the relationships
