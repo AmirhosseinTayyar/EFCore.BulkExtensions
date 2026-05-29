@@ -12,7 +12,7 @@ With thousands of pleased Users and many satisfied Clients from around the globe
 Customers range from small and medium-sized businesses to large corporations,  
  of which some are related to big-data/AI industry and fintech companies with large datasets.  
 Icon>> and Logo (__):  
-<img src="/EFCore.BulkExtensions/EFCoreBulk.png" height=60> & <img src="EFCoreBulkLogo_small.png" height=60>  
+<img src="EFCoreBulk.png" height=60> & <img src="EFCoreBulkLogo_small.png" height=60>  
 (f.forward | rocket time)
 
 **Also take a look into others highly performant packages:  
