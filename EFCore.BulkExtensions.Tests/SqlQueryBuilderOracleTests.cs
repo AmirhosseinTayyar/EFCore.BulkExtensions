@@ -1,10 +1,7 @@
-using DelegateDecompiler.EntityFrameworkCore;
-using EFCore.BulkExtensions.SqlAdapters;
-using EFCore.BulkExtensions.SqlAdapters.Oracle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters.Oracle;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -20,7 +17,12 @@ public class SqlQueryBuilderUnitOracleTests
             TableName = nameof(Item),
             TempTableName = nameof(Item) + "Temp1234",
             TempTableSufix = "Temp1234",
-            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string> { { nameof(Item.ItemId), nameof(Item.ItemId) } },
+            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string>
+            {
+                {
+                    nameof(Item.ItemId), nameof(Item.ItemId)
+                }
+            },
             BulkConfig = new BulkConfig()
             {
                 OnConflictUpdateWhereSql = onConflictUpdateWhereSql
@@ -28,7 +30,8 @@ public class SqlQueryBuilderUnitOracleTests
         };
         const string nameText = nameof(Item.Name);
 
-        tableInfo.PropertyColumnNamesDict.Add(tableInfo.PrimaryKeysPropertyColumnNameDict.Keys.First(), tableInfo.PrimaryKeysPropertyColumnNameDict.Values.First());
+        tableInfo.PropertyColumnNamesDict.Add(tableInfo.PrimaryKeysPropertyColumnNameDict.Keys.First(),
+            tableInfo.PrimaryKeysPropertyColumnNameDict.Values.First());
         tableInfo.PropertyColumnNamesDict.Add(nameText, nameText);
         //compare on all columns (default)
         tableInfo.PropertyColumnNamesCompareDict = tableInfo.PropertyColumnNamesDict;
@@ -48,6 +51,7 @@ public class SqlQueryBuilderUnitOracleTests
 
         Assert.Equal(expected, result);
     }
+
     [Fact]
     public void MergeTableUpdateTest()
     {
@@ -63,6 +67,7 @@ WHEN MATCHED THEN
 
         Assert.Equal(expected, result);
     }
+
     [Fact]
     public void MergeTableDeleteTest()
     {

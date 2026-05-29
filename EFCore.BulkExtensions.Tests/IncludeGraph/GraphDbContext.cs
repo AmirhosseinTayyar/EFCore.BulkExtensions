@@ -1,6 +1,6 @@
-﻿using EFCore.BulkExtensions.Tests.IncludeGraph.Model;
+﻿using System.Diagnostics.CodeAnalysis;
+using EFCore.BulkExtensions.Tests.IncludeGraph.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace EFCore.BulkExtensions.Tests.ShadowProperties;
 
@@ -43,10 +43,6 @@ public class GraphDbContext : TestContextBase
             cfg.HasOne(y => y.Spare).WithMany().IsRequired();
         });
 
-        modelBuilder.Entity<Spare>(cfg =>
-        {
-            cfg.HasKey(y => y.Id);
-        });
-
+        modelBuilder.Entity<Spare>(cfg => { cfg.HasKey(y => y.Id); });
     }
 }

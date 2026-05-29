@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EFCore.BulkExtensions.Tests.ValueConverters;
 
@@ -11,7 +11,7 @@ public class VcDbContext : TestContextBase
     private readonly SqlType _sqlType;
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-    public VcDbContext(string databaseName, SqlType sqlType) 
+    public VcDbContext(string databaseName, SqlType sqlType)
         : base(new ContextUtil(sqlType).GetOptions<VcDbContext>(databaseName: databaseName))
     {
         _sqlType = sqlType;
@@ -27,7 +27,7 @@ public class VcDbContext : TestContextBase
         {
             cfg.HasKey(y => y.Id);
             cfg.Property(y => y.Id).UseIdentityColumn();
-            
+
             cfg.Property(y => y.Enum)
                 .HasColumnType(_sqlType == SqlType.PostgreSql ? "text" : "nvarchar(4000)")
                 .HasConversion<string>();
@@ -38,7 +38,7 @@ public class VcDbContext : TestContextBase
 
     public class LocalDateValueConverter : ValueConverter<LocalDate, DateTime>
     {
-        public LocalDateValueConverter() 
+        public LocalDateValueConverter()
             : base((LocalDate i) => ToProvider(i), (DateTime d) => FromProvider(d), null)
         {
         }

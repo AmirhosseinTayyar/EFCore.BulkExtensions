@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCore.BulkExtensions.SqlAdapters;
 
@@ -64,30 +64,43 @@ public abstract class SqlQueryBuilder
     /// <param name="tableInfo"></param>
     /// <param name="isOutputTable"></param>
     /// <returns></returns>
-    public virtual string CreateTableCopy(string existingTableName, string newTableName, TableInfo tableInfo, bool isOutputTable = false)
+    public virtual string CreateTableCopy(string existingTableName,
+        string newTableName,
+        TableInfo tableInfo,
+        bool isOutputTable = false)
     {
         // TODO: (optionaly) if CalculateStats = True but SetOutputIdentity = False then Columns could be ommited from Create and from MergeOutput
-        List<string> columnsNames = (isOutputTable ? tableInfo.OutputPropertyColumnNamesDict
-                                                   : tableInfo.PropertyColumnNamesDict
-                                                   ).Values.ToList();
+        List<string> columnsNames = (isOutputTable
+                ? tableInfo.OutputPropertyColumnNamesDict
+                : tableInfo.PropertyColumnNamesDict
+            ).Values.ToList();
         string timeStampColumn = "";
         if (tableInfo.TimeStampColumnName != null)
         {
             columnsNames.Remove(tableInfo.TimeStampColumnName);
-            timeStampColumn = $", [{tableInfo.TimeStampColumnName}] = CAST('' AS {TableInfo.TimeStampOutColumnType})"; // tsType:varbinary(8)
+            timeStampColumn =
+                $", [{tableInfo.TimeStampColumnName}] = CAST('' AS {TableInfo.TimeStampOutColumnType})"; // tsType:varbinary(8)
         }
+
         string temporalTableColumns = "";
         if (tableInfo.HasTemporalColumns && isOutputTable == true)
         {
-            tableInfo.BulkConfig.TemporalColumns.ForEach(columnName => {
+            tableInfo.BulkConfig.TemporalColumns.ForEach(columnName =>
+            {
                 columnsNames.Remove(columnName);
                 temporalTableColumns += $", T.[{columnName}]";
             });
         }
 
-        string statsColumn = (tableInfo.BulkConfig.CalculateStats && isOutputTable) ? $", [{tableInfo.SqlActionIUD}] = CAST('' AS char(1))" : "";
+        string statsColumn = (tableInfo.BulkConfig.CalculateStats && isOutputTable)
+            ? $", [{tableInfo.SqlActionIUD}] = CAST('' AS char(1))"
+            : "";
 
-        var q = $"SELECT TOP 0 {GetCommaSeparatedColumns(columnsNames, "T")}" + timeStampColumn + temporalTableColumns + statsColumn + " " +
+        var q = $"SELECT TOP 0 {GetCommaSeparatedColumns(columnsNames, "T")}" +
+                timeStampColumn +
+                temporalTableColumns +
+                statsColumn +
+                " " +
                 $"INTO {newTableName} FROM {existingTableName} AS T " +
                 $"LEFT JOIN {existingTableName} AS Source ON 1 = 0;"; // removes Identity constrain
         return q;
@@ -110,9 +123,11 @@ public abstract class SqlQueryBuilder
             {
                 columnType = TableInfo.TimeStampOutColumnType;
             }
+
             columnName = columnName.Replace("]", "]]");
             q += $"ALTER TABLE {tableName} ALTER COLUMN [{columnName}] {columnType}; ";
         }
+
         return q;
     }
 
@@ -128,26 +143,32 @@ public abstract class SqlQueryBuilder
     /// <exception cref="InvalidOperationException"></exception>
     public static string CreateTable(string newTableName, TableInfo tableInfo, bool isOutputTable = false)
     {
-        List<string> columnsNames = (isOutputTable ? tableInfo.OutputPropertyColumnNamesDict
-                                                   : tableInfo.PropertyColumnNamesDict
-                                                   ).Values.ToList();
+        List<string> columnsNames = (isOutputTable
+                ? tableInfo.OutputPropertyColumnNamesDict
+                : tableInfo.PropertyColumnNamesDict
+            ).Values.ToList();
         if (tableInfo.TimeStampColumnName != null)
         {
             columnsNames.Remove(tableInfo.TimeStampColumnName);
         }
+
         var columnsNamesAndTypes = new List<Tuple<string, string>>();
         foreach (var columnName in columnsNames)
         {
             if (!tableInfo.ColumnNamesTypesDict.TryGetValue(columnName, out string? columnType))
             {
-                throw new InvalidOperationException($"Column Type not found in ColumnNamesTypesDict for column: '{columnName}'");
+                throw new InvalidOperationException(
+                    $"Column Type not found in ColumnNamesTypesDict for column: '{columnName}'");
             }
+
             columnsNamesAndTypes.Add(new Tuple<string, string>(columnName, columnType));
         }
+
         if (tableInfo.BulkConfig.CalculateStats && isOutputTable)
         {
             columnsNamesAndTypes.Add(new Tuple<string, string>("[SqlActionIUD]", "char(1)"));
         }
+
         var q = $"CREATE TABLE {newTableName} ({GetCommaSeparatedColumnsAndTypes(columnsNamesAndTypes)});";
         return q;
     }
@@ -215,6 +236,7 @@ public abstract class SqlQueryBuilder
         {
             q = $"IF OBJECT_ID ('{tableName}', 'U') IS NOT NULL DROP TABLE {tableName}";
         }
+
         return q;
     }
 
@@ -243,12 +265,14 @@ public abstract class SqlQueryBuilder
         string q;
         if (isTempTable)
         {
-            q = $"IF OBJECT_ID ('tempdb..[#{fullTableName.Split('#')[1]}', 'U') IS NOT NULL SELECT 1 AS res ELSE SELECT 0 AS res;";
+            q =
+                $"IF OBJECT_ID ('tempdb..[#{fullTableName.Split('#')[1]}', 'U') IS NOT NULL SELECT 1 AS res ELSE SELECT 0 AS res;";
         }
         else
         {
             q = $"IF OBJECT_ID ('{fullTableName}', 'U') IS NOT NULL SELECT 1 AS res ELSE SELECT 0 AS res;";
         }
+
         return q;
     }
 
@@ -262,7 +286,10 @@ public abstract class SqlQueryBuilder
         string sourceTable = tableInfo.FullTableName;
         string joinTable = tableInfo.FullTempTableName;
         List<string> columnsNames = tableInfo.PropertyColumnNamesDict.Values.ToList();
-        List<string> selectByPropertyNames = tableInfo.PropertyColumnNamesDict.Where(a => tableInfo.PrimaryKeysPropertyColumnNameDict.ContainsKey(a.Key)).Select(a => a.Value).ToList();
+        List<string> selectByPropertyNames = tableInfo.PropertyColumnNamesDict
+            .Where(a => tableInfo.PrimaryKeysPropertyColumnNameDict.ContainsKey(a.Key))
+            .Select(a => a.Value)
+            .ToList();
 
         var q = $"SELECT {GetCommaSeparatedColumns(columnsNames, "S")} " +
                 $"FROM {sourceTable} AS S " +
@@ -294,22 +321,34 @@ public abstract class SqlQueryBuilder
     /// <param name="entityPropertyWithDefaultValue"></param>
     /// <returns></returns>
     /// <exception cref="InvalidBulkConfigException"></exception>
-    public static (string sql, IEnumerable<object> parameters) MergeTable<T>(BulkContext context, TableInfo tableInfo, OperationType operationType,
-                                                                             IEnumerable<string>? entityPropertyWithDefaultValue = default) where T : class
+    public static (string sql, IEnumerable<object> parameters) MergeTable<T>(BulkContext context,
+        TableInfo tableInfo,
+        OperationType operationType,
+        IEnumerable<string>? entityPropertyWithDefaultValue = default) where T : class
     {
         List<object> parameters = new();
         string targetTable = tableInfo.FullTableName;
         string sourceTable = tableInfo.FullTempTableName;
         bool keepIdentity = tableInfo.BulkConfig.SqlBulkCopyOptions.HasFlag(SqlBulkCopyOptions.KeepIdentity);
-        List<string> primaryKeys = tableInfo.PrimaryKeysPropertyColumnNameDict.Where(a => tableInfo.PropertyColumnNamesDict.ContainsKey(a.Key)).Select(a => a.Value).ToList();
+        List<string> primaryKeys = tableInfo.PrimaryKeysPropertyColumnNameDict
+            .Where(a => tableInfo.PropertyColumnNamesDict.ContainsKey(a.Key))
+            .Select(a => a.Value)
+            .ToList();
         List<string> columnsNames = tableInfo.PropertyColumnNamesDict.Values.ToList();
         List<string> columnsNamesOnCompare = tableInfo.PropertyColumnNamesCompareDict.Values.ToList();
         List<string> columnsNamesOnUpdate = tableInfo.PropertyColumnNamesUpdateDict.Values.ToList();
         List<string> outputColumnsNames = tableInfo.OutputPropertyColumnNamesDict.Values.ToList();
-        List<string> nonIdentityColumnsNames = columnsNames.Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase)).ToList();
-        List<string> compareColumnNames = columnsNamesOnCompare.Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase)).ToList();
-        List<string> updateColumnNames = columnsNamesOnUpdate.Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase)).ToList();
-        List<string> insertColumnsNames = (tableInfo.HasIdentity && !keepIdentity) ? nonIdentityColumnsNames : columnsNames;
+        List<string> nonIdentityColumnsNames = columnsNames
+            .Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        List<string> compareColumnNames = columnsNamesOnCompare
+            .Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        List<string> updateColumnNames = columnsNamesOnUpdate
+            .Where(a => !a.Equals(tableInfo.IdentityColumnName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        List<string> insertColumnsNames =
+            (tableInfo.HasIdentity && !keepIdentity) ? nonIdentityColumnsNames : columnsNames;
 
         if (tableInfo.DefaultValueProperties.Any()) // Properties with DefaultValue exclude OnInsert but keep OnUpdate
         {
@@ -326,10 +365,12 @@ public abstract class SqlQueryBuilder
 
         if (tableInfo.BulkConfig.PreserveInsertOrder)
         {
-            int numberOfEntities = tableInfo.BulkConfig.CustomSourceTableName == null ? tableInfo.NumberOfEntities
-                                                                                      : int.MaxValue;
-            var orderBy = (primaryKeys.Count == 0) ? string.Empty
-                                                   : $"ORDER BY {GetCommaSeparatedColumns(primaryKeys)}";
+            int numberOfEntities = tableInfo.BulkConfig.CustomSourceTableName == null
+                ? tableInfo.NumberOfEntities
+                : int.MaxValue;
+            var orderBy = (primaryKeys.Count == 0)
+                ? string.Empty
+                : $"ORDER BY {GetCommaSeparatedColumns(primaryKeys)}";
             sourceTable = $"(SELECT TOP {numberOfEntities} * FROM {sourceTable} {orderBy})";
         }
 
@@ -340,32 +381,43 @@ public abstract class SqlQueryBuilder
                 $"ON {GetANDSeparatedColumns(primaryKeys, "T", "S", tableInfo.UpdateByPropertiesAreNullable)}";
         q += (primaryKeys.Count == 0) ? "1=0" : string.Empty;
 
-        if (operationType == OperationType.Insert || operationType == OperationType.InsertOrUpdate || operationType == OperationType.InsertOrUpdateOrDelete)
+        if (operationType == OperationType.Insert ||
+            operationType == OperationType.InsertOrUpdate ||
+            operationType == OperationType.InsertOrUpdateOrDelete)
         {
             q += $" WHEN NOT MATCHED BY TARGET " +
                  $"THEN INSERT ({GetCommaSeparatedColumns(insertColumnsNames)}) " +
                  $"VALUES ({GetCommaSeparatedColumns(insertColumnsNames, "S")})";
         }
 
-        q = q.Replace("INSERT () VALUES ()", "INSERT DEFAULT VALUES"); // case when table has only one column that is Identity
+        q = q.Replace("INSERT () VALUES ()",
+            "INSERT DEFAULT VALUES"); // case when table has only one column that is Identity
 
-        if (operationType == OperationType.Update || operationType == OperationType.InsertOrUpdate || operationType == OperationType.InsertOrUpdateOrDelete)
+        if (operationType == OperationType.Update ||
+            operationType == OperationType.InsertOrUpdate ||
+            operationType == OperationType.InsertOrUpdateOrDelete)
         {
             if (updateColumnNames.Count == 0 && operationType == OperationType.Update)
             {
-                throw new InvalidBulkConfigException($"'Bulk{operationType}' operation can not have zero columns to update.");
+                throw new InvalidBulkConfigException(
+                    $"'Bulk{operationType}' operation can not have zero columns to update.");
             }
             else if (updateColumnNames.Count > 0)
             {
                 q += $" WHEN MATCHED" +
-                     (tableInfo.BulkConfig.OmitClauseExistsExcept || tableInfo.HasSpatialType ? string.Empty : // The data type Geography (Spatial) cannot be used as an operand to the UNION, INTERSECT or EXCEPT operators because it is not comparable
-                      $" AND EXISTS (SELECT {GetCommaSeparatedColumns(compareColumnNames, "S")}" + // EXISTS better handles nulls
-                      $" EXCEPT SELECT {GetCommaSeparatedColumns(compareColumnNames, "T")})"       // EXCEPT does not update if all values are same
+                     (tableInfo.BulkConfig.OmitClauseExistsExcept || tableInfo.HasSpatialType
+                             ? string.Empty
+                             : // The data type Geography (Spatial) cannot be used as an operand to the UNION, INTERSECT or EXCEPT operators because it is not comparable
+                             $" AND EXISTS (SELECT {GetCommaSeparatedColumns(compareColumnNames, "S")}" + // EXISTS better handles nulls
+                             $" EXCEPT SELECT {GetCommaSeparatedColumns(compareColumnNames, "T")})" // EXCEPT does not update if all values are same
                      ) +
-                     (!tableInfo.BulkConfig.DoNotUpdateIfTimeStampChanged || tableInfo.TimeStampColumnName == null ? string.Empty :
-                      $" AND S.[{tableInfo.TimeStampColumnName}] = T.[{tableInfo.TimeStampColumnName}]"
+                     (!tableInfo.BulkConfig.DoNotUpdateIfTimeStampChanged || tableInfo.TimeStampColumnName == null
+                         ? string.Empty
+                         : $" AND S.[{tableInfo.TimeStampColumnName}] = T.[{tableInfo.TimeStampColumnName}]"
                      ) +
-                     (tableInfo.BulkConfig.OnConflictUpdateWhereSql != null ? $" AND {tableInfo.BulkConfig.OnConflictUpdateWhereSql("T", "S")}" : string.Empty) +
+                     (tableInfo.BulkConfig.OnConflictUpdateWhereSql != null
+                         ? $" AND {tableInfo.BulkConfig.OnConflictUpdateWhereSql("T", "S")}"
+                         : string.Empty) +
                      $" THEN UPDATE SET {GetCommaSeparatedColumns(updateColumnNames, "T", "S")}";
             }
         }
@@ -375,10 +427,13 @@ public abstract class SqlQueryBuilder
             string syncFilterCondition = string.Empty;
             if (tableInfo.BulkConfig.SynchronizeFilter != null)
             {
-                var querable = context.DbContext.Set<T>().IgnoreQueryFilters().IgnoreAutoIncludes()
-                                               .Where((Expression<Func<T, bool>>)tableInfo.BulkConfig.SynchronizeFilter);
+                var querable = context.DbContext.Set<T>()
+                    .IgnoreQueryFilters()
+                    .IgnoreAutoIncludes()
+                    .Where((Expression<Func<T, bool>>) tableInfo.BulkConfig.SynchronizeFilter);
 
-                var (Sql, TableAlias, TableAliasSufixAs, TopStatement, LeadingComments, InnerParameters) = BatchUtil.GetBatchSql(querable, context, false);
+                var (Sql, TableAlias, TableAliasSufixAs, TopStatement, LeadingComments, InnerParameters) =
+                    BatchUtil.GetBatchSql(querable, context, false);
                 var whereClause = $"{Environment.NewLine}WHERE ";
                 int wherePos = Sql.IndexOf(whereClause, StringComparison.OrdinalIgnoreCase);
                 if (wherePos > 0)
@@ -391,7 +446,8 @@ public abstract class SqlQueryBuilder
                 }
                 else
                 {
-                    throw new InvalidBulkConfigException($"'Bulk{operationType}' SynchronizeFilter expression can not be translated to SQL");
+                    throw new InvalidBulkConfigException(
+                        $"'Bulk{operationType}' SynchronizeFilter expression can not be translated to SQL");
                 }
             }
 
@@ -401,10 +457,11 @@ public abstract class SqlQueryBuilder
             if (tableInfo.BulkConfig.SynchronizeSoftDelete != null)
             {
                 var querable = context.DbContext.Set<T>().IgnoreQueryFilters().IgnoreAutoIncludes();
-                var expression = (Expression<Func<T, T>>)tableInfo.BulkConfig.SynchronizeSoftDelete;
+                var expression = (Expression<Func<T, T>>) tableInfo.BulkConfig.SynchronizeSoftDelete;
                 var (sqlOriginal, sqlParameters) = BatchUtil.GetSqlUpdate(querable, context, typeof(T), expression);
                 var databaseType = context.Server.Type;
-                var (tableAlias, _) = context.Dialect.GetBatchSqlReformatTableAliasAndTopStatement(sqlOriginal, databaseType);
+                var (tableAlias, _) =
+                    context.Dialect.GetBatchSqlReformatTableAliasAndTopStatement(sqlOriginal, databaseType);
 
                 var sql = sqlOriginal.Replace($"[{tableAlias}]", "T");
                 int indexFrom = sql.IndexOf(".") - 1;
@@ -414,38 +471,46 @@ public abstract class SqlQueryBuilder
                 parameters.AddRange(sqlParameters);
             }
 
-            q += (softDeleteAssignment != string.Empty) ? $" THEN UPDATE SET {softDeleteAssignment}"
-                                                        : $" THEN DELETE";
+            q += (softDeleteAssignment != string.Empty)
+                ? $" THEN UPDATE SET {softDeleteAssignment}"
+                : $" THEN DELETE";
         }
+
         if (operationType == OperationType.Delete)
         {
             q += " WHEN MATCHED THEN DELETE";
         }
+
         if (tableInfo.CreateOutputTable)
         {
             string commaSeparatedColumnsNames;
             if (operationType == OperationType.InsertOrUpdateOrDelete || operationType == OperationType.Delete)
             {
-                commaSeparatedColumnsNames = string.Join(", ", outputColumnsNames.Select(x => $"COALESCE(INSERTED.[{x}], DELETED.[{x}])"));
+                commaSeparatedColumnsNames = string.Join(", ",
+                    outputColumnsNames.Select(x => $"COALESCE(INSERTED.[{x}], DELETED.[{x}])"));
             }
             else
             {
                 commaSeparatedColumnsNames = GetCommaSeparatedColumns(outputColumnsNames, "INSERTED");
             }
-            q += $" OUTPUT {commaSeparatedColumnsNames}" + isUpdateStatsValue +
+
+            q += $" OUTPUT {commaSeparatedColumnsNames}" +
+                 isUpdateStatsValue +
                  $" INTO {tableInfo.FullTempOutputTableName}";
         }
-        if(tableInfo.BulkConfig.UseOptionLoopJoin)
+
+        if (tableInfo.BulkConfig.UseOptionLoopJoin)
         {
             q += " OPTION (LOOP JOIN)";
         }
-        
+
         q += ";";
 
-        Dictionary<string, string> sourceDestinationMappings = tableInfo.BulkConfig.CustomSourceDestinationMappingColumns ?? new();
-        if (tableInfo.BulkConfig.CustomSourceTableName != null
-            && sourceDestinationMappings != null
-            && sourceDestinationMappings.Count > 0)
+        Dictionary<string, string> sourceDestinationMappings =
+            tableInfo.BulkConfig.CustomSourceDestinationMappingColumns ?? new();
+        if (tableInfo.BulkConfig.CustomSourceTableName != null &&
+            sourceDestinationMappings != null &&
+            sourceDestinationMappings.Count > 0)
         {
             var textOrderBy = "ORDER BY ";
             var textAsS = " AS S";
@@ -462,11 +527,13 @@ public abstract class SqlQueryBuilder
                 {
                     qSegmentUpdated = qSegmentUpdated.Replace(propertyFormated, $"[{sourceProperty}]");
                 }
+
                 if (q.Contains(propertySourceFormated))
                 {
                     q = q.Replace(propertySourceFormated, $"S.[{sourceProperty}]");
                 }
             }
+
             if (qSegment != qSegmentUpdated)
             {
                 q = q.Replace(qSegment, qSegmentUpdated);
@@ -508,8 +575,10 @@ public abstract class SqlQueryBuilder
     /// <param name="equalsTable"></param>
     /// <param name="propertColumnsNamesDict"></param>
     /// <returns></returns>
-    public static string GetCommaSeparatedColumns(List<string> columnsNames, string? prefixTable = null, string? equalsTable = null,
-                                                  Dictionary<string, string>? propertColumnsNamesDict = null)
+    public static string GetCommaSeparatedColumns(List<string> columnsNames,
+        string? prefixTable = null,
+        string? equalsTable = null,
+        Dictionary<string, string>? propertColumnsNamesDict = null)
     {
         prefixTable += (prefixTable != null && prefixTable != "@") ? "." : "";
         equalsTable += (equalsTable != null && equalsTable != "@") ? "." : "";
@@ -517,15 +586,21 @@ public abstract class SqlQueryBuilder
         string commaSeparatedColumns = "";
         foreach (var columnName in columnsNames)
         {
-            var equalsParameter = propertColumnsNamesDict == null ? columnName : propertColumnsNamesDict.SingleOrDefault(a => a.Value == columnName).Key;
+            var equalsParameter = propertColumnsNamesDict == null
+                ? columnName
+                : propertColumnsNamesDict.SingleOrDefault(a => a.Value == columnName).Key;
             commaSeparatedColumns += prefixTable != "" ? $"{prefixTable}[{columnName}]" : $"[{columnName}]";
             commaSeparatedColumns += equalsTable != "" ? $" = {equalsTable}[{equalsParameter}]" : "";
             commaSeparatedColumns += ", ";
         }
+
         if (commaSeparatedColumns != "")
         {
-            commaSeparatedColumns = commaSeparatedColumns.Remove(commaSeparatedColumns.Length - 2, 2); // removes last excess comma and space: ", "
+            commaSeparatedColumns =
+                commaSeparatedColumns.Remove(commaSeparatedColumns.Length - 2,
+                    2); // removes last excess comma and space: ", "
         }
+
         return commaSeparatedColumns;
     }
 
@@ -542,10 +617,14 @@ public abstract class SqlQueryBuilder
         {
             commaSeparatedColumns += $"[{columnNameAndType.Item1}] {columnNameAndType.Item2}, ";
         }
+
         if (commaSeparatedColumns != "")
         {
-            commaSeparatedColumns = commaSeparatedColumns.Remove(commaSeparatedColumns.Length - 2, 2); // removes last excess comma and space: ", "
+            commaSeparatedColumns =
+                commaSeparatedColumns.Remove(commaSeparatedColumns.Length - 2,
+                    2); // removes last excess comma and space: ", "
         }
+
         return commaSeparatedColumns;
     }
 
@@ -558,10 +637,14 @@ public abstract class SqlQueryBuilder
     /// <param name="updateByPropertiesAreNullable"></param>
     /// <param name="propertColumnsNamesDict"></param>
     /// <returns></returns>
-    public static string GetANDSeparatedColumns(List<string> columnsNames, string? prefixTable = null, string? equalsTable = null, bool updateByPropertiesAreNullable = false,
-                                                Dictionary<string, string>? propertColumnsNamesDict = null)
+    public static string GetANDSeparatedColumns(List<string> columnsNames,
+        string? prefixTable = null,
+        string? equalsTable = null,
+        bool updateByPropertiesAreNullable = false,
+        Dictionary<string, string>? propertColumnsNamesDict = null)
     {
-        string commaSeparatedColumns = GetCommaSeparatedColumns(columnsNames, prefixTable, equalsTable, propertColumnsNamesDict);
+        string commaSeparatedColumns =
+            GetCommaSeparatedColumns(columnsNames, prefixTable, equalsTable, propertColumnsNamesDict);
 
         if (updateByPropertiesAreNullable)
         {
@@ -575,10 +658,13 @@ public abstract class SqlQueryBuilder
                 string columnNullable = $"({column.Trim()} OR ({columnT} IS NULL AND {columnS} IS NULL))";
                 commaSeparatedColumnsNullable += columnNullable + ", ";
             }
+
             if (commaSeparatedColumns != "")
             {
-                commaSeparatedColumnsNullable = commaSeparatedColumnsNullable.Remove(commaSeparatedColumnsNullable.Length - 2, 2);
+                commaSeparatedColumnsNullable =
+                    commaSeparatedColumnsNullable.Remove(commaSeparatedColumnsNullable.Length - 2, 2);
             }
+
             commaSeparatedColumns = commaSeparatedColumnsNullable;
         }
 

@@ -14,11 +14,13 @@ public class OracleDbServer : IDbServer
     private readonly OracleDialect _dialect = new();
     IQueryBuilderSpecialization IDbServer.Dialect => _dialect;
 
-    private readonly SqlAdapters.SqlQueryBuilder _queryBuilder = new OracleQueryBuilder();
+    private readonly SqlQueryBuilder _queryBuilder = new OracleQueryBuilder();
+
     /// <inheritdoc/>
     public SqlQueryBuilder QueryBuilder => _queryBuilder;
 
     string IDbServer.ValueGenerationStrategy => nameof(OracleValueGenerationStrategy);
 
-    bool IDbServer.PropertyHasIdentity(IAnnotation annotation) => (OracleValueGenerationStrategy?)annotation.Value == OracleValueGenerationStrategy.IdentityColumn;
+    bool IDbServer.PropertyHasIdentity(IAnnotation annotation) => (OracleValueGenerationStrategy?) annotation.Value ==
+                                                                  OracleValueGenerationStrategy.IdentityColumn;
 }

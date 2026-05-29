@@ -54,7 +54,7 @@ static class SpanSplitExtensions
     {
         public ReadOnlySpan<T> Token { get; }
         public ReadOnlySpan<T> Delimiters { get; }
-        
+
         public TokenSplitEntry(ReadOnlySpan<T> token, ReadOnlySpan<T> delimiters)
         {
             this.Token = token;

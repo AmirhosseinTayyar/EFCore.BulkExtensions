@@ -1,18 +1,17 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters;
 using EFCore.BulkExtensions.Tests.IncludeGraph.Model;
 using EFCore.BulkExtensions.Tests.ShadowProperties;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests.IncludeGraph;
 
 public class IncludeGraphTests
 {
-    private readonly static WorkOrder WorkOrder1 = new ()
+    private readonly static WorkOrder WorkOrder1 = new()
     {
         Description = "Fix belt",
         Asset = new Asset
@@ -21,31 +20,31 @@ public class IncludeGraphTests
             Location = "WAREHOUSE-1"
         },
         WorkOrderSpares =
+        {
+            new WorkOrderSpare
             {
-                new WorkOrderSpare
+                Description = "Bolt 5mm x5",
+                Quantity = 5,
+                Spare = new Spare
                 {
-                    Description = "Bolt 5mm x5",
-                    Quantity = 5,
-                    Spare = new Spare
-                    {
-                        PartNumber = "MZD 5mm",
-                        Barcode = "12345"
-                    }
-                },
-                new WorkOrderSpare
+                    PartNumber = "MZD 5mm",
+                    Barcode = "12345"
+                }
+            },
+            new WorkOrderSpare
+            {
+                Description = "Bolt 10mm x5",
+                Quantity = 5,
+                Spare = new Spare
                 {
-                    Description = "Bolt 10mm x5",
-                    Quantity = 5,
-                    Spare = new Spare
-                    {
-                        PartNumber = "MZD 10mm",
-                        Barcode = "222655"
-                    }
+                    PartNumber = "MZD 10mm",
+                    Barcode = "222655"
                 }
             }
+        }
     };
 
-    private static readonly WorkOrder WorkOrder2 = new ()
+    private static readonly WorkOrder WorkOrder2 = new()
     {
         Description = "Fix toilets",
         Asset = new Asset

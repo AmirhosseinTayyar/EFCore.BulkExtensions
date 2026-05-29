@@ -16,10 +16,11 @@ public class NestedOwnedTests
     {
         var options = new ContextUtil(sqlType)
             .GetOptions<NestedDbContext>(databaseName: $"{nameof(EFCoreBulkTest)}_NestedOwned");
-        
+
         using var context = new NestedDbContext(options);
 
-        NestedRoot[] entities = [
+        NestedRoot[] entities =
+        [
             new()
             {
                 NestedRootId = "nestedrootid",
@@ -48,7 +49,7 @@ public class NestedOwnedTests
         Assert.Equal("secondnested", nestedroot.FirstNested.SecondNested.SecondNestedProperty);
         Assert.Equal("thirdnested", nestedroot.FirstNested.SecondNested.ThirdNested.ThirdNestedProperty);
         Assert.Equal(WallType.Clay, nestedroot.FirstNested.Enum);
-        
+
         if (sqlType == SqlType.PostgreSql)
             Assert.Equal(Enum.GetValues<WallType>(), nestedroot.FirstNested.EnumArray);
     }
@@ -64,7 +65,7 @@ public class FirstNested
 {
     public string? FirstNestedProperty { get; set; }
     public SecondNested SecondNested { get; set; } = default!;
-    
+
     // Test value converter inside owned type
     public WallType Enum { get; set; }
     public WallType[] EnumArray { get; set; } = null!;
@@ -92,12 +93,12 @@ public class NestedDbContext : TestContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<NestedRoot>(r => r.OwnsOne(r => r.FirstNested, 
+        modelBuilder.Entity<NestedRoot>(r => r.OwnsOne(r => r.FirstNested,
             f =>
             {
                 f.OwnsOne(f => f.SecondNested,
                     s => s.OwnsOne(s => s.ThirdNested));
-                
+
                 if (!Database.IsNpgsql())
                     f.Ignore(x => x.EnumArray);
             }));

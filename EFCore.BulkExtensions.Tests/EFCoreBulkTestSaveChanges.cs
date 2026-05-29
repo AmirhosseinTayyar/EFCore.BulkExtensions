@@ -1,9 +1,9 @@
-using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -54,22 +54,23 @@ public class EFCoreBulkTestSaveChanges
                 Price = i / (i % 5 + 1),
                 TimeUpdated = dateTimeNow,
                 ItemHistories = new List<ItemHistory>()
+                {
+                    new ItemHistory
                     {
-                        new ItemHistory
-                        {
-                            //ItemId = i,
-                            ItemHistoryId = SeqGuid.Create(),
-                            Remark = $"some more info {i}.1"
-                        },
-                        new ItemHistory
-                        {
-                            //ItemId = i,
-                            ItemHistoryId = SeqGuid.Create(),
-                            Remark = $"some more info {i}.2"
-                        }
+                        //ItemId = i,
+                        ItemHistoryId = SeqGuid.Create(),
+                        Remark = $"some more info {i}.1"
+                    },
+                    new ItemHistory
+                    {
+                        //ItemId = i,
+                        ItemHistoryId = SeqGuid.Create(),
+                        Remark = $"some more info {i}.2"
                     }
+                }
             });
         }
+
         return newEntities;
     }
 
@@ -115,8 +116,12 @@ public class EFCoreBulkTestSaveChanges
     {
         using var context = new TestContext(dbServer);
 
-        var loadedEntites = context.Items.Include(a => a.ItemHistories).Where(a => a.ItemId <= 3000).ToList(); // load first 3000 entities
-        var existingEntites = loadedEntites.Where(a => a.ItemId <= 2000).ToList(); // take first 2000 of loaded entities and update them
+        var loadedEntites =
+            context.Items.Include(a => a.ItemHistories)
+                .Where(a => a.ItemId <= 3000)
+                .ToList(); // load first 3000 entities
+        var existingEntites =
+            loadedEntites.Where(a => a.ItemId <= 2000).ToList(); // take first 2000 of loaded entities and update them
         foreach (var existingEntity in existingEntites)
         {
             existingEntity.Description += " UPDATED";
@@ -140,8 +145,12 @@ public class EFCoreBulkTestSaveChanges
     {
         using var context = new TestContext(dbServer);
 
-        var loadedEntites = await context.Items.Include(a => a.ItemHistories).Where(a => a.ItemId <= 3000).ToListAsync(); // load first 3000 entities
-        var existingEntites = loadedEntites.Where(a => a.ItemId <= 2000).ToList(); // take first 2000 of loaded entities and update them
+        var loadedEntites =
+            await context.Items.Include(a => a.ItemHistories)
+                .Where(a => a.ItemId <= 3000)
+                .ToListAsync(); // load first 3000 entities
+        var existingEntites =
+            loadedEntites.Where(a => a.ItemId <= 2000).ToList(); // take first 2000 of loaded entities and update them
         foreach (var existingEntity in existingEntites)
         {
             existingEntity.Description += " UPDATED";

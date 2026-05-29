@@ -1,37 +1,69 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFCore.BulkExtensions;
 
 internal static class DbContextBulkTransactionGraphUtil
 {
-    public static void ExecuteWithGraph(BulkContext context, IEnumerable<object> entities, OperationType operationType, BulkConfig bulkConfig, Action<decimal>? progress)
+    public static void ExecuteWithGraph(BulkContext context,
+        IEnumerable<object> entities,
+        OperationType operationType,
+        BulkConfig bulkConfig,
+        Action<decimal>? progress)
     {
-        ExecuteWithGraphAsync(context, entities, operationType, bulkConfig, progress, isAsync: false, CancellationToken.None).GetAwaiter().GetResult();
+        ExecuteWithGraphAsync(context,
+                entities,
+                operationType,
+                bulkConfig,
+                progress,
+                isAsync: false,
+                CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
     }
 
-    public static async Task ExecuteWithGraphAsync(BulkContext context, IEnumerable<object> entities, OperationType operationType, BulkConfig bulkConfig, Action<decimal>? progress, CancellationToken cancellationToken)
+    public static async Task ExecuteWithGraphAsync(BulkContext context,
+        IEnumerable<object> entities,
+        OperationType operationType,
+        BulkConfig bulkConfig,
+        Action<decimal>? progress,
+        CancellationToken cancellationToken)
     {
-        await ExecuteWithGraphAsync(context, entities, operationType, bulkConfig, progress, isAsync: true, cancellationToken).ConfigureAwait(false);
+        await ExecuteWithGraphAsync(context,
+                entities,
+                operationType,
+                bulkConfig,
+                progress,
+                isAsync: true,
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 
-    private static async Task ExecuteWithGraphAsync(BulkContext context, IEnumerable<object> entities, OperationType operationType, BulkConfig bulkConfig, Action<decimal>? progress, bool isAsync, CancellationToken cancellationToken)
+    private static async Task ExecuteWithGraphAsync(BulkContext context,
+        IEnumerable<object> entities,
+        OperationType operationType,
+        BulkConfig bulkConfig,
+        Action<decimal>? progress,
+        bool isAsync,
+        CancellationToken cancellationToken)
     {
-        if (operationType != OperationType.Insert
-            && operationType != OperationType.InsertOrUpdate
-            && operationType != OperationType.InsertOrUpdateOrDelete
-            && operationType != OperationType.Update)
-            throw new InvalidBulkConfigException($"{nameof(BulkConfig)}.{nameof(BulkConfig.IncludeGraph)} only supports Insert or Update operations.");
+        if (operationType != OperationType.Insert &&
+            operationType != OperationType.InsertOrUpdate &&
+            operationType != OperationType.InsertOrUpdateOrDelete &&
+            operationType != OperationType.Update)
+            throw new InvalidBulkConfigException(
+                $"{nameof(BulkConfig)}.{nameof(BulkConfig.IncludeGraph)} only supports Insert or Update operations.");
 
-        bulkConfig.PreserveInsertOrder = true; // Required for SetOutputIdentity ('true' is default but here explicitly assigned again in case it was changed to 'false' in BulkConfing)
-        bulkConfig.SetOutputIdentity = true; // If this is set to false, won't be able to propogate new primary keys to the relationships
+        bulkConfig.PreserveInsertOrder =
+            true; // Required for SetOutputIdentity ('true' is default but here explicitly assigned again in case it was changed to 'false' in BulkConfing)
+        bulkConfig.SetOutputIdentity =
+            true; // If this is set to false, won't be able to propogate new primary keys to the relationships
 
         // If this is set to false, wont' be able to support some code first model types as EFCore uses shadow properties when a relationship's foreign keys arent explicitly defined
         bulkConfig.EnableShadowProperties = true;
@@ -42,8 +74,14 @@ internal static class DbContextBulkTransactionGraphUtil
             return;
 
         // Inserting an entity graph must be done within a transaction otherwise the database could end up in a bad state
-        var hasExistingTransaction = context.DbContext.Database.CurrentTransaction != null || Transaction.Current != null;
-        var transaction = hasExistingTransaction ? null : context.DbContext.Database.CurrentTransaction ?? (isAsync ? await context.DbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false) : context.DbContext.Database.BeginTransaction());
+        var hasExistingTransaction =
+            context.DbContext.Database.CurrentTransaction != null || Transaction.Current != null;
+        var transaction = hasExistingTransaction
+            ? null
+            : context.DbContext.Database.CurrentTransaction ??
+              (isAsync
+                  ? await context.DbContext.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false)
+                  : context.DbContext.Database.BeginTransaction());
 
         try
         {
@@ -54,7 +92,9 @@ internal static class DbContextBulkTransactionGraphUtil
             foreach (var graphNodeGroup in graphNodesGroupedByType)
             {
                 var entityClrType = graphNodeGroup.Key;
-                var entityType = context.DbContext.Model.FindEntityType(entityClrType) ?? throw new ArgumentException($"Unable to determine EntityType from given type {entityClrType.Name}");
+                var entityType = context.DbContext.Model.FindEntityType(entityClrType) ??
+                                 throw new ArgumentException(
+                                     $"Unable to determine EntityType from given type {entityClrType.Name}");
 
                 if (OwnedTypeUtil.IsOwnedInSameTableAsOwner(entityType))
                 {
@@ -63,35 +103,69 @@ internal static class DbContextBulkTransactionGraphUtil
 
                 // It is possible the object graph contains duplicate entities (by primary key) but the entities are different object instances in memory.
                 // This an happen when deserializing a nested JSON tree for example. So filter out the duplicates.
-                var entitiesToAction = GetUniqueEntities(context.DbContext, graphNodeGroup.Select(y => y.Entity)).ToList();
-                var tableInfo = TableInfo.CreateInstance(context, entityClrType, entitiesToAction, operationType, bulkConfig);
+                var entitiesToAction =
+                    GetUniqueEntities(context.DbContext, graphNodeGroup.Select(y => y.Entity)).ToList();
+                var tableInfo =
+                    TableInfo.CreateInstance(context, entityClrType, entitiesToAction, operationType, bulkConfig);
 
                 if (isAsync)
                 {
-                    await SqlBulkOperation.MergeAsync(context, entityClrType, entitiesToAction, tableInfo, operationType, progress, cancellationToken).ConfigureAwait(false);
+                    await SqlBulkOperation.MergeAsync(context,
+                            entityClrType,
+                            entitiesToAction,
+                            tableInfo,
+                            operationType,
+                            progress,
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
-                    SqlBulkOperation.Merge(context, entityClrType, entitiesToAction, tableInfo, operationType, progress);
+                    SqlBulkOperation.Merge(context,
+                        entityClrType,
+                        entitiesToAction,
+                        tableInfo,
+                        operationType,
+                        progress);
                 }
 
                 UpdateStats(stats, bulkConfig);
 
                 // Set the foreign keys for dependents so they may be inserted on the next loop
-                var dependentsOfSameType = SetForeignKeysForDependentsAndYieldSameTypeDependents(context.DbContext, entityClrType, graphNodeGroup).ToList();
+                var dependentsOfSameType =
+                    SetForeignKeysForDependentsAndYieldSameTypeDependents(context.DbContext,
+                            entityClrType,
+                            graphNodeGroup)
+                        .ToList();
 
                 // If there are any dependents of the same type (parent child relationship), then save those dependent entities again to commit the fk values
                 if (dependentsOfSameType.Any())
                 {
-                    var dependentTableInfo = TableInfo.CreateInstance(context, entityClrType, dependentsOfSameType, operationType, bulkConfig);
+                    var dependentTableInfo = TableInfo.CreateInstance(context,
+                        entityClrType,
+                        dependentsOfSameType,
+                        operationType,
+                        bulkConfig);
 
                     if (isAsync)
                     {
-                        await SqlBulkOperation.MergeAsync(context, entityClrType, dependentsOfSameType, dependentTableInfo, operationType, progress, cancellationToken).ConfigureAwait(false);
+                        await SqlBulkOperation.MergeAsync(context,
+                                entityClrType,
+                                dependentsOfSameType,
+                                dependentTableInfo,
+                                operationType,
+                                progress,
+                                cancellationToken)
+                            .ConfigureAwait(false);
                     }
                     else
                     {
-                        SqlBulkOperation.Merge(context, entityClrType, dependentsOfSameType, dependentTableInfo, operationType, progress);
+                        SqlBulkOperation.Merge(context,
+                            entityClrType,
+                            dependentsOfSameType,
+                            dependentTableInfo,
+                            operationType,
+                            progress);
                     }
 
                     UpdateStats(stats, bulkConfig);
@@ -166,7 +240,9 @@ internal static class DbContextBulkTransactionGraphUtil
         }
     }
 
-    private static IEnumerable<object> SetForeignKeysForDependentsAndYieldSameTypeDependents(DbContext context, Type entityClrType, IEnumerable<GraphUtil.GraphNode> graphNodeGroup)
+    private static IEnumerable<object> SetForeignKeysForDependentsAndYieldSameTypeDependents(DbContext context,
+        Type entityClrType,
+        IEnumerable<GraphUtil.GraphNode> graphNodeGroup)
     {
         // Loop through the dependants and update their foreign keys with the PK values of the just inserted / merged entities
         foreach (var graphNode in graphNodeGroup)
@@ -187,7 +263,9 @@ internal static class DbContextBulkTransactionGraphUtil
 
     private static IEnumerable<object> GetUniqueEntities(DbContext context, IEnumerable<object> entities)
     {
-        var entityType = context.Model.FindEntityType(entities.First().GetType()) ?? throw new ArgumentException($"Unable to determine EntityType from given type {entities.First().GetType().Name}");
+        var entityType = context.Model.FindEntityType(entities.First().GetType()) ??
+                         throw new ArgumentException(
+                             $"Unable to determine EntityType from given type {entities.First().GetType().Name}");
         var pk = entityType.FindPrimaryKey();
         var processedPks = new HashSet<PrimaryKeyList>();
 
@@ -210,7 +288,6 @@ internal static class DbContextBulkTransactionGraphUtil
                     if (processedPks.Add(primaryKeyComparer))
                         yield return entity;
                 }
-
             }
             else
             {
@@ -219,7 +296,10 @@ internal static class DbContextBulkTransactionGraphUtil
         }
     }
 
-    private static void SetForeignKeyForRelationship(DbContext context, INavigation navigation, object dependent, object principal)
+    private static void SetForeignKeyForRelationship(DbContext context,
+        INavigation navigation,
+        object dependent,
+        object principal)
     {
         var principalKeyProperties = navigation.ForeignKey.PrincipalKey.Properties;
         var pkValues = new List<object?>();

@@ -1,12 +1,12 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
 
 namespace EFCore.BulkExtensions;
 
@@ -50,7 +50,11 @@ public class BatchUpdateCreateBodyData
         _tableInfoBulkConfig = new BulkConfig();
         _tableInfoLookup = new Dictionary<Type, TableInfo>();
 
-        var tableInfo = TableInfo.CreateInstance(context, rootType, Array.Empty<object>(), OperationType.Read, _tableInfoBulkConfig);
+        var tableInfo = TableInfo.CreateInstance(context,
+            rootType,
+            Array.Empty<object>(),
+            OperationType.Read,
+            _tableInfoBulkConfig);
         _tableInfoLookup.Add(rootType, tableInfo);
 
         SqlParameters = new List<DbParameter>(innerParameters);
@@ -82,7 +86,11 @@ public class BatchUpdateCreateBodyData
             return tableInfo;
         }
 
-        tableInfo = TableInfo.CreateInstance(Context, typeToLookup, Array.Empty<object>(), OperationType.Read, _tableInfoBulkConfig);
+        tableInfo = TableInfo.CreateInstance(Context,
+            typeToLookup,
+            Array.Empty<object>(),
+            OperationType.Read,
+            _tableInfoBulkConfig);
         if (tableInfo != null)
         {
             _tableInfoLookup.Add(typeToLookup, tableInfo);

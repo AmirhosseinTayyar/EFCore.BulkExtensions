@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using System;
 
 namespace EFCore.BulkExtensions.SqlAdapters;
 
@@ -52,7 +52,8 @@ public static class SqlAdaptersMapping
         var ignoreCase = StringComparison.InvariantCultureIgnoreCase;
         var databaseType = SqlType.SqlServer;
         var providerName = context.Database.ProviderName;
-        if (providerName?.EndsWith(SqlType.PostgreSql.ToString(), ignoreCase) ?? false) // ProviderName: Npgsql.EntityFrameworkCore.PostgreSQL
+        if (providerName?.EndsWith(SqlType.PostgreSql.ToString(), ignoreCase) ??
+            false) // ProviderName: Npgsql.EntityFrameworkCore.PostgreSQL
         {
             databaseType = SqlType.PostgreSql;
         }
@@ -60,6 +61,7 @@ public static class SqlAdaptersMapping
         {
             databaseType = SqlType.Oracle;
         }
+
         if (_dbServer == null || _dbServer.Type != databaseType)
         {
             static Type GetType(SqlType type)
@@ -67,8 +69,9 @@ public static class SqlAdaptersMapping
                 var typeName = type.ToString();
                 var assemblyName = typeof(SqlAdaptersMapping).Assembly.GetName().Name!.Replace(".Core", $".{typeName}");
 
-                return Type.GetType($"EFCore.BulkExtensions.SqlAdapters.{typeName}.{typeName}DbServer,{assemblyName}") ??
-                    throw new InvalidOperationException("Failed to resolve type.");
+                return Type.GetType(
+                           $"EFCore.BulkExtensions.SqlAdapters.{typeName}.{typeName}DbServer,{assemblyName}") ??
+                       throw new InvalidOperationException("Failed to resolve type.");
             }
 
             _dbServer = Activator.CreateInstance(GetType(databaseType)) as IDbServer;

@@ -1,10 +1,10 @@
-﻿using EFCore.BulkExtensions.SqlAdapters;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions.SqlAdapters;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests.IncludeGraph;
@@ -44,16 +44,12 @@ public class OwnedGraphContext : TestContextBase
             // Ids are generated externally and must not be overwritten by DB
             grb.Property(r => r.Id).ValueGeneratedNever();
 
-            grb.OwnsOne(r => r.Component, cb =>
-            {
-                cb.OwnsMany(ad => ad.Items, acb =>
-                {
-                    acb.ToTable("GraphRoot_Items");
-                });
-            })
+            grb.OwnsOne(r => r.Component,
+                    cb => { cb.OwnsMany(ad => ad.Items, acb => { acb.ToTable("GraphRoot_Items"); }); })
 
-            // required to mitigate https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/breaking-changes#nested-optionals
-            .Navigation(r => r.Component).IsRequired();
+                // required to mitigate https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/breaking-changes#nested-optionals
+                .Navigation(r => r.Component)
+                .IsRequired();
         });
     }
 }
@@ -68,7 +64,7 @@ public class OwnedGraph
         var options = new ContextUtil(dbServer)
             .GetOptions<OwnedGraphContext>(databaseName: $"{nameof(EFCoreBulkTest)}_OwnedGraph");
         using var db = new OwnedGraphContext(options);
-        
+
         await db.Database.EnsureDeletedAsync();
         await db.Database.EnsureCreatedAsync();
 
@@ -77,7 +73,17 @@ public class OwnedGraph
             Id = Guid.NewGuid(),
             Component = new OwnedComponent
             {
-                Items = new List<OwnedItem>() { new OwnedItem { Value = "a" }, new OwnedItem { Value = "b" } }
+                Items = new List<OwnedItem>()
+                {
+                    new OwnedItem
+                    {
+                        Value = "a"
+                    },
+                    new OwnedItem
+                    {
+                        Value = "b"
+                    }
+                }
             }
         };
 
@@ -86,7 +92,17 @@ public class OwnedGraph
             Id = Guid.NewGuid(),
             Component = new OwnedComponent
             {
-                Items = new List<OwnedItem>() { new OwnedItem { Value = "c" }, new OwnedItem { Value = "d" } }
+                Items = new List<OwnedItem>()
+                {
+                    new OwnedItem
+                    {
+                        Value = "c"
+                    },
+                    new OwnedItem
+                    {
+                        Value = "d"
+                    }
+                }
             }
         };
 
@@ -96,7 +112,14 @@ public class OwnedGraph
         db.SaveChanges(); */
 
         // but this doesn't
-        await db.BulkInsertAsync(new[] { first, second }, new BulkConfig { IncludeGraph = true });
+        await db.BulkInsertAsync(new[]
+            {
+                first, second
+            },
+            new BulkConfig
+            {
+                IncludeGraph = true
+            });
 
         /* and BTW this doesn't work either
         db.RootEntities.AddRange(first, second);

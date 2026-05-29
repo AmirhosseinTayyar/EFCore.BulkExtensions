@@ -9,7 +9,8 @@ namespace EFCore.BulkExtensions;
 /// </summary>
 public static class GenericsHelpers
 {
-    internal static IEnumerable<string> GetPropertiesDefaultValue<T>(this T value, Type type, TableInfo tableInfo) where T : class
+    internal static IEnumerable<string> GetPropertiesDefaultValue<T>(this T value, Type type, TableInfo tableInfo)
+        where T : class
     {
         // type not obtained from typeof(T) but sent as arg. for IncludeGraph in which case it's not declared the same way
         // Obtain all fields with type pointer.
@@ -18,10 +19,12 @@ public static class GenericsHelpers
         var result = new List<string>();
         foreach (var field in arrayPropertyInfos)
         {
-            if (field.GetIndexParameters().Any()) // Skip Indexer: public string this[string pPropertyName] => string.Empty;
+            if (field.GetIndexParameters()
+                .Any()) // Skip Indexer: public string this[string pPropertyName] => string.Empty;
             {
                 continue;
             }
+
             var name = field.Name;
             if (!tableInfo.PropertyColumnNamesDict.ContainsKey(name)) // skip non-EF properties
             {
@@ -39,7 +42,9 @@ public static class GenericsHelpers
         return result;
     }
 
-    internal static IEnumerable<string>? GetPropertiesWithDefaultValue<T>(this IEnumerable<T> values, Type type, TableInfo tableInfo) where T : class
+    internal static IEnumerable<string>? GetPropertiesWithDefaultValue<T>(this IEnumerable<T> values,
+        Type type,
+        TableInfo tableInfo) where T : class
     {
         //var result = values.SelectMany(x => x.GetPropertiesDefaultValue(type)).ToList().Distinct(); // TODO: Check all options(ComputedAndDefaultValuesTest) and consider optimisation
         var result = values.FirstOrDefault()?.GetPropertiesDefaultValue(type, tableInfo)?.Distinct();

@@ -1,7 +1,7 @@
-using EFCore.BulkExtensions.SqlAdapters.PostgreSql;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EFCore.BulkExtensions.SqlAdapters.PostgreSql;
 using Xunit;
 
 namespace EFCore.BulkExtensions.Tests;
@@ -20,11 +20,12 @@ public class SqlQueryBuilderPostgreSqlTests
                           @"ON CONFLICT (""ItemId"") DO UPDATE SET ""Name"" = EXCLUDED.""Name"";";
         Assert.Equal(expected, actual);
     }
-    
+
     [Fact]
     public void MergeTableInsertOrUpdateWithOnConflictUpdateWhereSqlTest()
     {
-        TableInfo tableInfo = GetTestTableInfo((existing, inserted) => $"{inserted}.ItemTimestamp > {existing}.ItemTimestamp");
+        TableInfo tableInfo =
+            GetTestTableInfo((existing, inserted) => $"{inserted}.ItemTimestamp > {existing}.ItemTimestamp");
         tableInfo.IdentityColumnName = "ItemId";
         string actual = PostgreSqlQueryBuilder.MergeTable<Item>(tableInfo, OperationType.InsertOrUpdate);
 
@@ -34,7 +35,7 @@ public class SqlQueryBuilderPostgreSqlTests
                           @"WHERE EXCLUDED.ItemTimestamp > ""dbo"".""Item"".ItemTimestamp;";
         Assert.Equal(expected, actual);
     }
-    
+
     [Fact]
     public void MergeTableInsertOrUpdateWithInsertOnlyTest()
     {
@@ -62,10 +63,10 @@ public class SqlQueryBuilderPostgreSqlTests
         string expected = @"UPDATE ""dbo"".""Item"" SET ""Name"" = ""dbo"".""ItemTemp1234"".""Name"" " +
                           @"FROM ""dbo"".""ItemTemp1234"" " +
                           @"WHERE ""dbo"".""Item"".""ItemId"" = ""dbo"".""ItemTemp1234"".""ItemId"";";
-        
+
         Assert.Equal(expected, actual);
     }
-    
+
     private TableInfo GetTestTableInfo(Func<string, string, string>? onConflictUpdateWhereSql = null)
     {
         var tableInfo = new TableInfo()
@@ -75,7 +76,12 @@ public class SqlQueryBuilderPostgreSqlTests
             TableName = nameof(Item),
             TempTableName = nameof(Item) + "Temp1234",
             TempTableSufix = "Temp1234",
-            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string> { { nameof(Item.ItemId), nameof(Item.ItemId) } },
+            PrimaryKeysPropertyColumnNameDict = new Dictionary<string, string>
+            {
+                {
+                    nameof(Item.ItemId), nameof(Item.ItemId)
+                }
+            },
             BulkConfig = new BulkConfig()
             {
                 OnConflictUpdateWhereSql = onConflictUpdateWhereSql
@@ -83,7 +89,8 @@ public class SqlQueryBuilderPostgreSqlTests
         };
         const string nameText = nameof(Item.Name);
 
-        tableInfo.PropertyColumnNamesDict.Add(tableInfo.PrimaryKeysPropertyColumnNameDict.Keys.First(), tableInfo.PrimaryKeysPropertyColumnNameDict.Values.First());
+        tableInfo.PropertyColumnNamesDict.Add(tableInfo.PrimaryKeysPropertyColumnNameDict.Keys.First(),
+            tableInfo.PrimaryKeysPropertyColumnNameDict.Values.First());
         tableInfo.PropertyColumnNamesDict.Add(nameText, nameText);
         //compare on all columns (default)
         tableInfo.PropertyColumnNamesCompareDict = tableInfo.PropertyColumnNamesDict;

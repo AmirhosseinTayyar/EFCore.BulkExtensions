@@ -1,9 +1,5 @@
 //using HotChocolate; // find in page GraphQLType
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.Geometries;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,10 +9,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using EFCore.BulkExtensions.SqlAdapters;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using Oracle.ManagedDataAccess.Client;
-using System.Threading;
-using EFCore.BulkExtensions.Tests.Owned;
+
 // ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable ConvertToAutoProperty
@@ -106,9 +105,10 @@ public class TestContext : TestContextBase
     public DbSet<Location> Locations { get; set; } = null!;
 
 
+    public TestContext(SqlType sqlType) : this(new ContextUtil(sqlType).GetOptions())
+    {
+    }
 
-    public TestContext(SqlType sqlType) : this (new ContextUtil(sqlType).GetOptions()) {}
-    
     public TestContext(DbContextOptions options) : base(options)
     {
         // if for Postgres on test run get Npgsql Ex:[could not open .../postgis.control] then either install the plugin it or set UseTopologyPostgres to False;
@@ -137,34 +137,42 @@ public class TestContext : TestContextBase
             .ToTable("Mods");
 
         modelBuilder.Entity<Mod>()
-           .HasKey(x => new { x.Id, x.PlayerId });
+            .HasKey(x => new
+            {
+                x.Id,
+                x.PlayerId
+            });
 
         modelBuilder.Entity<Mod>()
-           .Property(x => x.Id)
-           .HasConversion(x => x.Value, v => ModId.Create(v))
-           .ValueGeneratedNever()
-           .IsRequired();
+            .Property(x => x.Id)
+            .HasConversion(x => x.Value, v => ModId.Create(v))
+            .ValueGeneratedNever()
+            .IsRequired();
 
         modelBuilder.Entity<Mod>()
-           .Property(x => x.PlayerId)
-           .HasConversion(x => x.Value, v => PlayerId.Create(v))
-           .ValueGeneratedNever()
-           .IsRequired();
+            .Property(x => x.PlayerId)
+            .HasConversion(x => x.Value, v => PlayerId.Create(v))
+            .ValueGeneratedNever()
+            .IsRequired();
 
         modelBuilder.Entity<Mod>()
-           .HasMany(x => x.Stats)
-           .WithOne();
+            .HasMany(x => x.Stats)
+            .WithOne();
 
         modelBuilder.Entity<Mod>()
-           .Metadata
-           .FindNavigation(nameof(Mod.Stats))!
-               .SetPropertyAccessMode(PropertyAccessMode.Field);
+            .Metadata
+            .FindNavigation(nameof(Mod.Stats))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
 
         modelBuilder.Entity<ModStat>()
             .ToTable("ModStat");
 
         modelBuilder.Entity<ModStat>()
-            .HasKey(x => new { x.ModId, x.PlayerId });
+            .HasKey(x => new
+            {
+                x.ModId,
+                x.PlayerId
+            });
 
         modelBuilder.Entity<ModStat>()
             .Property(x => x.ModId)
@@ -178,11 +186,24 @@ public class TestContext : TestContextBase
             .ValueGeneratedNever()
             .IsRequired();
 
-        modelBuilder.Entity<Info>(e => { e.Property(p => p.ConvertedTime).HasConversion((value) => value.AddDays(1), (value) => value.AddDays(-1)); });
+        modelBuilder.Entity<Info>(e =>
+        {
+            e.Property(p => p.ConvertedTime)
+                .HasConversion((value) => value.AddDays(1), (value) => value.AddDays(-1));
+        });
 
-        modelBuilder.Entity<UserRole>().HasKey(a => new { a.UserId, a.RoleId });
+        modelBuilder.Entity<UserRole>()
+            .HasKey(a => new
+            {
+                a.UserId,
+                a.RoleId
+            });
 
-        modelBuilder.Entity<Info>(e => { e.Property(p => p.ConvertedTime).HasConversion((value) => value.AddDays(1), (value) => value.AddDays(-1)); });
+        modelBuilder.Entity<Info>(e =>
+        {
+            e.Property(p => p.ConvertedTime)
+                .HasConversion((value) => value.AddDays(1), (value) => value.AddDays(-1));
+        });
         modelBuilder.Entity<Info>().Property(p => p.InfoType).HasConversion(new EnumToStringConverter<InfoType>());
         modelBuilder.Entity<Info>().Property(p => p.DateTimeOff).HasConversion(new DateTimeOffsetToBinaryConverter());
 
@@ -193,24 +214,31 @@ public class TestContext : TestContextBase
         modelBuilder.Entity<Wall>().HasKey(x => x.Id);
         modelBuilder.Entity<Wall>().Property(x => x.Id).ValueGeneratedNever();
         modelBuilder.Entity<Wall>().Property(x => x.WallTypeValue).HasConversion(new EnumToStringConverter<WallType>());
-        modelBuilder.Entity<Wall>().Property(x => x.WallCategory).HasConversion(new EnumToStringConverter<WallCategory>());
+        modelBuilder.Entity<Wall>()
+            .Property(x => x.WallCategory)
+            .HasConversion(new EnumToStringConverter<WallCategory>());
 
         modelBuilder.Entity<Customer>().HasIndex(p => p.Name).IsUnique();
 
-        modelBuilder.Entity<TimeRecord>().OwnsOne(a => a.Source,
-            b => b.Property(p => p.Type).HasConversion(new EnumToNumberConverter<TimeRecordSourceType, int>()));
+        modelBuilder.Entity<TimeRecord>()
+            .OwnsOne(a => a.Source,
+                b => b.Property(p => p.Type).HasConversion(new EnumToNumberConverter<TimeRecordSourceType, int>()));
 
-        modelBuilder.Entity<ChangeLog>().OwnsOne(a => a.Audit,
-            b => b.Property(p => p.InfoType).HasConversion(new EnumToStringConverter<InfoType>()));
+        modelBuilder.Entity<ChangeLog>()
+            .OwnsOne(a => a.Audit,
+                b => b.Property(p => p.InfoType).HasConversion(new EnumToStringConverter<InfoType>()));
 
-        modelBuilder.Entity<Person>().HasIndex(a => a.Name)
+        modelBuilder.Entity<Person>()
+            .HasIndex(a => a.Name)
             .IsUnique(); // In SQLite UpdateByColumn(nonPK) requires it has UniqueIndex
 
         modelBuilder.Entity<Document>().Property(p => p.Tag).HasDefaultValue("DefaultData");
         if (Database.IsSqlServer())
         {
             modelBuilder.HasSequence<long>("OrderNumber").StartsAt(80000000);
-            modelBuilder.Entity<Document>().Property(o => o.OrderNumber).HasDefaultValueSql<long>("NEXT VALUE FOR OrderNumber");
+            modelBuilder.Entity<Document>()
+                .Property(o => o.OrderNumber)
+                .HasDefaultValueSql<long>("NEXT VALUE FOR OrderNumber");
         }
 
         modelBuilder.Entity<Log>().ToTable(nameof(Log));
@@ -219,24 +247,28 @@ public class TestContext : TestContextBase
         modelBuilder.Entity<FilePG>().Ignore(p => p.Formats);
 
         modelBuilder.Entity<ItemLink>().Property<string>("Data");
-        
+
         //Json tests
         if (Database.IsSqlServer() || Database.IsNpgsql())
         {
-            modelBuilder.Entity<Author>().OwnsOne(
-                author => author.Contact, ownedNavigationBuilder =>
-                {
-                    ownedNavigationBuilder.ToJson();
-                    ownedNavigationBuilder.OwnsOne(contactDetails => contactDetails.Address);
-                });
+            modelBuilder.Entity<Author>()
+                .OwnsOne(
+                    author => author.Contact,
+                    ownedNavigationBuilder =>
+                    {
+                        ownedNavigationBuilder.ToJson();
+                        ownedNavigationBuilder.OwnsOne(contactDetails => contactDetails.Address);
+                    });
         }
-        
+
         if (Database.IsSqlServer())
         {
             modelBuilder.Entity<GraphQLModel>().Property(x => x.Id).HasDefaultValueSql("NEWID()");
 
             modelBuilder.Entity<Document>().Property(p => p.DocumentId).HasDefaultValueSql("NEWID()");
-            modelBuilder.Entity<Document>().Property(p => p.ContentLength).HasComputedColumnSql($"(CONVERT([int], len([{nameof(Document.Content)}])))");
+            modelBuilder.Entity<Document>()
+                .Property(p => p.ContentLength)
+                .HasComputedColumnSql($"(CONVERT([int], len([{nameof(Document.Content)}])))");
 
             modelBuilder.Entity<Storage>().ToTable(nameof(Storage), b => b.IsTemporal());
 
@@ -266,6 +298,7 @@ public class TestContext : TestContextBase
 
             modelBuilder.Entity<Event>().Ignore(p => p.TimeCreated);
         }
+
         if (Database.IsNpgsql())
         {
             modelBuilder.Entity<GraphQLModel>().Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
@@ -274,11 +307,18 @@ public class TestContext : TestContextBase
 
             modelBuilder.Entity<FilePG>().Property(p => p.Formats).HasColumnType("text[]");
 
-            modelBuilder.Entity<Event>().Property(p => p.TimeCreated).HasColumnType("timestamp"); // with annotation defined as "datetime2(3)" so here corrected for PG ("timestamp" is short for "timestamp without time zone")
+            modelBuilder.Entity<Event>()
+                .Property(p => p.TimeCreated)
+                .HasColumnType(
+                    "timestamp"); // with annotation defined as "datetime2(3)" so here corrected for PG ("timestamp" is short for "timestamp without time zone")
             modelBuilder.Entity<Event>().Property(p => p.TimeUpdated).HasColumnType("timestamp(2)");
 
-            modelBuilder.Entity<Box>().Property(p => p.ElementContent).HasColumnType("jsonb"); // with annotation not mapped since not used for others DBs
-            modelBuilder.Entity<Box>().Property(p => p.DocumentContent).HasColumnType("jsonb"); // with annotation not mapped since not used for others DBs
+            modelBuilder.Entity<Box>()
+                .Property(p => p.ElementContent)
+                .HasColumnType("jsonb"); // with annotation not mapped since not used for others DBs
+            modelBuilder.Entity<Box>()
+                .Property(p => p.DocumentContent)
+                .HasColumnType("jsonb"); // with annotation not mapped since not used for others DBs
 
             modelBuilder.Entity<ArrayModel>(); // for testing Array mapping
 
@@ -295,21 +335,36 @@ public class TestContext : TestContextBase
         modelBuilder.Entity<Setting>().Property(e => e.Settings).HasConversion<string>();
 
         modelBuilder.Entity<AtypicalRowVersionEntity>().HasKey(e => e.Id);
-        modelBuilder.Entity<AtypicalRowVersionEntity>().Property(e => e.RowVersion).HasDefaultValue(0).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate().Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Save);
-        modelBuilder.Entity<AtypicalRowVersionEntity>().Property(e => e.SyncDevice).IsRequired(true).IsConcurrencyToken().HasDefaultValue("");
+        modelBuilder.Entity<AtypicalRowVersionEntity>()
+            .Property(e => e.RowVersion)
+            .HasDefaultValue(0)
+            .IsConcurrencyToken()
+            .ValueGeneratedOnAddOrUpdate()
+            .Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Save);
+        modelBuilder.Entity<AtypicalRowVersionEntity>()
+            .Property(e => e.SyncDevice)
+            .IsRequired(true)
+            .IsConcurrencyToken()
+            .HasDefaultValue("");
 
         if (!Database.IsNpgsql())
         {
-            modelBuilder.Entity<AtypicalRowVersionConverterEntity>().Property(e => e.RowVersionConverted).HasConversion(new NumberToBytesConverter<long>()).HasColumnType("timestamp").IsRowVersion().IsConcurrencyToken();
+            modelBuilder.Entity<AtypicalRowVersionConverterEntity>()
+                .Property(e => e.RowVersionConverted)
+                .HasConversion(new NumberToBytesConverter<long>())
+                .HasColumnType("timestamp")
+                .IsRowVersion()
+                .IsConcurrencyToken();
         }
 
-        modelBuilder.Entity<Parent>().Property(parent => parent.PhoneNumber)
-            .HasColumnType("varchar(12)").HasMaxLength(12).HasField("_phoneNumber").IsRequired();
+        modelBuilder.Entity<Parent>()
+            .Property(parent => parent.PhoneNumber)
+            .HasColumnType("varchar(12)")
+            .HasMaxLength(12)
+            .HasField("_phoneNumber")
+            .IsRequired();
 
-        modelBuilder.Entity<PrivateKey>(c =>
-        {
-            c.HasKey("Id");
-        });
+        modelBuilder.Entity<PrivateKey>(c => { c.HasKey("Id"); });
 
         modelBuilder.Entity<ChildType>(entity =>
         {
@@ -358,13 +413,14 @@ public class TestContextBase : DbContext
 
 public class OracleTestContext : TestContextBase
 {
-
     public DbSet<Item> Items { get; set; } = null!;
     public DbSet<ItemHistory> ItemHistories { get; set; } = null!;
     public DbSet<ItemCategory> Categories { get; set; } = null!;
 
-    public OracleTestContext(SqlType sqlType) 
-        : base(new ContextUtil(sqlType).GetOptions<OracleTestContext>()) {}
+    public OracleTestContext(SqlType sqlType)
+        : base(new ContextUtil(sqlType).GetOptions<OracleTestContext>())
+    {
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -375,6 +431,7 @@ public class OracleTestContext : TestContextBase
     {
         ApplyTableName(modelBuilder);
     }
+
     private static string ToScreamingSnakeCase(string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -386,6 +443,7 @@ public class OracleTestContext : TestContextBase
                     : c.ToString()))
             .ToUpper();
     }
+
     public static void ApplyTableName(ModelBuilder modelBuilder)
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -418,7 +476,8 @@ public static class ModelBuilderExtensions
     {
         foreach (IMutableEntityType entity in modelBuilder.Model.GetEntityTypes())
         {
-            if (!entity.IsOwned() && entity.BaseType == null) // without this exclusion OwnedType would not be by default in Owner Table
+            if (!entity.IsOwned() &&
+                entity.BaseType == null) // without this exclusion OwnedType would not be by default in Owner Table
             {
                 entity.SetTableName(entity.ClrType.Name);
             }
@@ -432,6 +491,7 @@ public class ChildType
     public long ParentTypeKey { get; set; }
     public string ChildLabel { get; set; } = default!;
     public virtual ParentType? ParentType { get; set; }
+
     public override string ToString()
     {
         return $"ChildType: ChildTypeKey={ChildTypeKey} ChildLabel={ChildLabel} ParentTypeKey={ParentTypeKey}";
@@ -443,6 +503,7 @@ public class ParentType
     public long ParentTypeKey { get; set; }
     public string ParentLabel { get; set; } = default!;
     public virtual ICollection<ChildType> Children { get; set; } = [];
+
     public override string ToString()
     {
         return $"ParentType: ParentTypeKey={ParentTypeKey} ParentTypeLabel={ParentLabel}";
@@ -453,9 +514,15 @@ public class Item
 {
     public Item()
     {
-
     }
-    public Item(int itemId, string name, string description, int quantity, decimal? price, DateTime? timeUpdated, ICollection<ItemHistory> itemHistories)
+
+    public Item(int itemId,
+        string name,
+        string description,
+        int quantity,
+        decimal? price,
+        DateTime? timeUpdated,
+        ICollection<ItemHistory> itemHistories)
     {
         ItemId = itemId;
         Name = name;
@@ -468,8 +535,7 @@ public class Item
 
     public int ItemId { get; set; }
 
-    [MaxLength(50)]
-    public string? Name { get; set; }
+    [MaxLength(50)] public string? Name { get; set; }
 
     public string? Description { get; set; }
 
@@ -486,7 +552,7 @@ public class Item
 }
 
 // ItemHistory is used to test bulk Ops to multiple tables(Item and ItemHistory), to test Guid as PK and to test other Schema(his)
-[Table(nameof(ItemHistory)/*, Schema = "his"*/)] // different schema is not supported in Sqlite
+[Table(nameof(ItemHistory) /*, Schema = "his"*/)] // different schema is not supported in Sqlite
 public class ItemHistory
 {
     public Guid ItemHistoryId { get; set; }
@@ -496,19 +562,14 @@ public class ItemHistory
 
     public string Remark { get; set; } = null!;
 
-    [Timestamp]
-    public byte[]? RowVersion { get; set; }
+    [Timestamp] public byte[]? RowVersion { get; set; }
 }
-
 
 public class ItemCategory
 {
-    [Key]
-    public int Id { get; set; }
+    [Key] public int Id { get; set; }
 
-    [MaxLength(50)]
-    public string? Name { get; set; }
-
+    [MaxLength(50)] public string? Name { get; set; }
 }
 
 // UserRole is used to test tables with Composite PrimaryKey
@@ -516,8 +577,8 @@ public class UserRole
 {
     public UserRole()
     {
-
     }
+
     public UserRole(int userId, int roleId, string description)
     {
         UserId = userId;
@@ -525,11 +586,9 @@ public class UserRole
         Description = description;
     }
 
-    [Key]
-    public int UserId { get; set; }
+    [Key] public int UserId { get; set; }
 
-    [Key]
-    public int RoleId { get; set; }
+    [Key] public int RoleId { get; set; }
 
     public string? Description { get; set; }
 }
@@ -577,11 +636,9 @@ public enum WallType
 
 public enum WallCategory
 {
-    [Description("LowC")]
-    Low,
+    [Description("LowC")] Low,
 
-    [Description("HighC")]
-    High
+    [Description("HighC")] High
 }
 
 public class TimeRecord
@@ -590,6 +647,7 @@ public class TimeRecord
     {
         Source = new TimeRecordSource();
     }
+
     public int TimeRecordId { get; set; }
 
     public TimeRecordSource Source { get; set; }
@@ -617,17 +675,17 @@ public class Entry
 
     public string Name { get; set; } = null!;
 }
+
 public class EntryArchive
 {
-    [Key]
-    public int EntryId { get; set; }
+    [Key] public int EntryId { get; set; }
 
     public string Name { get; set; } = null!;
 }
+
 public class EntryPrep
 {
-    [Key]
-    public int EntryPrepId { get; set; }
+    [Key] public int EntryPrepId { get; set; }
 
     public string NameInfo { get; set; } = null!;
 }
@@ -660,8 +718,7 @@ public class Document
 
 
     //HasDefaultValueSql
-    [Required]
-    public string Content { get; set; } = null!;
+    [Required] public string Content { get; set; } = null!;
 
     //HasComputedColumnSql
     public string? Tag { get; set; }
@@ -679,6 +736,7 @@ public class Letter
     {
         Note = note;
     }
+
     public int LetterId { get; set; }
 
     public string Note { get; set; }
@@ -691,8 +749,7 @@ public class Storage
 
     public string Data { get; set; } = null!;
 
-    [Timestamp]
-    public byte[]? RowVersion { get; set; }
+    [Timestamp] public byte[]? RowVersion { get; set; }
 }
 
 // For testing type 'jsonb' on Postgres
@@ -701,7 +758,7 @@ public class Box
     public int BoxId { get; set; }
 
     [NotMapped] // used only for Postgres so mapped wiht FluentAPI 
-    public System.Text.Json.JsonElement ElementContent { get; set; }
+    public JsonElement ElementContent { get; set; }
 
     [NotMapped] // used only for Postgres so mapped wiht FluentAPI 
     public JsonDocument DocumentContent { get; set; } = null!;
@@ -713,13 +770,11 @@ public class File
     [Column("Id")] // test different column Name, PK in this case
     public int FileId { get; set; }
 
-    [Required]
-    public string Description { get; set; } = null!;
+    [Required] public string Description { get; set; } = null!;
 
     public byte[]? DataBytes { get; set; }
 
-    [Timestamp]
-    public byte[] VersionChange { get; set; } = Guid.NewGuid().ToByteArray();
+    [Timestamp] public byte[] VersionChange { get; set; } = Guid.NewGuid().ToByteArray();
     //public ulong RowVersion { get; set; }
 }
 
@@ -733,8 +788,7 @@ public class FilePG
     //[Column(TypeName = "text[]")] // set in Fluent
     public string[]? Formats { get; set; }
 
-    [Timestamp]
-    public uint Version { get; set; }
+    [Timestamp] public uint Version { get; set; }
 }
 
 public enum InfoType
@@ -745,10 +799,7 @@ public enum InfoType
 
 public class Modul
 {
-
-    [Key]
-    [Required]
-    public string Code { get; set; } = null!;
+    [Key] [Required] public string Code { get; set; } = null!;
     public string Name { get; set; } = null!;
 }
 
@@ -760,8 +811,8 @@ public class Info
         logData = "logged";
         TimeCreated = DateTime.Now;
     }
-    [Required]
-    private string logData; // To test private Field with protected explicit getter/setter
+
+    [Required] private string logData; // To test private Field with protected explicit getter/setter
 
     public long InfoId { get; set; }
 
@@ -778,21 +829,30 @@ public class Info
     private DateTime TimeCreated { get; set; } // To test private Property
 
     [Required]
-    private string LogData { get { return logData; } set { logData = value; } }
+    private string LogData
+    {
+        get { return logData; }
+        set { logData = value; }
+    }
 
     public DateTimeOffset DateTimeOff { get; set; } // ValueConverter to Binary
 
-    public string GetLogData() { return logData; }
-    public DateTime GetDateCreated() { return TimeCreated.Date; }
-}
+    public string GetLogData()
+    {
+        return logData;
+    }
 
+    public DateTime GetDateCreated()
+    {
+        return TimeCreated.Date;
+    }
+}
 
 public class Animal
 {
     public int AnimalId { get; set; }
 
-    [Required]
-    public string Name { get; set; } = null!;
+    [Required] public string Name { get; set; } = null!;
 }
 
 public class Mammal : Animal
@@ -805,16 +865,13 @@ public enum SettingsEnum
     Sett1,
     Sett2
 }
+
 // For testing Convertible Property (Key Settings in modelBuilder configured as 'nvarchar' insted of 'int')
 public class Setting
 {
-    [Key]
-    public SettingsEnum Settings { get; set; }
-    [Required]
-    [MaxLength(20)]
-    public string? Value { get; set; }
+    [Key] public SettingsEnum Settings { get; set; }
+    [Required] [MaxLength(20)] public string? Value { get; set; }
 }
-
 
 // For testing ForeignKey Shadow Properties
 public class ItemLink
@@ -840,9 +897,9 @@ public class ChangeLog
 [Owned]
 public class Audit
 {
-
     [Column(nameof(ChangedBy))] // for setting custom column name, in this case prefix OwnedType_ ('Audit_') removed, so column would be only ('ChangedBy')
-    public string ChangedBy { get; set; } = null!; // default Column name for Property of OwnedType is OwnedType_Property ('Audit_ChangedBy')
+    public string ChangedBy { get; set; } =
+        null!; // default Column name for Property of OwnedType is OwnedType_Property ('Audit_ChangedBy')
 
     public bool IsDeleted { get; set; }
 
@@ -857,12 +914,11 @@ public class AuditExtended
 {
     public string CreatedBy { get; set; } = null!;
 
-    [NotMapped]
-    public DateTime? CreatedTime { get; set; }
+    [NotMapped] public DateTime? CreatedTime { get; set; }
 
-    [NotMapped]
-    public string Remark { get; set; } = null!;
+    [NotMapped] public string Remark { get; set; } = null!;
 }
+
 public class Tracker
 {
     public int TrackerId { get; set; }
@@ -871,6 +927,7 @@ public class Tracker
 
     public TrackerLocation Location { get; set; } = null!;
 }
+
 [Owned]
 public class TrackerLocation
 {
@@ -892,7 +949,6 @@ public class AuditData // used for CustomSqlPostProcessTest
     public DateTime AuditDate { get; set; }
     public string AuditBy { get; set; } = null!;
     public string AuditAction { get; set; } = null!;
-
 }
 
 // For testing BatchUpdate expressions that use nested queries
@@ -905,7 +961,12 @@ public class Parent
     public int ParentId { get; set; }
 
     private string _phoneNumber = null!;
-    public string PhoneNumber { get => _phoneNumber; set => _phoneNumber = value; }
+
+    public string PhoneNumber
+    {
+        get => _phoneNumber;
+        set => _phoneNumber = value;
+    }
 
     public decimal Value { get; set; }
 }
@@ -930,13 +991,15 @@ public class Child
     public int ParentId { get; set; }
 }
 
-public abstract class Log // To Test TPT (TablePerType) - https://docs.microsoft.com/en-us/ef/core/modeling/inheritance#table-per-type-configuration
+public abstract class
+    Log // To Test TPT (TablePerType) - https://docs.microsoft.com/en-us/ef/core/modeling/inheritance#table-per-type-configuration
 {
     public int LogId { get; set; }
     public int PersonId { get; set; }
     public int RegBy { get; set; }
     public DateTime CreatedDate { get; set; }
 }
+
 public class LogPersonReport : Log
 {
     public int ReportId { get; set; }
@@ -962,13 +1025,11 @@ public class Event // CustomPrecision DateTime Test (SqlServer only)
 {
     public int EventId { get; set; }
 
-    [Required]
-    public string Name { get; set; } = null!;
+    [Required] public string Name { get; set; } = null!;
 
     public string Description { get; set; } = null!;
 
-    [Column(TypeName = "datetime2(3)")]
-    public DateTime TimeCreated { get; set; }
+    [Column(TypeName = "datetime2(3)")] public DateTime TimeCreated { get; set; }
 
     public DateTime? TimeUpdated { get; set; }
 }
@@ -992,8 +1053,19 @@ public class Source
     public Status StatusId { get; set; }
     public Type TypeId { get; set; }
 }
-public enum Status : byte { Init, Changed }
-public enum Type : byte { Undefined, Type1, Type2 }
+
+public enum Status : byte
+{
+    Init,
+    Changed
+}
+
+public enum Type : byte
+{
+    Undefined,
+    Type1,
+    Type2
+}
 
 public class Department
 {
@@ -1017,7 +1089,6 @@ public class PrivateKey
 
     public string Name { get; set; } = null!;
 }
-
 
 public class Customer
 {
@@ -1082,7 +1153,7 @@ public class GraphQLModel
     [Key]
     //[GraphQLType(typeof(IdType))]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public virtual System.Guid Id { get; set; }
+    public virtual Guid Id { get; set; }
 
     public string? Name { get; set; }
 }
@@ -1093,11 +1164,11 @@ public class GraphQLModel
 public class ArrayModel
 {
     public int Id { get; set; }
-    
+
     public string[]? Array { get; set; }
-    
+
     public List<int>? List { get; set; }
-    
+
     public BindingFlags[]? EnumArray { get; set; }
     public BindingFlags Enum { get; set; }
 }
@@ -1107,11 +1178,10 @@ public class Article
     [Key]
     //[GraphQLType(typeof(IdType))]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public virtual System.Guid Id { get; set; }
+    public virtual Guid Id { get; set; }
 
     public string? Name { get; set; }
 }
-
 
 public abstract class Entity : Entity<int>
 {
@@ -1124,7 +1194,7 @@ public abstract class Entity : Entity<int>
     public override string ToString() => $"{GetType().Name} #{Id}";
 }
 
-public abstract class Entity<TKey> where TKey: struct
+public abstract class Entity<TKey> where TKey : struct
 {
     public TKey Id { get; set; }
 }
@@ -1153,6 +1223,7 @@ public sealed class Mod
         mod.AddStats(modStat);
         return mod;
     }
+
     private void AddStats(IEnumerable<ModStat> modStats)
     {
         _stats.AddRange(modStats);
@@ -1176,18 +1247,22 @@ public sealed class ModStat
         return new ModStat(mId, playerId);
     }
 }
+
 public sealed class PlayerId
 {
     public string Value;
+
     private PlayerId(string value)
         => Value = value;
 
     public static PlayerId Create(string value)
         => new PlayerId(value);
 }
+
 public sealed class ModId
 {
     public string Value;
+
     private ModId(string value)
         => Value = value;
 
@@ -1201,11 +1276,13 @@ public class Client
     public string ClientId { get; set; } = default!;
     public ContactMethods ContactMethods { get; set; } = default!;
 }
+
 public class ContactMethods
 {
     public string HomePhone { get; set; } = default!;
     public ICollection<Location> LocationAdresses { get; set; } = default!;
 }
+
 public class Location
 {
     public string Address { get; set; } = default!;
