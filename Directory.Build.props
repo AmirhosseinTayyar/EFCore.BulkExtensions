@@ -32,7 +32,7 @@
     <AssemblyVersion>$(Version).0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="StrongNamer" Version="0.2.5" PrivateAssets="All" />
+    <PackageReference Include="StrongNamer" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" />

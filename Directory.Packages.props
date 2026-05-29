@@ -1,0 +1,61 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Shared (Core)                                                           -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
+        <PackageVersion Include="MedallionTopologicalSort" Version="1.0.0" />
+        <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
+    </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- SQL Server                                                              -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer.HierarchyId" Version="10.0.3" />
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="10.0.3" />
+        <PackageVersion Include="NetTopologySuite.IO.SqlServerBytes" Version="2.1.0" />
+    </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- PostgreSQL                                                              -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="10.0.0" />
+        <PackageVersion Include="Npgsql.NetTopologySuite" Version="10.0.1" />
+    </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Oracle                                                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="Oracle.EntityFrameworkCore" Version="10.23.26100" />
+    </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Testing                                                                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="DelegateDecompiler.EntityFrameworkCore5" Version="0.35.3" />
+        <PackageVersion Include="FastMember" Version="1.5.0" />
+        <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+        <PackageVersion Include="RT.Comb" Version="4.0.3" />
+        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Build tooling                                                           -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <ItemGroup>
+        <PackageVersion Include="StrongNamer" Version="0.2.5" />
+    </ItemGroup>
+
+</Project>
