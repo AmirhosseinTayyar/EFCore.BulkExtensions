@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/EFCore.BulkExtensions.PerProvider/">
+    <Project Path="EFCore.BulkExtensions.GBase/EFCore.BulkExtensions.GBase.csproj" />
+    <Project Path="EFCore.BulkExtensions.MySql/EFCore.BulkExtensions.MySql.csproj" />
+    <Project Path="EFCore.BulkExtensions.Oracle/EFCore.BulkExtensions.Oracle.csproj" />
+    <Project Path="EFCore.BulkExtensions.PostgreSql/EFCore.BulkExtensions.PostgreSql.csproj" />
+    <Project Path="EFCore.BulkExtensions.Sqlite/EFCore.BulkExtensions.Sqlite.csproj" />
+    <Project Path="EFCore.BulkExtensions.SqlServer/EFCore.BulkExtensions.SqlServer.csproj" />
+  </Folder>
+  <Project Path="EFCore.BulkExtensions.Core/EFCore.BulkExtensions.Core.csproj" />
+  <Project Path="EFCore.BulkExtensions.Tests/EFCore.BulkExtensions.Tests.csproj" />
+  <Project Path="EFCore.BulkExtensions/EFCore.BulkExtensions.csproj" />
+</Solution>
