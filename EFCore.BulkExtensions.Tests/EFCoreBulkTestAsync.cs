@@ -23,8 +23,6 @@ public class EFCoreBulkTestAsync
 
     [Theory]
     [InlineData(SqlType.SqlServer, true)]
-    [InlineData(SqlType.Sqlite, true)]
-    [InlineData(SqlType.GBase, true)]
     //[InlineData(DatabaseType.SqlServer, false)] // for speed comparison with Regular EF CUD operations
     public async Task OperationsTestAsync(SqlType sqlType, bool isBulk)
     {
@@ -47,7 +45,6 @@ public class EFCoreBulkTestAsync
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.GBase)]
     //[InlineData(DbServer.Sqlite)] // has to be run separately as single test, otherwise throws (SQLite Error 1: 'table "#MyTempTable1" already exists'.)
     public async Task SideEffectsTestAsync(SqlType sqlType)
     {
@@ -79,17 +76,11 @@ public class EFCoreBulkTestAsync
             // we use a temp table to verify whether the connection has been closed (and re-opened) inside BulkUpdate(Async)
             var columnName = sqlHelper.DelimitIdentifier("Id");
             var tableName = sqlHelper.DelimitIdentifier("#MyTempTable" + tableSufix);
-            if (sqlType == SqlType.GBase)
-            {
-                tableName = tableName.Replace("#", "");
-            }
             var createTableSql = $" TABLE {tableName} ({columnName} INTEGER);";
             createTableSql = sqlType switch
             {
-                SqlType.Sqlite => $"CREATE TEMPORARY {createTableSql}",
                 SqlType.SqlServer => $"CREATE {createTableSql}",
                 SqlType.Oracle => $"CREATE GLOBAL TEMPORARY {createTableSql}",
-                SqlType.GBase => $"CREATE TEMP {createTableSql}",
                 _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
             };
             await context.Database.ExecuteSqlRawAsync(createTableSql);
@@ -167,28 +158,6 @@ public class EFCoreBulkTestAsync
                 }
 
                 await context.BulkInsertAsync(subEntities);
-
-                await transaction.CommitAsync();
-            }
-            else if (sqlType == SqlType.Sqlite || sqlType == SqlType.GBase)
-            {
-                using var transaction = await context.Database.BeginTransactionAsync();
-
-                var bulkConfig = new BulkConfig()
-                {
-                    SetOutputIdentity = true,
-                };
-                await context.BulkInsertAsync(entities, bulkConfig);
-
-                foreach (var entity in entities)
-                {
-                    foreach (var subEntity in entity.ItemHistories)
-                    {
-                        subEntity.ItemId = entity.ItemId; // setting FK to match its linked PK that was generated in DB
-                    }
-                    subEntities.AddRange(entity.ItemHistories);
-                }
-                await context.BulkInsertAsync(subEntities, bulkConfig);
 
                 await transaction.CommitAsync();
             }
@@ -421,15 +390,9 @@ public class EFCoreBulkTestAsync
         string deleteTableSql = sqlType switch
         {
             SqlType.SqlServer => $"DBCC CHECKIDENT('[dbo].[{nameof(Item)}]', RESEED, 0);",
-            SqlType.Sqlite => $"DELETE FROM sqlite_sequence WHERE name = '{nameof(Item)}';",
-            SqlType.GBase => $@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} INT)",
+            SqlType.PostgreSql => $@"ALTER SEQUENCE ""{nameof(Item)}_{nameof(Item.ItemId)}_seq"" RESTART WITH 1;",
             _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
         };
         await context.Database.ExecuteSqlRawAsync(deleteTableSql).ConfigureAwait(false);
-        if (sqlType == SqlType.GBase)
-        {
-            // Modify autoincrement column type back to serial(1)
-            context.Database.ExecuteSqlRaw($@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} SERIAL(1))");
-        }
     }
 }

@@ -13,7 +13,6 @@ public class EFCoreBulkTestSaveChanges
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.Sqlite)]
     public void SaveChangesTest(SqlType dbServer)
     {
         var util = new ContextUtil(dbServer);
@@ -31,7 +30,6 @@ public class EFCoreBulkTestSaveChanges
     [Theory]
     [InlineData(SqlType.SqlServer)]
     [InlineData(SqlType.PostgreSql)]
-    [InlineData(SqlType.Sqlite)]
     public async Task SaveChangesTestAsync(SqlType dbServer)
     {
         await new EFCoreBatchTestAsync().RunDeleteAllAsync(dbServer);

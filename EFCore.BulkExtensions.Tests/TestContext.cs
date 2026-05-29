@@ -17,8 +17,6 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Oracle.ManagedDataAccess.Client;
 using System.Threading;
 using EFCore.BulkExtensions.Tests.Owned;
-//using GBase.EntityFrameworkCore.Extensions;
-
 // ReSharper disable EntityFramework.ModelValidation.UnlimitedStringLength
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable ConvertToAutoProperty
@@ -208,10 +206,6 @@ public class TestContext : TestContextBase
         modelBuilder.Entity<Person>().HasIndex(a => a.Name)
             .IsUnique(); // In SQLite UpdateByColumn(nonPK) requires it has UniqueIndex
 
-        /*if (!Database.IsGBase())
-        {
-            modelBuilder.Entity<Document>().Property(p => p.IsActive).HasDefaultValue(true);
-        }*/
         modelBuilder.Entity<Document>().Property(p => p.Tag).HasDefaultValue("DefaultData");
         if (Database.IsSqlServer())
         {
@@ -266,47 +260,17 @@ public class TestContext : TestContextBase
             modelBuilder.Entity<Tracker>().OwnsOne(t => t.Location).Ignore(p => p.Location); // Point only on SqlServer
         }
 
-        if (Database.IsSqlite() || Database.IsNpgsql() /*|| Database.IsMySql() || Database.IsGBase()*/)
+        if (Database.IsNpgsql())
         {
             modelBuilder.Entity<Category>().Ignore(p => p.HierarchyDescription);
 
             modelBuilder.Entity<Event>().Ignore(p => p.TimeCreated);
         }
-
-        if (Database.IsSqlite())
-        {
-            modelBuilder.Entity<File>().Property(p => p.VersionChange).ValueGeneratedOnAddOrUpdate().IsConcurrencyToken().HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-            modelBuilder.Entity<ItemHistory>().ToTable(nameof(ItemHistory));
-
-            modelBuilder.Entity<Address>()
-                .Property(p => p.GeoLine)
-                .HasSrid(4326);
-
-            modelBuilder.Entity<Address>()
-                .Property(p => p.GeoPoint)
-                .HasSrid(4326);
-        }
-
-        /*if (Database.IsMySql() || Database.IsGBase())
-        {
-            modelBuilder.Entity<Address>().Ignore(p => p.LocationGeography);
-            modelBuilder.Entity<Address>().Ignore(p => p.LocationGeometry);
-            modelBuilder.Entity<Address>().Ignore(p => p.GeoLine);
-        }
-        if (Database.IsGBase())
-        {
-            modelBuilder.Entity<Address>().Ignore(p => p.GeoPoint);
-
-            modelBuilder.Entity<Archive>()
-                .Property(p => p.ArchiveId)
-                .HasColumnType("varchar(128)");
-        }*/
         if (Database.IsNpgsql())
         {
             modelBuilder.Entity<GraphQLModel>().Property(x => x.Id).HasDefaultValueSql("gen_random_uuid()");
 
-            modelBuilder.Entity<Address>().Property(p => p.LocationGeometry).HasColumnType("geometry (point, 2180)").HasSrid(2180);
+            modelBuilder.Entity<Address>().Property(p => p.LocationGeometry).HasColumnType("geometry (point, 2180)");
 
             modelBuilder.Entity<FilePG>().Property(p => p.Formats).HasColumnType("text[]");
 
@@ -334,7 +298,7 @@ public class TestContext : TestContextBase
         modelBuilder.Entity<AtypicalRowVersionEntity>().Property(e => e.RowVersion).HasDefaultValue(0).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate().Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Save);
         modelBuilder.Entity<AtypicalRowVersionEntity>().Property(e => e.SyncDevice).IsRequired(true).IsConcurrencyToken().HasDefaultValue("");
 
-        if (!Database.IsNpgsql() /*&& !Database.IsMySql()*/)
+        if (!Database.IsNpgsql())
         {
             modelBuilder.Entity<AtypicalRowVersionConverterEntity>().Property(e => e.RowVersionConverted).HasConversion(new NumberToBytesConverter<long>()).HasColumnType("timestamp").IsRowVersion().IsConcurrencyToken();
         }

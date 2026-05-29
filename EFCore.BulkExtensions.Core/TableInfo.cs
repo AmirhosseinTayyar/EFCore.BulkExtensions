@@ -168,10 +168,7 @@ public class TableInfo
         string? providerName = dbContext.Database.ProviderName?.ToLower();
         bool isSqlServer = providerName?.EndsWith(SqlType.SqlServer.ToString().ToLower()) ?? false;
         bool isNpgsql = providerName?.EndsWith(SqlType.PostgreSql.ToString().ToLower()) ?? false;
-        bool isSqlite = providerName?.EndsWith(SqlType.Sqlite.ToString().ToLower()) ?? false;
-        bool isMySql = providerName?.EndsWith(SqlType.MySql.ToString().ToLower()) ?? false;
         bool isOracle = providerName?.EndsWith(SqlType.Oracle.ToString().ToLower()) ?? false;
-        bool isGBase = providerName?.EndsWith(SqlType.GBase.ToString().ToLower()) ?? false;
 
         string? defaultSchema = null;
         if (isSqlServer)
@@ -319,7 +316,7 @@ public class TableInfo
 
         HasJsonTypes = OwnedJsonTypesDict.Count > 0;
 
-        if (isSqlServer || isNpgsql || isMySql)
+        if (isSqlServer || isNpgsql)
         {
             var strategyName = SqlAdaptersMapping.DbServer(dbContext).ValueGenerationStrategy;
             if (!strategyName.Contains(":Value"))
@@ -342,19 +339,6 @@ public class TableInfo
                 }
             }
         }
-        if (isSqlite || isGBase) // SQLite no ValueGenerationStrategy
-        {
-            // for HiLo on SqlServer was returning True when should be False
-            IdentityColumnName = allProperties.SingleOrDefault(a => a.IsPrimaryKey() &&
-                                                    a.ValueGenerated == ValueGenerated.OnAdd && // ValueGenerated equals OnAdd for nonIdentity column like Guid so take only number types
-                                                    (a.ClrType.Name.StartsWith("Byte") ||
-                                                     a.ClrType.Name.StartsWith("SByte") ||
-                                                     a.ClrType.Name.StartsWith("Int") ||
-                                                     a.ClrType.Name.StartsWith("UInt") ||
-                                                     (isSqlServer && a.ClrType.Name.StartsWith("Decimal")))
-                                              )?.GetColumnName(ObjectIdentifier);
-        }
-
         if (BulkConfig.AutoExcludeTimestamp)
         {
             var timestampProps = allProperties

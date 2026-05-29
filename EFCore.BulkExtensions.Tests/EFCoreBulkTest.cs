@@ -267,7 +267,6 @@ public class EFCoreBulkTest
     }
     
     /*[Theory]
-    [InlineData(SqlType.MySql)]
     // -- Before first run following command should be executed on mysql server:
     //    SET GLOBAL local_infile = true;
     // -- otherwise exception: "Loading local data is disabled; this must be enabled on both the client and server sides"
@@ -387,7 +386,6 @@ public class EFCoreBulkTest
 
     [Theory]
     [InlineData(SqlType.SqlServer, true)]
-    [InlineData(SqlType.Sqlite, true)]
     //[InlineData(SqlType.GBase, true)]
     //[InlineData(DbServer.SqlServer, false)] // for speed comparison with Regular EF CUD operations
     public void OperationsTest(SqlType sqlType, bool isBulk)
@@ -412,7 +410,6 @@ public class EFCoreBulkTest
 
     [Theory]
     [InlineData(SqlType.SqlServer)]
-    [InlineData(SqlType.Sqlite)]
     //[InlineData(SqlType.GBase)]
     public void SideEffectsTest(SqlType sqlType)
     {
@@ -436,10 +433,8 @@ public class EFCoreBulkTest
 
             createTableSql = sqlType switch
             {
-                SqlType.Sqlite => $"CREATE TEMPORARY {createTableSql}",
                 SqlType.SqlServer => $"CREATE {createTableSql}",
                 SqlType.Oracle => $"CREATE GLOBAL TEMPORARY {createTableSql}",
-                SqlType.GBase => $"CREATE {createTableSql}",
                 _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
             };
 
@@ -545,25 +540,6 @@ public class EFCoreBulkTest
                     subEntities.AddRange(entity.ItemHistories);
                 }
                 context.BulkInsert(subEntities);
-
-                transaction.Commit();
-            }
-            else if (sqlType == SqlType.Sqlite || sqlType == SqlType.GBase)
-            {
-                using var transaction = context.Database.BeginTransaction();
-                var bulkConfig = new BulkConfig() { SetOutputIdentity = true };
-                context.BulkInsert(entities, bulkConfig);
-
-                foreach (var entity in entities)
-                {
-                    foreach (var subEntity in entity.ItemHistories)
-                    {
-                        subEntity.ItemId = entity.ItemId; // setting FK to match its linked PK that was generated in DB
-                    }
-                    subEntities.AddRange(entity.ItemHistories);
-                }
-                bulkConfig.SetOutputIdentity = false;
-                context.BulkInsert(subEntities, bulkConfig);
 
                 transaction.Commit();
             }
@@ -810,15 +786,9 @@ public class EFCoreBulkTest
         string deleteTableSql = sqlType switch
         {
             SqlType.SqlServer => $"DBCC CHECKIDENT('[dbo].[{nameof(Item)}]', RESEED, 0);",
-            SqlType.Sqlite => $"DELETE FROM sqlite_sequence WHERE name = '{nameof(Item)}';",
-            SqlType.GBase => $@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} INT)",
+            SqlType.PostgreSql => $@"ALTER SEQUENCE ""{nameof(Item)}_{nameof(Item.ItemId)}_seq"" RESTART WITH 1;",
             _ => throw new ArgumentException($"Unknown database type: '{sqlType}'.", nameof(sqlType)),
         };
         context.Database.ExecuteSqlRaw(deleteTableSql);
-        if (sqlType == SqlType.GBase)
-        {
-            // Modify autoincrement column type back to serial(1)
-            context.Database.ExecuteSqlRaw($@"ALTER TABLE {nameof(Item)} MODIFY ({nameof(Item.ItemId)} SERIAL(1))");
-        }
     }
 }

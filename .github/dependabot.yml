@@ -43,30 +43,11 @@ updates:
     reviewers: ["borisdj"]
   # Maintain dependencies for .NET projects
   - package-ecosystem: "github-actions"
-    directory: "/EFCore.BulkExtensions.MySql"
-    schedule:
-      interval: "monthly"
-    ignore:
-      - dependency-name: /EFCore.BulkExtensions.MySql/EFCore.BulkExtensions.MySql.Net8.csproj"
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    reviewers: ["borisdj"]
-  # Maintain dependencies for .NET projects
-  - package-ecosystem: "github-actions"
     directory: "/EFCore.BulkExtensions.Oracle"
     schedule:
       interval: "monthly"
     ignore:
       - dependency-name: /EFCore.BulkExtensions.Oracle/EFCore.BulkExtensions.Oracle.Net8.csproj"
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    reviewers: ["borisdj"]
-  # Maintain dependencies for .NET projects  
-  - package-ecosystem: "github-actions"
-    directory: "/EFCore.BulkExtensions.Sqlite"
-    schedule:
-      interval: "monthly"
-    ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
     reviewers: ["borisdj"]
