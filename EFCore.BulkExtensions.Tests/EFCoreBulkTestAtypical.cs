@@ -80,7 +80,8 @@ public class EFCoreBulkTestAtypical
         {
             CalculateStats = true,
             SetOutputIdentity =
-                true, /*SetOutputNonIdentityColumns = false, SqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity*/};
+                true, /*SetOutputNonIdentityColumns = false, SqlBulkCopyOptions = SqlBulkCopyOptions.KeepIdentity*/
+        };
         context.BulkInsert(entries, bulkConfig);
     }
 
