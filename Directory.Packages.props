@@ -46,6 +46,10 @@
         <PackageVersion Include="FastMember" Version="1.5.0" />
         <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.3" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+        <PackageVersion Include="Testcontainers" Version="4.11.0" />
+        <PackageVersion Include="Testcontainers.MsSql" Version="4.11.0" />
+        <PackageVersion Include="Testcontainers.Oracle" Version="4.11.0" />
+        <PackageVersion Include="Testcontainers.PostgreSql" Version="4.11.0" />
         <PackageVersion Include="RT.Comb" Version="4.0.3" />
         <PackageVersion Include="xunit" Version="2.9.3" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />

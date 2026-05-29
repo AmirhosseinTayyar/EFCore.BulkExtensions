@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EFCore.BulkExtensions.SqlAdapters;
+using EFCore.BulkExtensions.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -116,6 +117,12 @@ public class ContextUtil
 
     private static string GetConnectionString(string name)
     {
+        string? template = TestDatabaseContainers.TryGetConnectionTemplate(name);
+        if (template != null)
+        {
+            return template;
+        }
+
         return GetConfiguration().GetConnectionString(name) ??
                throw new Exception($"Connection string '{name}' not found.");
     }

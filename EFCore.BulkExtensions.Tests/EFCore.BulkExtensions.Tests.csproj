@@ -17,6 +17,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
     <PackageReference Include="Npgsql.NetTopologySuite" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="Testcontainers.Oracle" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
     <PackageReference Include="RT.Comb" />
     <PackageReference Include="StrongNamer" PrivateAssets="All" />
     <PackageReference Include="xunit" />
