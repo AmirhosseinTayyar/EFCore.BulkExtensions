@@ -6,7 +6,3 @@ obj
 Nugets
 
 /EFCore.BulkExtensions.Tests/testsettings.local.json
-!*.csproj
-!*.png
-EFCore.BulkExtensions.PerProvider/EFCore.BulkExtensions.PostgreSql/*
-EFCore.BulkExtensions.PerProvider/EFCore.BulkExtensions.SqlServer/*
