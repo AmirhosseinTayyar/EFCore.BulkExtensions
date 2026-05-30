@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 #if NET8_0_OR_GREATER
-using Medallion.Collections; // uses StrongNamer nuget to sign ref. with Strong Name
+using Medallion.Collections;
 #endif
 
 namespace EFCore.BulkExtensions;

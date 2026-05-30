@@ -55,11 +55,4 @@
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     </ItemGroup>
 
-    <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <!-- Build tooling                                                           -->
-    <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <ItemGroup>
-        <PackageVersion Include="StrongNamer" Version="0.2.5" />
-    </ItemGroup>
-
 </Project>

@@ -48,7 +48,7 @@ internal static class TestDatabaseContainers
 
     private static string StartSqlServer()
     {
-        MsSqlContainer container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04")
+        MsSqlContainer container = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
             .WithPassword("SuperSecret42!")
             .Build();
 
@@ -57,7 +57,7 @@ internal static class TestDatabaseContainers
 
     private static string StartPostgreSql()
     {
-        PostgreSqlContainer container = new PostgreSqlBuilder("postgis/postgis:16-3.4")
+        PostgreSqlContainer container = new PostgreSqlBuilder("postgis/postgis")
             .WithUsername("postgres")
             .WithPassword("Postgres22")
             .WithDatabase("postgres")
