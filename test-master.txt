@@ -1,0 +1,1367 @@
+================================================================================
+TEST RUN REPORT - master
+================================================================================
+
+Summary
+  Branch:       master
+  Database:     localhost (testsettings.json - Trusted_Connection)
+  Filter:       SqlServer + PostgreSql + Oracle (79 tests)
+  Result:       44 passed, 35 failed, 0 skipped
+  Duration:     ~3 m 50 s
+  Failures:     4 Oracle (no local DB), 26 PostgreSql (EF10/LineString), 5 SqlServer
+  Notes:        See test-branch-comparison-notes.txt for diff vs refactor/clean
+
+Last updated: 2026-05-29
+
+================================================================================
+Test run for d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\bin\Debug\net10.0\EFCore.BulkExtensions.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+dotnet : [xUnit.net 00:00:08.59]     EFCore.BulkExtensions.Tests.EFCoreBatchTest.BatchTest(dbServer: SqlServer) [FAIL]
+At D:\Users\A.Tayyareh\AppData\Local\Temp\ps-script-db2323c4-cce5-487b-a74d-1f82d5262090.ps1:100 char:334
++ ... ngPKTest)"; dotnet test "d:\Projects\.other\EFCore.BulkExtensions\EFC ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([xUnit.net 00:0...lServer) [FAIL]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Failed EFCore.BulkExtensions.Tests.EFCoreBatchTest.BatchTest(dbServer: SqlServer) [928 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                                  뿯ν뿯½뿯½ (pos 233)
+Expected: ┬╖┬╖┬╖" AND [c].[Value] = @__p_0)), '')) , [p].["┬╖┬╖┬╖
+Actual:   ┬╖┬╖┬╖" AND [c].[Value] = @p)), '')) , [p].[Valu"┬╖┬╖┬╖
+                                  뿯ν뿯½뿯½ (pos 233)
+  Stack Trace:
+     at EFCore.BulkExtensions.Tests.EFCoreBatchTest.RunBatchUpdate_UsingNavigationPropertiesThatTranslateToAnInnerQuery(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBatchTest.cs:line 245
+   at EFCore.BulkExtensions.Tests.EFCoreBatchTest.BatchTest(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBatchTest.cs:line 51
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:00:39.51]     EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkDelete(sqlType: Oracle) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkDelete(sqlType: Oracle) [30 s]
+  Error Message:
+   Oracle.ManagedDataAccess.Client.OracleException : ORA-50000: Connection request timed out
+  Stack Trace:
+     at OracleInternal.ConnectionPool.PoolManager`3.Get(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.Get(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.Get(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString opaquePassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.OpenInternal(Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.Open()
+   at Oracle.ManagedDataAccess.Client.OracleConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction(IsolationLevel isolationLevel)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.BeginTransaction()
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 107
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 223
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 86
+   at EFCore.BulkExtensions.SqlBulkOperation.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\SqlBulkOperation.cs:line 63
+   at EFCore.BulkExtensions.DbContextBulkTransaction.Execute[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 46
+   at EFCore.BulkExtensions.DbContextBulkExtensions.BulkDelete[T](DbContext dbContext, IEnumerable`1 entities, BulkConfig bulkConfig, Action`1 progress, Type type) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkExtensions.cs:line 315
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkDelete(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestOracle.cs:line 130
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:01:09.52]     EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkUpdate(sqlType: Oracle) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkUpdate(sqlType: Oracle) [30 s]
+  Error Message:
+   Oracle.ManagedDataAccess.Client.OracleException : ORA-50000: Connection request timed out
+  Stack Trace:
+     at OracleInternal.ConnectionPool.PoolManager`3.Get(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.Get(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.Get(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString opaquePassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.OpenInternal(Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.Open()
+   at Oracle.ManagedDataAccess.Client.OracleConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction(IsolationLevel isolationLevel)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.BeginTransaction()
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 107
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 223
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 86
+   at EFCore.BulkExtensions.SqlBulkOperation.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\SqlBulkOperation.cs:line 63
+   at EFCore.BulkExtensions.DbContextBulkTransaction.Execute[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 46
+   at EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdate[T](DbContext dbContext, IEnumerable`1 entities, BulkConfig bulkConfig, Action`1 progress, Type type) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkExtensions.cs:line 243
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkUpdate(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestOracle.cs:line 65
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:01:39.61]     EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsert(sqlType: Oracle) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsert(sqlType: Oracle) [30 s]
+  Error Message:
+   Oracle.ManagedDataAccess.Client.OracleException : ORA-50000: Connection request timed out
+  Stack Trace:
+     at OracleInternal.ConnectionPool.PoolManager`3.Get(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.Get(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.Get(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString opaquePassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.OpenInternal(Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.Open()
+   at Oracle.ManagedDataAccess.Client.OracleConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Oracle.EntityFrameworkCore.Storage.Internal.OracleRelationalCommandBuilderFactory.OracleRelationalCommandBuilder.OracleRelationalCommand.ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+   at Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(DatabaseFacade databaseFacade, String sql, IEnumerable`1 parameters)
+   at Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(DatabaseFacade databaseFacade, String sql, Object[] parameters)
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsert(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestOracle.cs:line 23
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:09.62]     EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsertOrUpdate(sqlType: Oracle) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsertOrUpdate(sqlType: Oracle) [30 s]
+  Error Message:
+   Oracle.ManagedDataAccess.Client.OracleException : ORA-50000: Connection request timed out
+  Stack Trace:
+     at OracleInternal.ConnectionPool.PoolManager`3.Get(ConnectionString csWithDiffOrNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OraclePoolManager.Get(ConnectionString csWithNewPassw, Boolean bGetForApp, OracleConnection connRefForCriteria, String affinityInstanceName, Boolean bForceMatch, Boolean bAsync)
+   at OracleInternal.ConnectionPool.OracleConnectionDispenser`3.Get(ConnectionString cs, PM conPM, ConnectionString pmCS, OracleOpaqueString opaquePassw, OracleOpaqueString securedProxyPassw, OracleConnection connRefForCriteria, Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.OpenInternal(Boolean bAsync)
+   at OracleInternal.ServiceObjects.OracleConnectionInternal.Open()
+   at Oracle.ManagedDataAccess.Client.OracleConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction(IsolationLevel isolationLevel)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.BeginTransaction()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.BeginTransaction()
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 107
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 223
+   at EFCore.BulkExtensions.SqlAdapters.Oracle.OracleAdapter.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Oracle\SqlAdapters\Oracle\OracleAdapter.cs:line 86
+   at EFCore.BulkExtensions.SqlBulkOperation.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\SqlBulkOperation.cs:line 63
+   at EFCore.BulkExtensions.DbContextBulkTransaction.Execute[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 46
+   at EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdate[T](DbContext dbContext, IEnumerable`1 entities, BulkConfig bulkConfig, Action`1 progress, Type type) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkExtensions.cs:line 99
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestOracle.BulkInsertOrUpdate(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestOracle.cs:line 104
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:14.77]     EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertTestPostgreSql(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:02:14.81]     EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertEnumStringValue(sqlType: PostgreSql) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertTestPostgreSql(sqlType: PostgreSql) [137 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertTestPostgreSql(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTest.cs:line 69
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertEnumStringValue(sqlType: PostgreSql) [46 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTest.InsertEnumStringValue(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTest.cs:line 28
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:16.38]     EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(sqlType: SqlServer) 
+[FAIL]
+[xUnit.net 00:02:16.43]     EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(sqlType: PostgreSql) 
+[FAIL]
+[xUnit.net 00:02:17.47]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.NoPrimaryKeyTest(sqlType: PostgreSql) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(sqlType: SqlServer) [120 ms]
+  Error Message:
+   Microsoft.Data.SqlClient.SqlException : Invalid object name 'dbo.NestedRoot'.
+  Stack Trace:
+     at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlCommand.InternalEndExecuteNonQuery(IAsyncResult asyncResult, Boolean isInternal, String endMethod)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryInternal(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.EndExecuteNonQueryAsync(IAsyncResult asyncResult)
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<InternalExecuteNonQueryAsync>b__193_1(IAsyncResult asyncResult)
+   at System.Threading.Tasks.TaskFactory`1.FromAsyncCoreLogic(IAsyncResult iar, Func`2 endFunction, Action`1 endAction, Task`1 promise, Boolean requiresSynchronization)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteNonQueryAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(DatabaseFacade databaseFacade, String sql, IEnumerable`1 parameters, CancellationToken cancellationToken)
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 156
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 295
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 134
+   at EFCore.BulkExtensions.SqlBulkOperation.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\SqlBulkOperation.cs:line 68
+   at EFCore.BulkExtensions.DbContextBulkTransaction.ExecuteAsync[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 87
+   at EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\Owned\NestedOwnedTests.cs:line 43
+--- End of stack trace from previous location ---
+  Failed EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(sqlType: PostgreSql) [58 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.Owned.NestedDbContext..ctor(DbContextOptions opts) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\Owned\NestedOwnedTests.cs:line 87
+   at EFCore.BulkExtensions.Tests.Owned.NestedOwnedTests.NestedOwnedTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\Owned\NestedOwnedTests.cs:line 20
+--- End of stack trace from previous location ---
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.NoPrimaryKeyTest(sqlType: PostgreSql) [26 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.NoPrimaryKeyTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 800
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:17.89]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.JsonTest(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:02:18.20]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.OwnedTypesTest(sqlType: PostgreSql) 
+[FAIL]
+[xUnit.net 00:02:18.30]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.UpsertWithOnUpdateNonPK(sqlType: 
+PostgreSql) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.JsonTest(sqlType: PostgreSql) [26 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.JsonTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1410
+   at InvokeStub_EFCoreBulkTestAtypical.JsonTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.OwnedTypesTest(sqlType: PostgreSql) [24 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.OwnedTypesTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 555
+   at InvokeStub_EFCoreBulkTestAtypical.OwnedTypesTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.UpsertWithOnUpdateNonPK(sqlType: PostgreSql) [31 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.UpsertWithOnUpdateNonPK(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1289
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:18.43]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStamp2PGTest [FAIL]
+[xUnit.net 00:02:18.46]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DiscriminatorShadowTest(sqlType: 
+PostgreSql) [FAIL]
+[xUnit.net 00:02:18.80]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DefaultValuesTest(sqlType: PostgreSql) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStamp2PGTest [32 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStamp2PGTest() in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1185
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DiscriminatorShadowTest(sqlType: PostgreSql) [30 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DiscriminatorShadowTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 459
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DefaultValuesTest(sqlType: PostgreSql) [27 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DefaultValuesTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 81
+   at InvokeStub_EFCoreBulkTestAtypical.DefaultValuesTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:02:19.01]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GrphOwnedTest [FAIL]
+[xUnit.net 00:02:19.15]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PrivateKeyTest(sqlType: PostgreSql) 
+[FAIL]
+[xUnit.net 00:02:19.18]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.XminTest(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:02:19.22]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PGArrayColumn [FAIL]
+[xUnit.net 00:02:19.50]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ComputedAndDefaultValuesTest(sqlType: 
+SqlServer) [FAIL]
+[xUnit.net 00:02:19.52]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStampPGTest(sqlType: PostgreSql) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GrphOwnedTest [83 ms]
+  Error Message:
+   System.InvalidOperationException : Column 'ContactMethodsClientId' does not allow DBNull.Value.
+  Stack Trace:
+     at Microsoft.Data.SqlClient.SqlBulkCopy.ConvertValue(Object value, _SqlMetaData metadata, Boolean isNull, Boolean& isSqlType, Boolean& coercedToDataFeed)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.CopyColumnsAsync(Int32 col, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.CopyRowsAsync(Int32 rowsSoFar, Int32 totalRows, CancellationToken cts, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.CopyBatchesAsyncContinued(BulkCopySimpleResultSet internalResults, String updateBulkCommandText, CancellationToken cts, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.CopyBatchesAsync(BulkCopySimpleResultSet internalResults, String updateBulkCommandText, CancellationToken cts, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteToServerInternalRestContinuedAsync(BulkCopySimpleResultSet internalResults, CancellationToken cts, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteToServerInternalRestAsync(CancellationToken cts, TaskCompletionSource`1 source)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteToServerInternalAsync(CancellationToken ctoken)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteRowSourceToServerAsync(Int32 columnCount, CancellationToken ctoken)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteToServer(DataTable table, DataRowState rowState)
+   at Microsoft.Data.SqlClient.SqlBulkCopy.WriteToServer(DataTable table)
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InsertAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 76
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InsertAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 105
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.InsertAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 118
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Insert[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 27
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 170
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.MergeAsync[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 295
+   at EFCore.BulkExtensions.SqlAdapters.SqlServer.SqlServerAdapter.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.SqlServer\SqlAdapters\SqlServer\SqlServerAdapter.cs:line 128
+   at EFCore.BulkExtensions.SqlBulkOperation.Merge[T](BulkContext context, Type type, IEnumerable`1 entities, TableInfo tableInfo, OperationType operationType, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\SqlBulkOperation.cs:line 63
+   at EFCore.BulkExtensions.DbContextBulkTransactionGraphUtil.ExecuteWithGraphAsync(BulkContext context, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionGraphUtil.cs:line 79
+   at EFCore.BulkExtensions.DbContextBulkTransactionGraphUtil.ExecuteWithGraphAsync(BulkContext context, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionGraphUtil.cs:line 160
+   at EFCore.BulkExtensions.DbContextBulkTransactionGraphUtil.ExecuteWithGraph(BulkContext context, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionGraphUtil.cs:line 17
+   at EFCore.BulkExtensions.DbContextBulkTransaction.Execute[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 25
+   at EFCore.BulkExtensions.DbContextBulkExtensions.BulkInsertOrUpdate[T](DbContext dbContext, IEnumerable`1 entities, BulkConfig bulkConfig, Action`1 progress, Type type) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkExtensions.cs:line 99
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GrphOwnedTest() in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1704
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__124_0(Object state)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PrivateKeyTest(sqlType: PostgreSql) [66 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PrivateKeyTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1342
+   at InvokeStub_EFCoreBulkTestAtypical.PrivateKeyTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.XminTest(sqlType: PostgreSql) [32 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.XminTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1505
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PGArrayColumn [39 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.PGArrayColumn() in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1470
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ComputedAndDefaultValuesTest(sqlType: SqlServer) [156 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: True
+Actual:   null
+  Stack Trace:
+     at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ComputedAndDefaultValuesTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 261
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStampPGTest(sqlType: PostgreSql) [25 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.TimeStampPGTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 318
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:19.77]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.CompositeKeyTest(sqlType: PostgreSql) 
+[FAIL]
+[xUnit.net 00:02:20.06]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GeometryColumnTest(sqlType: PostgreSql) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.CompositeKeyTest(sqlType: PostgreSql) [30 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.CompositeKeyTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 416
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GeometryColumnTest(sqlType: PostgreSql) [24 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.GeometryColumnTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 884
+   at InvokeStub_EFCoreBulkTestAtypical.GeometryColumnTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:02:20.54]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ArrayPGTest(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:02:20.67]     
+EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DestinationAndSourceTableNameTest(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:02:20.71]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ConverterStringPKTest [FAIL]
+[xUnit.net 00:02:20.83]     EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ShadowFKPropertiesTest(sqlType: 
+PostgreSql) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ArrayPGTest(sqlType: PostgreSql) [48 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ArrayPGTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 296
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DestinationAndSourceTableNameTest(sqlType: PostgreSql) [23 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.DestinationAndSourceTableNameTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1035
+   at InvokeStub_EFCoreBulkTestAtypical.DestinationAndSourceTableNameTest(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ConverterStringPKTest [35 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ConverterStringPKTest() in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 1667
+   at System.Threading.Tasks.Task.<>c.<ThrowAsync>b__124_0(Object state)
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ShadowFKPropertiesTest(sqlType: PostgreSql) [29 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestAtypical.ShadowFKPropertiesTest(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestAtypical.cs:line 691
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:21.09]     EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(dbServer: 
+PostgreSql) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(dbServer: PostgreSql) [33 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBatchTestAsync.RunDeleteAllAsync(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBatchTestAsync.cs:line 92
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestSaveChanges.cs:line 37
+--- End of stack trace from previous location ---
+[xUnit.net 00:02:23.47]     EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(dbServer: 
+SqlServer) [FAIL]
+[xUnit.net 00:02:23.49]     EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTest(dbServer: 
+PostgreSql) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(dbServer: SqlServer) [2 s]
+  Error Message:
+   System.InvalidOperationException : PropertyName 'RowVersion' specified in 'PropertiesToExclude' not found in Properties.
+  Stack Trace:
+     at EFCore.BulkExtensions.TableInfo.ValidateSpecifiedPropertiesList(List`1 specifiedPropertiesList, String specifiedPropertiesListName) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 766
+   at EFCore.BulkExtensions.TableInfo.LoadData[T](BulkContext context, Type type, IEnumerable`1 entities, Boolean loadOnlyPKColumn) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 517
+   at EFCore.BulkExtensions.TableInfo.CreateInstance[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 134
+   at EFCore.BulkExtensions.DbContextBulkTransaction.ExecuteAsync[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 70
+   at EFCore.BulkExtensions.DbContextBulkTransactionSaveChanges.InvokeBulkMethod(DbContext context, List`1 entities, Type entityType, String methodName, BulkConfig bulkConfig, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionSaveChanges.cs:line 249
+   at EFCore.BulkExtensions.DbContextBulkTransactionSaveChanges.SaveChangesAsync(DbContext dbContext, BulkConfig bulkConfig, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionSaveChanges.cs:line 184
+   at EFCore.BulkExtensions.DbContextBulkTransactionSaveChanges.SaveChangesAsync(DbContext dbContext, BulkConfig bulkConfig, Action`1 progress, Boolean isAsync, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionSaveChanges.cs:line 227
+   at EFCore.BulkExtensions.DbContextBulkTransactionSaveChanges.SaveChangesAsync(DbContext dbContext, BulkConfig bulkConfig, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransactionSaveChanges.cs:line 27
+   at EFCore.BulkExtensions.DbContextBulkTransaction.ExecuteAsync[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress, CancellationToken cancellationToken) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 60
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.RunSaveChangesOnInsertAndUpdateAsync(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestSaveChanges.cs:line 156
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTestAsync(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestSaveChanges.cs:line 40
+--- End of stack trace from previous location ---
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTest(dbServer: PostgreSql) [23 ms]
+  Error Message:
+   System.InvalidOperationException : No suitable constructor was found for the type 'LineString'. The following constructors had parameters that could not be bound to properties of the type: 
+    Cannot bind 'points' in 'LineString(Coordinate[] points)'
+    Cannot bind 'points', 'factory' in 'LineString(CoordinateSequence points, GeometryFactory factory)'
+Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+  Stack Trace:
+     at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings[T](T type, Func`5 bindToProperty, Func`5 bind, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.ConstructorBindingFactory.GetBindings(IConventionEntityType entityType, InstantiationBinding& constructorBinding, InstantiationBinding& serviceOnlyBinding)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.ConstructorBindingConvention.ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext`1 context)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.ImmediateConventionScope.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ConventionDispatcher.OnModelFinalizing(IConventionModelBuilder modelBuilder)
+   at Microsoft.EntityFrameworkCore.Metadata.Internal.Model.FinalizeModel()
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.CreateModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 114
+   at EFCore.BulkExtensions.Tests.TestContext..ctor(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 112
+   at EFCore.BulkExtensions.Tests.EFCoreBatchTest.RunDeleteAll(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBatchTest.cs:line 97
+   at EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTest(SqlType dbServer) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\EFCoreBulkTestSaveChanges.cs:line 20
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+[xUnit.net 00:02:26.17]     EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTest(dbServer: SqlServer) 
+[FAIL]
+  Failed EFCore.BulkExtensions.Tests.EFCoreBulkTestSaveChanges.SaveChangesTest(dbServer: SqlServer) [2 s]
+  Error Message:
+   System.InvalidOperationException : PropertyName 'RowVersion' specified in 'PropertiesToExclude' not found in Properties.
+  Stack Trace:
+     at EFCore.BulkExtensions.TableInfo.ValidateSpecifiedPropertiesList(List`1 specifiedPropertiesList, String specifiedPropertiesListName) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 766
+   at EFCore.BulkExtensions.TableInfo.LoadData[T](BulkContext context, Type type, IEnumerable`1 entities, Boolean loadOnlyPKColumn) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 517
+   at EFCore.BulkExtensions.TableInfo.CreateInstance[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\TableInfo.cs:line 134
+   at EFCore.BulkExtensions.DbContextBulkTransaction.Execute[T](BulkContext context, Type type, IEnumerable`1 entities, OperationType operationType, BulkConfig bulkConfig, Action`1 progress) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkTransaction.cs:line 29
+   at EFCore.BulkExtensions.DbContextBulkExtensions.BulkUpdate[T](DbContext dbContext, IEnumerable`1 entities, BulkConfig bulkConfig, Action`1 progress, Type type) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Core\DbContextBulkExtensions.cs:line 243
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithManyArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:03:49.32]     EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BulkInsertOrUpdate_EntityUs
+ingBuiltInEnumToStringConverter_SavesToDatabase(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:03:49.71]     EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchDelete_UsingWhereExpre
+ssionWithValueConverter_Deletes(sqlType: PostgreSql) [FAIL]
+[xUnit.net 00:03:49.92]     EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchUpdate_EntityUsingBuil
+tInEnumToStringConverter_UpdatesDatabaseWithEnumStringValue(sqlType: PostgreSql) [FAIL]
+  Failed EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BulkInsertOrUpdate_EntityUsingBuiltInEnumToStringConverter_SavesToDatabase(sqlType: PostgreSql) [125 ms]
+  Error Message:
+   Npgsql.PostgresException : 28P01: password authentication failed for user "postgres"
+  Stack Trace:
+     at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.<Exists>b__17_0()
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__1`1.<Execute>b__1_0(Func`1 operationScoped)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TResult](IExecutionStrategy strategy, Func`1 operation)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.ValueConverters.VcDbContext..ctor(String databaseName, SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\VcDbContext.cs:line 15
+   at EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BulkInsertOrUpdate_EntityUsingBuiltInEnumToStringConverter_SavesToDatabase(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\ValueConverterTests.cs:line 19
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchDelete_UsingWhereExpressionWithValueConverter_Deletes(sqlType: PostgreSql) [174 ms]
+  Error Message:
+   Npgsql.PostgresException : 28P01: password authentication failed for user "postgres"
+  Stack Trace:
+     at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.<Exists>b__17_0()
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__1`1.<Execute>b__1_0(Func`1 operationScoped)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TResult](IExecutionStrategy strategy, Func`1 operation)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.ValueConverters.VcDbContext..ctor(String databaseName, SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\VcDbContext.cs:line 15
+   at EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchDelete_UsingWhereExpressionWithValueConverter_Deletes(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\ValueConverterTests.cs:line 82
+   at InvokeStub_ValueConverterTests.BatchDelete_UsingWhereExpressionWithValueConverter_Deletes(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchUpdate_EntityUsingBuiltInEnumToStringConverter_UpdatesDatabaseWithEnumStringValue(sqlType: PostgreSql) [209 ms]
+  Error Message:
+   Npgsql.PostgresException : 28P01: password authentication failed for user "postgres"
+  Stack Trace:
+     at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.Open()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.<Exists>b__17_0()
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.<>c__1`1.<Execute>b__1_0(Func`1 operationScoped)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.Execute[TState,TResult](TState state, Func`3 operation, Func`3 verifySucceeded)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TState,TResult](IExecutionStrategy strategy, TState state, Func`2 operation)
+   at Microsoft.EntityFrameworkCore.ExecutionStrategyExtensions.Execute[TResult](IExecutionStrategy strategy, Func`1 operation)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreated()
+   at EFCore.BulkExtensions.Tests.TestContextBase..ctor(DbContextOptions options) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\TestContext.cs:line 386
+   at EFCore.BulkExtensions.Tests.ValueConverters.VcDbContext..ctor(String databaseName, SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\VcDbContext.cs:line 15
+   at EFCore.BulkExtensions.Tests.ValueConverters.ValueConverterTests.BatchUpdate_EntityUsingBuiltInEnumToStringConverter_UpdatesDatabaseWithEnumStringValue(SqlType sqlType) in d:\Projects\.other\EFCore.BulkExtensions\EFCore.BulkExtensions.Tests\ValueConverters\ValueConverterTests.cs:line 47
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+
+Failed!  - Failed:    35, Passed:    44, Skipped:     0, Total:    79, Duration: 3 m 50 s - EFCore.BulkExtensions.Tests.dll (net10.0)
+See test-branch-comparison-notes.txt for branch diff analysis (master vs refactor/clean).
+
+Last updated: 2026-05-29

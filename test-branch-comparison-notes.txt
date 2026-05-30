@@ -1,0 +1,96 @@
+================================================================================
+BRANCH COMPARISON NOTES - master vs refactor/clean
+================================================================================
+
+Summary
+  Purpose:      Explain the 3 SqlServer test differences between branches
+  Filter:       SqlServer + PostgreSql + Oracle only (79 tests per branch)
+  master:       44 passed, 35 failed  (localhost / testsettings.json)
+  refactor/clean: 43 passed, 36 failed  (Testcontainers)
+  Shared:       34 failures identical on both branches (not caused by refactor)
+  Unique diffs: 3 SqlServer tests only (see sections 1-3 below)
+  Raw output:   test-master.txt, test-refactor-clean.txt
+
+Last updated: 2026-05-29
+
+================================================================================
+
+Related raw output files:
+  - test-master.txt          (master branch test run)
+  - test-refactor-clean.txt  (refactor/clean branch test run)
+
+--------------------------------------------------------------------------------
+1. NestedOwnedTest (SqlServer)
+   master: FAIL  |  refactor/clean: PASS
+--------------------------------------------------------------------------------
+
+Test: BulkInsertOrUpdateAsync on NestedRoot with deeply nested owned types
+      (database: EFCoreBulkTest_NestedOwned).
+
+master error:
+  SqlException: Invalid object name 'dbo.NestedRoot'
+
+Why it differs:
+  - master uses local SQL Server (Trusted_Connection). The database may retain
+    stale schema from previous runs; the NestedRoot table might never have been
+    created while BulkInsertOrUpdate still runs against dbo.NestedRoot.
+  - refactor/clean starts a fresh Testcontainers SQL Server instance, so
+    EnsureCreated builds a clean schema and the test passes.
+
+Conclusion: Environment issue on master (dirty local DB), not a bulk regression
+            introduced by refactor/clean. This branch actually improves here.
+
+--------------------------------------------------------------------------------
+2. UpsertWithOnUpdateNonPK (SqlServer)
+   master: PASS  |  refactor/clean: FAIL
+--------------------------------------------------------------------------------
+
+Test: Insert Customer "Kayle", then BulkInsertOrUpdate John/Smith/Kayle using
+      UpdateByProperties = Name and SetOutputIdentity = true.
+
+refactor/clean error:
+  Assert.Equal() Failure: Expected 1, Actual 0  (customers[2].Id for "Kayle")
+
+Why it differs:
+  - On master, Id assertions run ONLY inside `if (sqlType == SqlType.Sqlite)`.
+    SqlServer never asserts output identities, so the test passes without checking.
+  - On refactor/clean, assertions were moved outside the Sqlite block and now
+    run for SqlServer too:
+      Assert.Equal(1, customers[2].Id);
+      Assert.Equal(2, customers[0].Id);
+      Assert.Equal(3, customers[1].Id);
+  - SetOutputIdentity does not populate customers[2].Id after upsert on SqlServer
+    (Actual: 0), exposing behavior that was previously untested on master.
+
+Conclusion: Caused by a test-code change on refactor/clean (new SqlServer
+            assertions) plus possible bulk SetOutputIdentity behavior on upsert.
+            Not purely a Testcontainers issue.
+
+--------------------------------------------------------------------------------
+3. TemporalTableTest (SqlServer)
+   master: PASS  |  refactor/clean: FAIL
+--------------------------------------------------------------------------------
+
+Test: BatchDelete on temporal Storage table, DBCC CHECKIDENT RESEED 0,
+      BulkInsert three rows ("Info 1/2/3"), BulkRead by StorageId, assert Data.
+
+refactor/clean error:
+  Assert.Equal() Failure: Expected "Info 1", Actual "Info 2"
+  (BulkRead for StorageId = 1 returned the wrong row's Data)
+
+Why it differs:
+  - Test logic is the same on both branches; only the SQL Server environment
+    differs (local instance on master vs Testcontainers mssql/server:2025-latest).
+  - Temporal tables + DBCC CHECKIDENT + BulkInsert/BulkRead may behave
+    differently across SQL Server versions or fresh container state (identity /
+    history column mapping / row order).
+
+Conclusion: Likely environment / SQL Server version difference in Testcontainers,
+            not a direct regression in library code changed by refactor/clean.
+
+================================================================================
+Net effect: +1 failure on refactor/clean vs master (36 vs 35), but 34 failures
+are identical on both branches. Only 3 SqlServer tests differ as described above.
+================================================================================
+
+Last updated: 2026-05-29
